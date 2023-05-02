@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/xhtml/template/template.xhtml">
+
+
+    <ui:define name="conteudo">
+        <h:outputScript name="js/template.js" library="pages" />
+        <div id="loading"></div>
+        <p:growl id="messages" showDetail="true" />
+
+        <div class="container">
+            <h:form>
+                <ui:include src="/xhtml/template/ModalDialog.xhtml" />
+            </h:form>
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12">
+                    <h:panelGroup id="panelAprovacao" style="visibility: #{incentivoOfertasPreS2SBean.aprovacaoFiltered != null?'unset':'hidden'}">
+                        <i class="fa fa-check-circle-o" style="color: yellowgreen; font-size: 2em;"></i>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value=" GMUD status #{incentivoOfertasPreS2SBean.aprovacaoFiltered.status.tipo} por #{incentivoOfertasPreS2SBean.aprovacaoFiltered.user.name} em "/>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value="#{incentivoOfertasPreS2SBean.aprovacaoFiltered.dt_aprovacao}">
+                            <f:convertDateTime timeStyle="short" type="both" dateStyle="full" locale="pt-BR" timeZone="GMT-03:00"/>
+                        </p:outputLabel>
+                    </h:panelGroup>
+                </div>
+            </div>
+            <h:form id="formButtons">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Adicionar" id="buttonAdd" oncomplete="PF('sidebarAdd').show()" actionListener="#{incentivoOfertasPreS2SBean.preLoadEditBean()}" update="sideBarAddId" disabled="#{!controleBean.canEdit() or incentivoOfertasPreS2SBean.expiredGmud != null}" styleClass="ui-priority-primary" icon="fa fa-plus"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Editar" id="buttonEdit" oncomplete="PF('sidebarEdit').show()" actionListener="#{incentivoOfertasPreS2SBean.preLoadEditBean(true)}" update="sideBarEditId" disabled="#{incentivoOfertasPreS2SBean.selectedConfigOfertasPreList.size() eq 0 or !controleBean.canEdit() or incentivoOfertasPreS2SBean.expiredGmud != null or !incentivoOfertasPreS2SBean.canEdit()}" styleClass="ui-priority-primary" icon="fa fa-edit"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Excluir" id="buttonDel" oncomplete="PF('sidebarDelete').show()" actionListener="#{incentivoOfertasPreS2SBean.preLoadEditBean()}" update="sideBarDeleteId" styleClass="ui-priority-primary" disabled="#{incentivoOfertasPreS2SBean.selectedConfigOfertasPreList.size() eq 0 or !controleBean.canEdit() or incentivoOfertasPreS2SBean.expiredGmud != null}" icon="fa fa-eraser"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Histórico" id="buttonHist" oncomplete="hideLoader();PF('sidebarHistory').show()" update="formHistory:tabelaHistoryId" styleClass="ui-priority-primary" disabled="#{incentivoOfertasPreS2SBean.selectedConfigOfertasPreList.size() eq 0 or incentivoOfertasPreS2SBean.selectedConfigOfertasPreList.size() gt 1}" icon="fa fa-history"/>
+                    </div>
+                    <!--
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Script" id="buttonScript" oncomplete="PF('sidebarScript').show()" styleClass="ui-priority-primary" icon="fa fa-file-code-o"/>
+                    </div>
+                    -->
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:splitButton  value="Adiar" id="buttonAdm" onclick="PF('newDtGmudDlg').show();" icon="fa fa-clock-o" disabled="#{incentivoOfertasPreS2SBean.defaultFilterValue eq 'PRODUCAO' or controleBean.isMarketing()}">
+                            <p:menuitem value="Iniciar" onclick="PF('confirmDlgIniciar').show();" disabled="#{incentivoOfertasPreS2SBean.defaultFilterValue eq 'PRODUCAO' or !(incentivoOfertasPreS2SBean.expiredGmud == null and controleBean.canStart(incentivoOfertasPreS2SBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Validar" onclick="PF('confirmDlgValidar').show();" disabled="#{incentivoOfertasPreS2SBean.defaultFilterValue eq 'PRODUCAO' or !(incentivoOfertasPreS2SBean.expiredGmud == null and controleBean.canValidate(incentivoOfertasPreS2SBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Aprovar" onclick="PF('confirmDlgAprovar').show();" disabled="#{incentivoOfertasPreS2SBean.defaultFilterValue eq 'PRODUCAO' or !(incentivoOfertasPreS2SBean.expiredGmud == null and controleBean.canAprove(incentivoOfertasPreS2SBean.aprovacaoFiltered, false))}"/>
+                            <p:menuitem value="Liberar UAT" onclick="PF('confirmDlgUAT').show();" disabled="#{incentivoOfertasPreS2SBean.defaultFilterValue eq 'PRODUCAO' or !(incentivoOfertasPreS2SBean.expiredGmud == null and controleBean.canUAT(incentivoOfertasPreS2SBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Liberar Implantação" onclick="PF('confirmDlgImplantacao').show();" disabled="#{incentivoOfertasPreS2SBean.defaultFilterValue eq 'PRODUCAO' or !(incentivoOfertasPreS2SBean.expiredGmud == null and controleBean.canReleaseDeployment(incentivoOfertasPreS2SBean.aprovacaoFiltered,false))}"/>
+                            <p:menuitem value="Implantar" onclick="PF('confirmDlg').show();" disabled="#{incentivoOfertasPreS2SBean.defaultFilterValue eq 'PRODUCAO' or !controleBean.canDeploy(incentivoOfertasPreS2SBean.aprovacaoFiltered)}"/>
+                        </p:splitButton>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4">
+                        <h:outputLabel value="#{incentivoOfertasPreS2SBean.aprovacaoFiltered.status.tipo}" style="float: right; font-style: oblique; color: #fa392f"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-3" style="float: right; padding-right: 50px;">
+                        <h:outputLabel value="INCENTIVO_OFERTASPRE_S2S" style="float: right;"/>
+                    </div>
+                </div>
+            </h:form>
+
+            <!-- TABELA PRINCIPAL --> 
+            <h:panelGroup>
+                <h:form id="formTable">
+                    <p:dataTable
+                        id="tabelaId"
+                        value="#{incentivoOfertasPreS2SBean.dataModel}"
+                        lazy="true"
+                        paginator="true"
+                        rows="50"
+                        paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        paginatorPosition="bottom"
+                        rowsPerPageTemplate="10,50,100"
+                        var="tabelaRow"
+                        widgetVar="tabelaCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="350"  
+                        editable="true" 
+                        editMode="cell" 
+                        selection="#{incentivoOfertasPreS2SBean.selectedConfigOfertasPreList}"
+                        rowKey="#{tabelaRow.id}"
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:ajax event="rowSelect" update="formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" />
+                        <p:ajax event="rowUnselect" update="formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" />
+                        <p:ajax event="toggleSelect" update="formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" />
+                        <p:ajax event="rowSelectCheckbox" update="formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" />
+                        <p:ajax event="rowUnselectCheckbox" update="formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" />
+
+                        <p:ajax event="filter" listener="#{incentivoOfertasPreS2SBean.cleanSelected()}" update="panelAprovacao,formButtons"/>
+
+                        <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+
+                        <p:column headerText="GMUD" filterBy="#{tabelaRow.dtGmudStr}" filterMatchMode="exact" filterValue="#{incentivoOfertasPreS2SBean.defaultFilterValue}" width="120" styleClass="#{tabelaRow.getStyleClass('GMUD')}">
+                            <f:facet name="filter">
+                                <p:selectOneMenu onchange="PF('tabelaCell').filter()" value="#{incentivoOfertasPreS2SBean.defaultFilterValue}" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="PRODUÇÃO" itemValue="PRODUCAO"/>
+                                    <f:selectItems value="#{incentivoOfertasPreS2SBean.gmudList}"/>
+                                </p:selectOneMenu>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.dtGmudStr}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="MODIFICADA" width="100" styleClass="#{tabelaRow.getStyleClass('MODIFICADA')}">
+                            <p:outputLabel value="#{tabelaRow.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy  HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100" styleClass="#{tabelaRow.getStyleClass('LOGIN')}">
+                            <p:outputLabel value="#{tabelaRow.user.login}"/>
+                        </p:column>
+                        <p:column headerText="DDD" filterBy="#{tabelaRow.ddd}"  filterFunction="#{genericFilter.filter}" width="280" styleClass="#{tabelaRow.getStyleClass('DDD')}">
+                            <p:outputLabel id="dddId" value="#{tabelaRow.dddSub}" ondblclick="copyToClip($(this));"/>
+                            <p:tooltip id="toolTipDDD" for="dddId" value="#{tabelaRow.ddd}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+                        </p:column>
+                        <p:column headerText="RECACUMULADAMESANTERIORINICIAL" filterBy="#{tabelaRow.recacumuladamesanteriorinicial}"  filterFunction="#{genericFilter.filter}" width="100" styleClass="#{tabelaRow.getStyleClass('RECACUMULADAMESANTERIORINICIAL')}">
+                            <p:outputLabel value="#{tabelaRow.recacumuladamesanteriorinicial}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="RECACUMULADAMESANTERIORFINAL" filterBy="#{tabelaRow.recacumuladamesanteriorfinal}"  filterFunction="#{genericFilter.filter}" width="100" styleClass="#{tabelaRow.getStyleClass('RECACUMULADAMESANTERIORFINAL')}">
+                            <p:outputLabel value="#{tabelaRow.recacumuladamesanteriorfinal}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="OFERTAPROMO1" filterBy="#{tabelaRow.ofertapromo1}"  filterFunction="#{genericFilter.filter}" width="100" styleClass="#{tabelaRow.getStyleClass('OFERTAPROMO1')}">
+                            <p:outputLabel id="idOfertaOcs1Id" value="#{tabelaRow.ofertapromo1}" ondblclick="copyToClip($(this));"/>
+                            <p:tooltip for="idOfertaOcs1Id" value="#{tabelaRow.ofertapromo1}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+                        </p:column>
+                        <p:column headerText="OFERTAPROMO2" filterBy="#{tabelaRow.ofertapromo2}"  filterFunction="#{genericFilter.filter}" width="100" styleClass="#{tabelaRow.getStyleClass('OFERTAPROMO2')}">
+                            <p:outputLabel id="idOfertaOcs2Id" value="#{tabelaRow.ofertapromo2}" ondblclick="copyToClip($(this));"/>
+                            <p:tooltip for="idOfertaOcs2Id" value="#{tabelaRow.ofertapromo2}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </h:panelGroup>
+
+            <!-- ADICIONAR PROMOCAO -->
+            <p:sidebar id="sideBarAddId" widgetVar="sidebarAdd" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Adicionar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesAdd"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formAdd">
+                    
+                    <ui:include src="/xhtml/ocs/IncentivoOfertasPreS2S_addIds.xhtml" />
+                    <ui:include src="/xhtml/ocs/IncentivoOfertasPreS2S_add.xhtml" >
+                         <ui:param name="mBean" value="#{incentivoOfertasPreS2SBean}" />
+                         <ui:param name="mBeanNew" value="#{incentivoOfertasPreS2SBean.newConfigOfertasPre}" />
+                    </ui:include>
+
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarAdd').hide()"/>
+                        <p:commandButton value="Adicionar" validateClient="true" update="messages,messagesAdd" actionListener="#{incentivoOfertasPreS2SBean.adicionar()}" onstart="showLoader();" oncomplete="hideLoader();"/>
+                        <p:selectBooleanCheckbox itemLabel="Adicionar outra" value="#{incentivoOfertasPreS2SBean.adicionarOutra}" style="min-width: 140px"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- EDITAR PROMOCAO -->
+            <p:sidebar id="sideBarEditId" widgetVar="sidebarEdit" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Editar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesEdit"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formEdit">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-12">
+                            <p:scrollPanel style="width:100%;height:100px">
+                                <p:panelGrid columns="6">
+                                    <p:repeat value="#{incentivoOfertasPreS2SBean.selectedConfigOfertasPreList}" var="selectedConfigOfertasPreItem">
+                                        <p:button value="#{selectedConfigOfertasPreItem.dddSub}" disabled="true" style="margin: 2px;"/>
+                                    </p:repeat>
+                                </p:panelGrid>
+                            </p:scrollPanel>
+                        </div>
+                    </div>
+                    <h:panelGroup rendered="#{incentivoOfertasPreS2SBean.isEditProd()}">
+                        <p:separator />
+                        <div class="ui-g ui-fluid">
+                            <div class="ui-g-12 ui-md-6 ui-lg-2">
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                    <p:calendar id="editDT_GMUD" placeholder="DT_GMUD" required="true" value="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.dt_gmud}" mask="99/99/9999" showOn="button">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                    </p:calendar>
+                                    <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox value="true"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                    <p:separator />
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-clock-o"></i></span>
+                                <p:inputNumber placeholder="RECACUMULADAMESANTERIORINICIAL" value="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.recacumuladamesanteriorinicial}" decimalPlaces="2" thousandSeparator="">
+                                    <p:ajax event="change" listener="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.setEditRecacumuladamesanteriorinicial(true)}" update="formEdit:checkeditRecacumuladamesanteriorinicial"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditRecacumuladamesanteriorinicial" value="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.editRecacumuladamesanteriorinicial}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-wifi"></i></span>
+                                <p:inputNumber placeholder="RECACUMULADAMESANTERIORFINAL" value="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.recacumuladamesanteriorfinal}" decimalPlaces="2" thousandSeparator="">  
+                                    <p:ajax event="change" listener="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.setEditRecacumuladamesanteriorfinal(true)}" update="formEdit:checkeditRecacumuladamesanteriorfinal"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditRecacumuladamesanteriorfinal" value="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.editRecacumuladamesanteriorfinal}"/></span>
+                            </div>
+                        </div>
+                    </div>    
+                    <p:panel style="margin: 0.4em;">
+                <div class="ui-g ui-fluid" >
+                    <div class="ui-g-12 ui-md-12 ui-lg-2" style="padding-top: 1.1em;">
+                        <p:outputLabel value="OFERTAPROMO1" for="@next"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-4 ui-lg-3" style="z-index: 20">
+                        <h:panelGroup styleClass="panelOFERTAPROMO" >
+                            <div class="ui-inputgroup"  >
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditOfertapromo1"  value="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.editOfertapromo1}"/></span>
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:selectOneMenu appendTo="@this"
+                                                 styleClass="OFERTAPROMO_1"
+                                                 value="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.selectedOfertapromo1_1}">
+                                    
+                                    <f:selectItems value="#{incentivoOfertasPreS2SBean.validIdOfertaOcsListS2S}" />
+
+                                    <p:ajax event="valueChange" process="@this"  update="@(.OFERTAPROMO_1),formEdit:checkeditOfertapromo1" listener="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.setEditOfertapromo1(true)}"/>
+                                </p:selectOneMenu>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+                    <div class="ui-g-12 ui-md-4 ui-lg-3" style="z-index: 20;">
+                        <h:panelGroup id="OFERTAPROMO1_2" styleClass="OFERTAPROMO_1" style="visibility: #{(incentivoOfertasPreS2SBean.getEditConfigOfertasPre().selectedOfertapromo1_1 != '' and incentivoOfertasPreS2SBean.getEditConfigOfertasPre().selectedOfertapromo1_1 != null)?'visible':'hidden'}">
+                            <div class="ui-inputgroup" >
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:selectOneMenu appendTo="@this"
+                                                 value="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.selectedOfertapromo1_2}"
+                                    styleClass="OFERTAPROMO_1"
+                                     >
+                                    <f:selectItems value="#{incentivoOfertasPreS2SBean.validIdOfertaOcsListS2S}"/>
+
+                                    <p:ajax event="valueChange" process="@this" update="@(.OFERTAPROMO_1),formEdit:checkeditOfertapromo1" listener="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.setEditOfertapromo1(true)}"/>
+                                </p:selectOneMenu>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+                    <div class="ui-g-12 ui-md-4 ui-lg-3" style="z-index: 20;">
+                        <h:panelGroup id="OFERTAPROMO1_3" styleClass="OFERTAPROMO_1" style="visibility: #{(incentivoOfertasPreS2SBean.getEditConfigOfertasPre().selectedOfertapromo1_2 != '' and incentivoOfertasPreS2SBean.getEditConfigOfertasPre().selectedOfertapromo1_2 != null)?'visible':'hidden'}">
+                            <div class="ui-inputgroup" >
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:selectOneMenu 
+                                    appendTo="@this"
+
+                                    value="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.selectedOfertapromo1_3}"
+                                    styleClass="OFERTAPROMO_1"
+                                    >
+                                    <f:selectItems value="#{incentivoOfertasPreS2SBean.validIdOfertaOcsListS2S}" />
+
+                                    <p:ajax event="valueChange" process="@this" update="@(.OFERTAPROMO_1),formEdit:checkeditOfertapromo1" listener="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.setEditOfertapromo1(true)}"/>
+                                </p:selectOneMenu>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+                </div>
+    </p:panel>
+                    <p:panel style="margin: 0.4em;">
+                <div class="ui-g ui-fluid" >
+                    <div class="ui-g-12 ui-md-12 ui-lg-2" style="padding-top: 1.1em;">
+                        <p:outputLabel value="OFERTAPROMO2" for="@next"/>
+                        
+                    </div>
+                    
+                    <div class="ui-g-12 ui-md-4 ui-lg-3" style="z-index: 10">
+                        <h:panelGroup styleClass="panelOFERTAPROMO2" >
+                            <div class="ui-inputgroup"  >
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditOfertapromo2"  value="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.editOfertapromo2}"/></span>
+                                
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:selectOneMenu appendTo="@this"
+                                                 styleClass="OFERTAPROMO_2"
+                                                 value="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.selectedOfertapromo2_1}">
+                                    
+                                    <f:selectItems value="#{incentivoOfertasPreS2SBean.validIdOfertaOcsListS2S}" />
+                                    <p:ajax event="valueChange" process="@this"  update="@(.OFERTAPROMO_2),formEdit:checkeditOfertapromo2" listener="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.setEditOfertapromo2(true)}"/>
+                                   
+                                </p:selectOneMenu>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+                    <div class="ui-g-12 ui-md-4 ui-lg-3" style="z-index: 10;">
+                        <h:panelGroup id="OFERTAPROMO2_2" styleClass="OFERTAPROMO_2" style="visibility: #{(incentivoOfertasPreS2SBean.getEditConfigOfertasPre().selectedOfertapromo2_1 != '' and incentivoOfertasPreS2SBean.getEditConfigOfertasPre().selectedOfertapromo2_1 != null)?'visible':'hidden'}">
+                            <div class="ui-inputgroup" >
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:selectOneMenu appendTo="@this"
+                                                 value="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.selectedOfertapromo2_2}"
+                                                 styleClass="OFERTAPROMO_2"
+                                                 required="false"
+                                     >
+                                    <f:selectItems value="#{incentivoOfertasPreS2SBean.validIdOfertaOcsListS2S}" />
+                                    <p:ajax event="valueChange" process="@this"  update="@(.OFERTAPROMO_2),formEdit:checkeditOfertapromo2" listener="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.setEditOfertapromo2(true)}"/>
+                                </p:selectOneMenu>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+                    <div class="ui-g-12 ui-md-4 ui-lg-3" style="z-index: 10;">
+                        <h:panelGroup id="OFERTAPROMO2_3" styleClass="OFERTAPROMO_2" style="visibility: #{(incentivoOfertasPreS2SBean.getEditConfigOfertasPre().selectedOfertapromo2_2 != '' and incentivoOfertasPreS2SBean.getEditConfigOfertasPre().selectedOfertapromo2_2 != null)?'visible':'hidden'}">
+                            <div class="ui-inputgroup" >
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:selectOneMenu appendTo="@this"
+                                    styleClass="OFERTAPROMO_2"
+                                    value="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.selectedOfertapromo2_3}"
+                                    required="false"
+                                    >
+                                    <f:selectItems value="#{incentivoOfertasPreS2SBean.validIdOfertaOcsListS2S}" />
+                                    <p:ajax event="valueChange" process="@this"  update="@(.OFERTAPROMO_2),formEdit:checkeditOfertapromo2" listener="#{incentivoOfertasPreS2SBean.editConfigOfertasPre.setEditOfertapromo2(true)}"/>
+                                </p:selectOneMenu>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+                </div>
+                        
+    </p:panel>
+
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarEdit').hide()"/>
+                        <p:commandButton value="Confirmar" validateClient="true" actionListener="#{incentivoOfertasPreS2SBean.editar()}" update="messages,messagesEdit,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="hideLoader();"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- HISTORICO PROMOCAO -->
+            <p:sidebar id="sideBarHistoryId" widgetVar="sidebarHistory" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Histórico</h1>
+                <p:separator />
+                <h:form id="formHistory">
+                    <p:dataTable
+                        id="tabelaHistoryId"
+                        value="#{incentivoOfertasPreS2SBean.selectedConfigOfertasPreHistoryList}"
+                        var="tabelaHistory"
+                        widgetVar="tabelaHistoryCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="370"  
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:column headerText="ÚLTIMO STATUS" width="100" groupRow="true">
+                            <p:outputLabel value="#{tabelaHistory.lastStatus}"/>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100">
+                            <p:outputLabel value="#{tabelaHistory.user.login}"/>
+                        </p:column>
+                        <p:column headerText="MODIFICADO" width="150">
+                            <p:outputLabel value="#{tabelaHistory.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00" />
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="RECACUMULADAMESANTERIORINICIAL" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('RECACUMULADAMESANTERIORINICIAL',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.recacumuladamesanteriorinicial}" rendered="#{tabelaHistory.editMap.getOrDefault('RECACUMULADAMESANTERIORINICIAL',true)}"/>
+                        </p:column>
+                        <p:column headerText="RECACUMULADAMESANTERIORFINAL" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('RECACUMULADAMESANTERIORFINAL',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.recacumuladamesanteriorfinal}" rendered="#{tabelaHistory.editMap.getOrDefault('RECACUMULADAMESANTERIORFINAL',true)}"/>
+                        </p:column>
+                        <p:column headerText="OFERTAPROMO1" width="300" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('OFERTAPROMO1',true)?'editedcell':'')}">
+                            <p:outputLabel  value="#{tabelaHistory.ofertapromo1}" rendered="#{tabelaHistory.editMap.getOrDefault('OFERTAPROMO1',true)}"/>
+                        </p:column>
+                        <p:column headerText="OFERTAPROMO2" width="300" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('OFERTAPROMO2',true)?'editedcell':'')}">
+                            <p:outputLabel  value="#{tabelaHistory.ofertapromo2}" rendered="#{tabelaHistory.editMap.getOrDefault('OFERTAPROMO2',true)}"/>
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </p:sidebar>
+
+            <!-- DELETAR PROMOCAO -->
+            <p:sidebar id="sideBarDeleteId" widgetVar="sidebarDelete" position="top" baseZIndex="10000" style="overflow: auto;min-height: 160px;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Tem certeza?</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesDel"></p:messages>
+                    </div>
+                </div>
+                <p:separator />
+                <h:form id="formDel">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-3 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar id="delDT_GMUD" placeholder="DT_GMUD" required="true" value="#{incentivoOfertasPreS2SBean.gmudToDelete}" disabled="#{incentivoOfertasPreS2SBean.gmudToDelete != null}" mask="99/99/9999" pattern="dd/MM/yyyy" showOn="button">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                </p:calendar>
+                            </div>
+                        </div>
+                        <p:commandButton value="Sim" validateClient="true" actionListener="#{incentivoOfertasPreS2SBean.deletar()}" onstart="showLoader();" oncomplete="hideLoader();" update="messages,messagesDel,formTable:tabelaId" icon="fa fa-check" />
+                        <p:commandButton value="Não" oncomplete="PF('sidebarDelete').hide()" icon="fa fa-times" />
+                    </div>
+                </h:form>
+            </p:sidebar>
+
+            <!-- SCRIPT PROMOCAO -->
+            <p:sidebar id="sideBarScriptId" widgetVar="sidebarScript" position="top" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Gerar Script</h1>
+                <h:form id="formScript">
+                    <p:separator />
+                    <p:commandButton value="USSD" ajax="false" actionListener="#{incentivoOfertasPreS2SBean.generateScriptFile('USSD')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{incentivoOfertasPreS2SBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                    <p:commandButton value="*880" ajax="false" actionListener="#{incentivoOfertasPreS2SBean.generateScriptFile('880')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{incentivoOfertasPreS2SBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                    <p:commandButton value="*144" ajax="false" actionListener="#{incentivoOfertasPreS2SBean.generateScriptFile('144')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{incentivoOfertasPreS2SBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                </h:form>
+            </p:sidebar>
+
+            <p:dialog id="expiredGmudDlgId" header="GMUD Expirada: #{incentivoOfertasPreS2SBean.expiredGmud}" widgetVar="expiredGmudDlg" rendered="#{incentivoOfertasPreS2SBean.expiredGmud != null and controleBean.canEdit()}" closable="false">
+                <h:form id="formExpired">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Essa GMUD expirou e suas alterações precisam ir para produção ou apenas adiada, antes de prosseguir com novas alterações.<br/>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-8">
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Adiar" onclick="PF('newDtGmudDlg').show();"/>
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Implantar" onclick="PF('confirmDlg').show();" style="float: right; display: #{controleBean.visibilityDeploy(incentivoOfertasPreS2SBean.aprovacaoFiltered)}"/>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="newDtGmudDlg" showHeader="false" width="min-content" closable="false">
+                <h:form id="formNewDate">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            <p:datePicker id="inline" value="#{incentivoOfertasPreS2SBean.newDtGmud}" locale="br" inline="true">
+                                <p:ajax event="dateSelect" listener="#{incentivoOfertasPreS2SBean.adiar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist,expiredGmudDlgId" onstart="showLoader();" oncomplete="location.reload();"/>
+                            </p:datePicker>
+                            <div class="ui-g-6">
+                                <p:commandButton value="Cancelar" onclick="PF('newDtGmudDlg').hide();" icon="fa fa-times" />
+                            </div>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlg" header="Implantar GMUD" closable="false">
+                <h:form id="formConfirm">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Todas as alterações serão inseridas nos registros de produção!<br/>
+                            Confirmar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{incentivoOfertasPreS2SBean.aprovar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlg').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgAprovar" header="Aprovar GMUD" closable="false">
+                <h:form id="formConfirmAprovar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Aprovar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{incentivoOfertasPreS2SBean.aprovarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgAprovar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgIniciar" header="Iniciar GMUD" closable="false">
+                <h:form id="formConfirmIniciar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma o inicio da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{incentivoOfertasPreS2SBean.iniciarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgIniciar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgIniciar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgValidar" header="Validar GMUD" closable="false">
+                <h:form id="formConfirmValidar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma a validação da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{incentivoOfertasPreS2SBean.validarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgValidar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgValidar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgUAT" header="Enviar GMUD para UAT" closable="false">
+                <h:form id="formConfirmUAT">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para UAT?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{incentivoOfertasPreS2SBean.uatGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgUAT').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgUAT').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgImplantacao" header="Enviar GMUD para Implantacao" closable="false">
+                <h:form id="formConfirmImplantacao">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para Implantacao?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{incentivoOfertasPreS2SBean.implantarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgImplantacao').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgImplantacao').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+        </div>
+
+        <script  type="text/javascript" target="body">
+            $j = jQuery;
+            $j(document).ready(function () {
+                PF('tabelaCell').filter();
+                hideLoader();
+                try {
+                    PF('expiredGmudDlg').show();
+                } catch (e) {
+                }
+
+            });
+        </script>
+        <h:outputStylesheet name="css/template.css" library="pages" />
+    </ui:define>
+</ui:composition>

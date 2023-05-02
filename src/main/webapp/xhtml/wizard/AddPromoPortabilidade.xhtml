@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/xhtml/template/template.xhtml">
+    <ui:define name="conteudo">
+        <p:growl id="messages" showDetail="true" life="10000"/>
+
+        <h:form id="form">
+            <p:remoteCommand name="rc" update="form:btnFinalizarOCSPre,form:btnFinalizarINPre" action="#{addPromoPortabilidadeBean.setFinalizado(true)}" />
+            
+            <div class="container">
+                <h:panelGroup>
+                    <p:wizard id="wizardId" 
+                              flowListener="#{addPromoPortabilidadeBean.onFlowProcess}" 
+                              nextLabel="Próximo" 
+                              backLabel="Anterior"
+                              widgetVar="wiz">
+                        <p:ajax event="next" update="messages,form:tableConfirm,form:tableConfirmFrases"/>
+
+
+                        <!-- ID -->
+                        <p:tab title="IDs" id="tabIds">
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel for="calendar_dt_gmud" value="Data GMUD:" />
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-2">
+                                    <p:calendar id="calendar_dt_gmud" required="true" value="#{addPromoPortabilidadeBean.dt_gmud}" showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00"/>
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel for="radio_plano" value="Tipo Plano:" />
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-3">
+                                    <p:selectOneRadio id="radio_plano" required="true" value="#{addPromoPortabilidadeBean.tipoPlano}" unselectable="true">
+                                        <p:ajax event="change" process="@this" update="form:radio_tarifador,form:labelAddID_OFERTAOCS,form:addID_OFERTAOCS"/>
+                                        <f:selectItem itemLabel="Pré-pago" itemValue="PRE" />
+                                        
+                                    </p:selectOneRadio>
+                                </div>
+                                <div class="ui-g-1 ui-md-3 ui-lg-8">
+                                    <p:message for="radio_plano" display="icon" />
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel for="radio_tarifador" value="Tarifador:" />
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-3">
+                                    <p:selectOneRadio id="radio_tarifador" required="true" value="#{addPromoPortabilidadeBean.tarifador}" unselectable="true">
+                                        <p:ajax event="change" process="@this" update="form:labelAddID_OFERTAOCS,form:addID_OFERTAOCS"/>
+                                        <f:selectItem itemLabel="IN" itemValue="IN" />
+                                        <f:selectItem itemLabel="OCS" itemValue="OCS" itemDisabled="#{addPromoPortabilidadeBean.tipoPlano eq 'CONTROLE'}" />
+                                    </p:selectOneRadio>
+                                </div>
+                                <div class="ui-g-1 ui-md-3 ui-lg-8">
+                                    <p:message for="radio_tarifador" display="icon" />
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel for="addID_BENEFICIO" value="ID Beneficio:"/>
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-1">
+                                    <p:inputMask id="addID_BENEFICIO" required="true" value="#{addPromoPortabilidadeBean.id_beneficio}" mask="99"/>      
+                                </div>
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel for="addID_PROGRAMA" value="ID Programa:"/>
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-1">
+                                    <p:inputMask id="addID_PROGRAMA" required="true" value="#{addPromoPortabilidadeBean.id_programa}" mask="99"/>      
+                                </div>
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel id="labelAddID_OFERTAOCS" for="addID_OFERTAOCS" value="ID OCS:" style="visibility: #{addPromoPortabilidadeBean.tarifador eq 'OCS'?'visible':'hidden'}"/>
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-1">
+                                    <p:inputMask id="addID_OFERTAOCS" required="#{addPromoPortabilidadeBean.tarifador eq 'OCS'}" value="#{addPromoPortabilidadeBean.id_ofertaocs}" mask="9999999" style="visibility: #{addPromoPortabilidadeBean.tarifador eq 'OCS'?'visible':'hidden'}"/>      
+                                </div>
+                            </div>
+
+                        </p:tab>
+                        <!-- DDD -->
+                        <p:tab title="Grupos de DDD" id="tabDDDs">
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-12 ui-md-12 ui-lg-3">
+                                    <p:pickList id="pickList" value="#{addPromoPortabilidadeBean.allDdds}" var="ddd" itemLabel="#{ddd}" itemValue="#{ddd}" />
+                                </div>
+                                <div class="ui-g-3 ui-md-3 ui-lg-1">
+                                    <p:commandButton value="Adicionar" 
+                                                     update="form:pickList,form:tableDdds"
+                                                     actionListener="#{addPromoPortabilidadeBean.addGrupoDdd()}" 
+                                                     styleClass="ui-priority-primary"/>
+                                </div>
+                                <div class="ui-g-12 ui-md-12 ui-lg-7">
+                                    <p:dataTable id="tableDdds"
+                                                 value="#{addPromoPortabilidadeBean.ddds}"
+                                                 var="dddGrupo"
+                                                 rowIndexVar="rowIndex"
+                                                 emptyMessage=""
+                                                 reflow="true">
+
+                                        <p:column width="10%">
+                                            <p:outputLabel value="Grupo #{rowIndex+1}"/>
+                                        </p:column>
+                                        <p:column  width="75%">
+                                            <p:chips id="chipsDdd" value="#{dddGrupo}" valueChangeListener="#{addPromoPortabilidadeBean.setCurrentDddGroupIndex(rowIndex)}">
+                                                <p:ajax event="itemUnselect" listener="#{addPromoPortabilidadeBean.removeDdd}" update="form:pickList, form:tableDdds" />
+                                                <p:ajax event="itemSelect" listener="#{addPromoPortabilidadeBean.addDdd}" update="form:pickList, form:tableDdds" />
+                                            </p:chips>
+                                        </p:column>
+                                        <p:column  width="15%">
+                                            <p:commandButton value="Remover" 
+                                                             update="form:pickList,form:tableDdds"
+                                                             actionListener="#{addPromoPortabilidadeBean.removeGrupoDdd(rowIndex)}" 
+                                                             styleClass="ui-priority-primary"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </div>
+                            </div>
+
+                        </p:tab>
+                        <!-- Dados -->
+                        <p:tab title="Dados" id="tabDados">
+                            <p:tabView id="tabViewDdds"
+                                       value="#{addPromoPortabilidadeBean.ddds}" 
+                                       var="dddGrupoTab">
+
+                                <p:tab title="Grupo #{addPromoPortabilidadeBean.ddds.indexOf(dddGrupoTab)+1}">
+                                    <p:chips id="chipsDddGroup" value="#{dddGrupoTab}" readonly="true" disabled="true" styleClass="chipsView"/>
+                                    <h:panelGroup id="mainInsertDiv" style="" layout="block">
+                                        <h:panelGroup rendered="#{'OCS' eq addPromoPortabilidadeBean.tarifador and 'PRE' eq addPromoPortabilidadeBean.tipoPlano}" layout="block">
+                                            <ui:include id="includeId" src="/xhtml/portabilidade/OfertasPortabilidadeOcs_add.xhtml">
+                                                <ui:param name="mBean" value="#{ofertasPortabilidadeOcsBean}" />
+                                                <ui:param name="mBeanNew" value="#{ofertasPortabilidadeOcsBean.getNewTemplate(
+                                                                                   addPromoPortabilidadeBean.ddds.size(),
+                                                                                   addPromoPortabilidadeBean.ddds.indexOf(dddGrupoTab),
+                                                                                   addPromoPortabilidadeBean.getDddsString(addPromoPortabilidadeBean.ddds.indexOf(dddGrupoTab)),
+                                                                                   addPromoPortabilidadeBean.id_ofertaocs,
+                                                                                   addPromoPortabilidadeBean.id_beneficio,
+                                                                                   addPromoPortabilidadeBean.id_programa,
+                                                                                   addPromoPortabilidadeBean.dt_gmud)}" />
+                                            </ui:include>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{'IN' eq addPromoPortabilidadeBean.tarifador and 'PRE' eq addPromoPortabilidadeBean.tipoPlano}" layout="block">
+                                            <ui:include id="includeId" src="/xhtml/portabilidade/OfertasPortabilidade_add.xhtml">
+                                                <ui:param name="mBean" value="#{ofertasPortabilidadeBean}" />
+                                                <ui:param name="mBeanNew" value="#{ofertasPortabilidadeBean.getNewTemplate(
+                                                                                   addPromoPortabilidadeBean.ddds.size(),
+                                                                                   addPromoPortabilidadeBean.ddds.indexOf(dddGrupoTab),
+                                                                                   addPromoPortabilidadeBean.getDddsString(addPromoPortabilidadeBean.ddds.indexOf(dddGrupoTab)),
+                                                                                   addPromoPortabilidadeBean.id_beneficio,
+                                                                                   addPromoPortabilidadeBean.id_programa,
+                                                                                   addPromoPortabilidadeBean.dt_gmud)}" />
+                                            </ui:include>
+                                        </h:panelGroup>
+                                        </h:panelGroup>
+                                </p:tab>
+                            </p:tabView>
+                        </p:tab>
+                        <!-- Frases -->
+                        <p:tab title="Frases" id="tabFrases">
+                            <p:tabView id="tabViewDddsFrases"
+                                       value="#{addPromoPortabilidadeBean.dddsFrases}" 
+                                       var="dddFrasesGrupoTab">
+                                <p:ajax event="tabClose" listener="#{addPromoPortabilidadeBean.onTabClose}"/>
+
+                                <p:tab title="Grupo #{addPromoPortabilidadeBean.dddsFrases.indexOf(dddFrasesGrupoTab)+1}">
+                                    <f:facet name="actions">
+                                        <p:menuButton value="Opções">
+                                            <p:menuitem value="Editar" icon="fa fa-edit" actionListener="#{addPromoPortabilidadeBean.loadPickListDddFrases(dddFrasesGrupoTab)}" update="formDDDsFrases:pickList" onclick="PF('dlgDddEditFrases').show();"/>
+                                            <p:menuitem value="Adicionar" icon="fa fa-plus" actionListener="#{addPromoPortabilidadeBean.loadPickListDddFrases(null)}" update="formDDDsFrases:pickList" onclick="PF('dlgDddEditFrases').show();"/>
+                                            <p:menuitem value="Remover" icon="fa fa-close" actionListener="#{addPromoPortabilidadeBean.deleteDddsFrases(dddFrasesGrupoTab)}" update="form:tabViewDddsFrases"/>
+                                        </p:menuButton>
+                                    </f:facet>
+
+                                    <p:chips id="chipsDddFrasesGroup" value="#{dddFrasesGrupoTab}" readonly="true" disabled="true" styleClass="chipsView"/>
+                                    <h:panelGroup id="mainFrasesDiv" style="" layout="block">
+                                        <h:panelGroup rendered="#{'OCS' eq addPromoPortabilidadeBean.tarifador and 'PRE' eq addPromoPortabilidadeBean.tipoPlano}" layout="block">
+                                            <ui:include id="includeFrasesId" src="/xhtml/portabilidade/FrasesPortabilidadeOcs_add.xhtml">
+                                                <ui:param name="mBean" value="#{frasesPortabilidadeOcsBean}" />
+                                                <ui:param name="mBeanNew" value="#{frasesPortabilidadeOcsBean.getNewTemplate(
+                                                                                   addPromoPortabilidadeBean.dddsFrases.size(),
+                                                                                   addPromoPortabilidadeBean.dddsFrases.indexOf(dddFrasesGrupoTab),
+                                                                                   addPromoPortabilidadeBean.getDddsFrasesString(addPromoPortabilidadeBean.dddsFrases.indexOf(dddFrasesGrupoTab)),
+                                                                                   addPromoPortabilidadeBean.id_ofertaocs,
+                                                                                   addPromoPortabilidadeBean.id_beneficio,
+                                                                                   addPromoPortabilidadeBean.id_programa,
+                                                                                   addPromoPortabilidadeBean.dt_gmud)}" />
+                                            </ui:include>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{'IN' eq addPromoPortabilidadeBean.tarifador and 'PRE' eq addPromoPortabilidadeBean.tipoPlano}" layout="block">
+                                            <ui:include id="includeFrasesId" src="/xhtml/portabilidade/FrasesPortabilidade_add.xhtml">
+                                                <ui:param name="mBean" value="#{frasesPortabilidadeBean}" />
+                                                <ui:param name="mBeanNew" value="#{frasesPortabilidadeBean.getNewTemplate(
+                                                                                   addPromoPortabilidadeBean.dddsFrases.size(),
+                                                                                   addPromoPortabilidadeBean.dddsFrases.indexOf(dddFrasesGrupoTab),
+                                                                                   addPromoPortabilidadeBean.getDddsFrasesString(addPromoPortabilidadeBean.dddsFrases.indexOf(dddFrasesGrupoTab)),
+                                                                                   addPromoPortabilidadeBean.id_beneficio,
+                                                                                   addPromoPortabilidadeBean.id_programa,
+                                                                                   addPromoPortabilidadeBean.dt_gmud)}" />
+                                            </ui:include>
+                                        </h:panelGroup>
+                                        
+                                    </h:panelGroup>
+                                </p:tab>
+                            </p:tabView>
+                        </p:tab>
+                        <!-- View -->
+                        <p:tab title="Confirmação" id="tabConfirm">
+                            <br/><br/>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-6 ui-md-3 ui-lg-2">
+                                    <p:commandButton id="btnFinalizarOCSPre"
+                                                     rendered="#{'OCS' eq addPromoPortabilidadeBean.tarifador and 'PRE' eq addPromoPortabilidadeBean.tipoPlano}"
+                                                     value="Finalizar" 
+                                                     actionListener="#{addPromoPortabilidadeBean.adicionar(ofertasPortabilidadeOcsBean.tabelasEnum,ofertasPortabilidadeOcsBean.newTemplateList,frasesPortabilidadeOcsBean.tabelasEnum,frasesPortabilidadeOcsBean.newTemplateList)}" 
+                                                     oncomplete="rc()"
+                                                     immediate="true"
+                                                     update="messages"
+                                                     disabled="#{addPromoPortabilidadeBean.finalizado}"
+                                                     styleClass="pink-btn"/>
+                                    <p:commandButton id="btnFinalizarINPre"
+                                                     rendered="#{'IN' eq addPromoPortabilidadeBean.tarifador and 'PRE' eq addPromoPortabilidadeBean.tipoPlano}"
+                                                     value="Finalizar" 
+                                                     actionListener="#{addPromoPortabilidadeBean.adicionar(ofertasPortabilidadeBean.tabelasEnum,ofertasPortabilidadeBean.newTemplateList,frasesPortabilidadeBean.tabelasEnum,frasesPortabilidadeBean.newTemplateList)}" 
+                                                     oncomplete="rc()"
+                                                     immediate="true"
+                                                     update="messages"
+                                                     disabled="#{addPromoPortabilidadeBean.finalizado}"
+                                                     styleClass="pink-btn"/>
+                                    
+                                </div>
+                                <div class="ui-g-6 ui-md-3 ui-lg-2">
+                                    <p:commandButton value="Começar de novo" 
+                                                     actionListener="#{addPromoPortabilidadeBean.reset()}" 
+                                                     oncomplete="PF('wiz').loadStep('tabIds', false)"
+                                                     immediate="true"
+                                                     update="form:wizardId"
+                                                     styleClass="black-btn"/>
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <p:dataTable
+                                    id="tableConfirm"
+                                    value="#{addPromoPortabilidadeBean.ddds}"
+                                    var="dddConfirm"
+                                    reflow="true">
+                                    <f:facet name="header">
+                                        Dados
+                                    </f:facet>
+
+                                    <p:column headerText="ID Ofertas OCS" width="10%" visible="#{not addPromoPortabilidadeBean.id_ofertaocs eq null}">
+                                        <p:outputLabel value="#{addPromoPortabilidadeBean.id_ofertaocs}"/>
+                                    </p:column>
+                                    <p:column headerText="ID Benefício" width="10%">
+                                        <p:outputLabel value="#{addPromoPortabilidadeBean.id_beneficio}"/>
+                                    </p:column>
+                                    <p:column headerText="ID Programa" width="10%">
+                                        <p:outputLabel value="#{addPromoPortabilidadeBean.id_programa}"/>
+                                    </p:column>
+                                    <p:column headerText="DDDs">
+                                        <p:outputLabel value="#{dddConfirm}"/>
+                                    </p:column>
+
+                                </p:dataTable>
+                            </div>
+                            <br/><br/>
+                            <div class="ui-g ui-fluid">
+                                <p:dataTable
+                                    id="tableConfirmFrases"
+                                    value="#{addPromoPortabilidadeBean.dddsFrases}"
+                                    var="dddFraseConfirm"
+                                    reflow="true">
+                                    <f:facet name="header">
+                                        Frases
+                                    </f:facet>
+
+                                    <p:column headerText="ID Ofertas OCS" width="10%" visible="#{not addPromoPortabilidadeBean.id_ofertaocs eq null}">
+                                        <p:outputLabel value="#{addPromoPortabilidadeBean.id_ofertaocs}"/>
+                                    </p:column>
+                                    <p:column headerText="ID Benefício" width="10%">
+                                        <p:outputLabel value="#{addPromoPortabilidadeBean.id_beneficio}"/>
+                                    </p:column>
+                                    <p:column headerText="ID Programa" width="10%">
+                                        <p:outputLabel value="#{addPromoPortabilidadeBean.id_programa}"/>
+                                    </p:column>
+                                    <p:column headerText="DDDs">
+                                        <p:outputLabel value="#{dddFraseConfirm}"/>
+                                    </p:column>
+                                </p:dataTable>
+                            </div>
+                        </p:tab>
+                    </p:wizard>
+                </h:panelGroup>
+            </div>
+        </h:form>
+
+        <p:dialog widgetVar="dlgDddEditFrases" id="dialogFrasesId" closable="true" modal="true">
+            <h:form id="formDDDsFrases">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12">
+                        <p:pickList id="pickList" 
+                                    value="#{addPromoPortabilidadeBean.allDddsFrases}" 
+                                    var="dddFrase" 
+                                    itemLabel="#{dddFrase}" 
+                                    itemValue="#{dddFrase}" >
+                            <f:facet name="sourceCaption">DDDs disponíveis</f:facet>
+                            <f:facet name="targetCaption">DDDs escolhidos</f:facet>
+                        </p:pickList>
+                    </div>
+                </div>
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12">
+                        <p:commandButton value="Confirmar" 
+                                         update="form:tabViewDddsFrases"
+                                         oncomplete="PF('dlgDddEditFrases').hide();"
+                                         actionListener="#{addPromoPortabilidadeBean.confirmDddsFrases()}"/>
+                    </div>
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <h:outputStylesheet name="css/template.css" library="pages" />
+
+        <style type="text/css">
+            .chipsView .ui-icon-close {
+                visibility: hidden !important;
+            }
+        </style>
+    </ui:define>
+</ui:composition>

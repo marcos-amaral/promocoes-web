@@ -1,0 +1,16 @@
+
+.ui-chips-container.ui-inputfield.ui-state-default.ui-corner-all{
+    width: 100%;
+}
+
+.ui-fileupload-buttonbar.ui-widget-header.ui-corner-top{
+    border: none; 
+    background: transparent;
+}
+
+.ui-fileupload-content.ui-widget-content.ui-corner-bottom{
+    display: none;
+}
+/*
+///////////////////////////////////////////////////////////////////////
+*/

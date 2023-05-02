@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+    <!-- Adicionar Promoção-->
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <p:outputLabel value="TB_TIPO_BONUS" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('TB_TIPO_BONUS')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputText placeholder="TB_TIPO_BONUS" required="#{mBean.isObrigatorio('TB_TIPO_BONUS')}" value="#{mBeanNew.tb_tipo_bonus}" />      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <p:outputLabel value="INCENTIVO1" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('INCENTIVO1')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputText placeholder="INCENTIVO1" required="#{mBean.isObrigatorio('INCENTIVO1')}" value="#{mBeanNew.incentivo1}"/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <p:outputLabel value="INCENTIVO2" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('INCENTIVO2')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputText placeholder="INCENTIVO2" required="#{mBean.isObrigatorio('INCENTIVO2')}" value="#{mBeanNew.incentivo2}"/>      
+            </div>
+        </div>
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <p:outputLabel value="OUTROSPLANOS" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OUTROSPLANOS')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputText placeholder="OUTROSPLANOS" required="#{mBean.isObrigatorio('OUTROSPLANOS')}" value="#{mBeanNew.outrosplanos}"/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <p:outputLabel value="OFERTAPROMO1" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTAPROMO1')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputText placeholder="OFERTAPROMO1" required="#{mBean.isObrigatorio('OFERTAPROMO1')}" value="#{mBeanNew.ofertapromo1}"/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <p:outputLabel value="OFERTAPROMO2" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTAPROMO2')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputText placeholder="OFERTAPROMO2" required="#{mBean.isObrigatorio('OFERTAPROMO2')}" value="#{mBeanNew.ofertapromo2}"/>      
+            </div>
+        </div>
+    </div>
+    <div class="ui-g ui-fluid">    
+        <div class="ui-g-12 ui-md-4 ui-lg-2">
+            <p:outputLabel value="DATA_INIC" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('DATA_INIC')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                <p:calendar id="Data_Inicio"  placeholder="DATA_INIC" required="#{mBean.isObrigatorio('DATA_INIC')}" value="#{mBeanNew.data_inic}" showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00"/>
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-4 ui-lg-2">
+            <p:outputLabel value="DATA_FIM" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('DATA_FIM')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                <p:calendar id="Data_Fim"  placeholder="DATA_FIM" required="#{mBean.isObrigatorio('DATA_FIM')}" value="#{mBeanNew.data_fim}" showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00" mindate="#{mBean.today}"/>
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-4 ui-lg-2">
+            <p:outputLabel value="TAXAADESAO" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{mBean.isObrigatorio('TAXAADESAO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                <p:inputNumber placeholder="TAXAADESAO" required="#{mBean.isObrigatorio('TAXAADESAO')}" value="#{mBeanNew.taxaadesao}" decimalPlaces="2" thousandSeparator=""/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-4 ui-lg-2">
+            <p:outputLabel value="TARIFASMSDADOSWIFI" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{mBean.isObrigatorio('TARIFASMSDADOSWIFI')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                <p:inputNumber placeholder="TARIFASMSDADOSWIFI" required="#{mBean.isObrigatorio('TARIFASMSDADOSWIFI')}" value="#{mBeanNew.tarifasmsdadoswifi}" decimalPlaces="2" thousandSeparator=""/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-4 ui-lg-2">
+            <p:outputLabel value="RECARGAMIN" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{mBean.isObrigatorio('RECARGAMIN')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                <p:inputNumber placeholder="RECARGAMIN" required="#{mBean.isObrigatorio('RECARGAMIN')}" value="#{mBeanNew.recargamin}" decimalPlaces="2" thousandSeparator=""/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-4 ui-lg-2">
+            <p:outputLabel value="TB_GATILHOOFERTASFLEX" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{mBean.isObrigatorio('TB_GATILHOOFERTASFLEX')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                <p:inputNumber placeholder="TB_GATILHOOFERTASFLEX" required="#{mBean.isObrigatorio('TB_GATILHOOFERTASFLEX')}" value="#{mBeanNew.tb_gatilhoofertasflex}" decimalPlaces="2" thousandSeparator=""/>      
+            </div>
+        </div>
+    </div>    
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-4 ui-lg-2">
+            <p:outputLabel value="TARIFAVOZ" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{mBean.isObrigatorio('TARIFAVOZ')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                <p:inputNumber placeholder="TARIFAVOZ" required="#{mBean.isObrigatorio('TARIFAVOZ')}" value="#{mBeanNew.tarifavoz}" decimalPlaces="2" thousandSeparator=""/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-4 ui-lg-2">
+            <p:outputLabel value="TARIFAVOZFIXO" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{mBean.isObrigatorio('TARIFAVOZFIXO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                <p:inputNumber placeholder="TARIFAVOZFIXO" required="#{mBean.isObrigatorio('TARIFAVOZFIXO')}" value="#{mBeanNew.tarifavozfixo}" decimalPlaces="2" thousandSeparator=""/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-4 ui-lg-2">
+            <p:outputLabel value="TARIFASMS" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{mBean.isObrigatorio('TARIFASMS')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                <p:inputNumber placeholder="TARIFASMS" required="#{mBean.isObrigatorio('TARIFASMS')}" value="#{mBeanNew.tarifasms}" decimalPlaces="2" thousandSeparator=""/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-4 ui-lg-2">
+            <p:outputLabel value="TARIFADADOS" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{mBean.isObrigatorio('TARIFADADOS')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                <p:inputNumber placeholder="TARIFADADOS" required="#{mBean.isObrigatorio('TARIFADADOS')}" value="#{mBeanNew.tarifadados}" decimalPlaces="2" thousandSeparator=""/>      
+            </div>
+        </div>
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('ELEGIVEL_NOVA_PROMO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                <p:selectBooleanButton value="#{mBeanNew.elegivel_nova_promo}" required="#{mBean.isObrigatorio('ELEGIVEL_NOVA_PROMO')}" onLabel="ELEGIVEL_NOVA_PROMO" offLabel="ELEGIVEL_NOVA_PROMO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('TB_USSD_CONVERTIDO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                <p:selectBooleanButton value="#{mBeanNew.tb_ussd_convertido}" required="#{mBean.isObrigatorio('TB_USSD_CONVERTIDO')}" onLabel="TB_USSD_CONVERTIDO" offLabel="TB_USSD_CONVERTIDO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTAR_SEMPROMO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                <p:selectBooleanButton value="#{mBeanNew.ofertar_sempromo}" required="#{mBean.isObrigatorio('OFERTAR_SEMPROMO')}" onLabel="OFERTAR_SEMPROMO" offLabel="OFERTAR_SEMPROMO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+            </div>
+        </div>
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('PRECONTRATACAO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                <p:selectBooleanButton value="#{mBeanNew.precontratacao}" required="#{mBean.isObrigatorio('PRECONTRATACAO')}" onLabel="PRECONTRATACAO" offLabel="PRECONTRATACAO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('ELEGIVEL_PROMO_TEMPLATE_PRIMARIA')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                <p:selectBooleanButton value="#{mBeanNew.elegivel_promo_template_primaria}" required="#{mBean.isObrigatorio('ELEGIVEL_PROMO_TEMPLATE_PRIMARIA')}" onLabel="ELEGIVEL_PROMO_TEMPLATE_PRIMARIA" offLabel="ELEGIVEL_PROMO_TEMPLATE_PRIMARIA" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+            </div>
+        </div>
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <p:outputLabel value="PRIORIDADE" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('PRIORIDADE')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputText placeholder="PRIORIDADE" required="#{mBean.isObrigatorio('PRIORIDADE')}" value="#{mBeanNew.prioridade}"/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <p:outputLabel value="COBRARTAXA" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('COBRARTAXA')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputText placeholder="COBRARTAXA" required="#{mBean.isObrigatorio('COBRARTAXA')}" value="#{mBeanNew.cobrartaxa}"/>      
+            </div>
+        </div>
+    </div>
+
+</ui:composition>

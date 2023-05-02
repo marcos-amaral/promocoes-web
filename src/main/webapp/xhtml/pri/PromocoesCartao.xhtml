@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/xhtml/template/template.xhtml">
+
+    <ui:define name="conteudo">
+        <h:outputScript name="js/template.js" library="pages" />
+        <div id="loading"></div>
+        <p:growl id="messages" showDetail="true" sticky="true"/>
+
+        <div class="container">
+            
+            <h:form>
+                <ui:include src="/xhtml/template/ModalDialog.xhtml" />
+            </h:form>
+            
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12">
+                    <h:panelGroup id="panelAprovacao" style="visibility: #{promocoesCartaoBean.aprovacaoFiltered != null?'unset':'hidden'}">
+                        <i class="fa fa-check-circle-o" style="color: yellowgreen; font-size: 2em;"></i>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value=" GMUD status #{promocoesCartaoBean.aprovacaoFiltered.status.tipo} por #{promocoesCartaoBean.aprovacaoFiltered.user.name} em "/>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value="#{promocoesCartaoBean.aprovacaoFiltered.dt_aprovacao}">
+                            <f:convertDateTime timeStyle="short" type="both" dateStyle="full" locale="pt-BR" timeZone="GMT-03:00"/>
+                        </p:outputLabel>
+                    </h:panelGroup>
+                </div>
+            </div>
+            
+            <h:form id="formButtons">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Adicionar" id="buttonAdd" oncomplete="PF('sidebarAdd').show()" actionListener="#{promocoesCartaoBean.preLoadEditBean()}" update="sideBarAddId" disabled="#{!controleBean.canEdit() or promocoesCartaoBean.expiredGmud != null}" styleClass="ui-priority-primary" icon="fa fa-plus"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Editar" id="buttonEdit" oncomplete="PF('sidebarEdit').show()" actionListener="#{promocoesCartaoBean.preLoadEditBean()}" update="sideBarEditId" disabled="#{promocoesCartaoBean.selectedConfigOfertasPreList.size() eq 0 or !controleBean.canEdit() or promocoesCartaoBean.expiredGmud != null or !promocoesCartaoBean.canEdit()}" styleClass="ui-priority-primary" icon="fa fa-edit"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Excluir" id="buttonDel" oncomplete="PF('sidebarDelete').show()" actionListener="#{promocoesCartaoBean.preLoadEditBean()}" update="sideBarDeleteId" styleClass="ui-priority-primary" disabled="#{promocoesCartaoBean.selectedConfigOfertasPreList.size() eq 0 or !controleBean.canEdit() or promocoesCartaoBean.expiredGmud != null}" icon="fa fa-eraser"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Histórico" id="buttonHist" oncomplete="hideLoader();PF('sidebarHistory').show()" update="formHistory:tabelaHistoryId" styleClass="ui-priority-primary" disabled="#{promocoesCartaoBean.selectedConfigOfertasPreList.size() eq 0 or promocoesCartaoBean.selectedConfigOfertasPreList.size() gt 1}" icon="fa fa-history"/>
+                    </div>
+                    <!--
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Script" id="buttonScript" oncomplete="PF('sidebarScript').show()" styleClass="ui-priority-primary" icon="fa fa-file-code-o"/>
+                    </div>
+                    -->
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:splitButton  value="Adiar" id="buttonAdm" onclick="PF('newDtGmudDlg').show();" icon="fa fa-clock-o" disabled="#{promocoesCartaoBean.defaultFilterValue eq 'PRODUCAO' or controleBean.isMarketing()}">
+                            <p:menuitem value="Iniciar" onclick="PF('confirmDlgIniciar').show();" disabled="#{promocoesCartaoBean.defaultFilterValue eq 'PRODUCAO' or !(promocoesCartaoBean.expiredGmud == null and controleBean.canStart(promocoesCartaoBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Validar" onclick="PF('confirmDlgValidar').show();" disabled="#{promocoesCartaoBean.defaultFilterValue eq 'PRODUCAO' or !(promocoesCartaoBean.expiredGmud == null and controleBean.canValidate(promocoesCartaoBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Aprovar" onclick="PF('confirmDlgAprovar').show();" disabled="#{promocoesCartaoBean.defaultFilterValue eq 'PRODUCAO' or !(promocoesCartaoBean.expiredGmud == null and controleBean.canAprove(promocoesCartaoBean.aprovacaoFiltered, false))}"/>
+                            <p:menuitem value="Liberar UAT" onclick="PF('confirmDlgUAT').show();" disabled="#{promocoesCartaoBean.defaultFilterValue eq 'PRODUCAO' or !(promocoesCartaoBean.expiredGmud == null and controleBean.canUAT(promocoesCartaoBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Liberar Implantação" onclick="PF('confirmDlgImplantacao').show();" disabled="#{promocoesCartaoBean.defaultFilterValue eq 'PRODUCAO' or !(promocoesCartaoBean.expiredGmud == null and controleBean.canReleaseDeployment(promocoesCartaoBean.aprovacaoFiltered, false))}"/>
+                            <p:menuitem value="Implantar" onclick="PF('confirmDlg').show();" disabled="#{promocoesCartaoBean.defaultFilterValue eq 'PRODUCAO' or !controleBean.canDeploy(promocoesCartaoBean.aprovacaoFiltered)}"/>
+                        </p:splitButton>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4">
+                        <h:outputLabel value="#{promocoesCartaoBean.aprovacaoFiltered.status.tipo}" style="float: right; font-style: oblique; color: #fa392f"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-3" style="float: right; padding-right: 50px;">
+                        <h:outputLabel value="PROMOCOES_CARTAO" style="float: right;"/>
+                    </div>
+                </div>
+            </h:form>
+
+            <!-- TABELA PRINCIPAL --> 
+            <h:panelGroup>
+                <h:form id="formTable">
+                    <p:dataTable
+                        id="tabelaId"
+                        value="#{promocoesCartaoBean.dataModel}"
+                        lazy="true"
+                        paginator="true"
+                        rows="50"
+                        paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        paginatorPosition="bottom"
+                        rowsPerPageTemplate="10,50,100"
+                        var="tabelaRow"
+                        widgetVar="tabelaCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="300"  
+                        editable="true" 
+                        editMode="cell" 
+                        selection="#{promocoesCartaoBean.selectedConfigOfertasPreList}"
+                        rowKey="#{tabelaRow.id}"
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:ajax event="rowSelect" update="formButtons" />
+                        <p:ajax event="rowUnselect" update="formButtons" />
+                        <p:ajax event="toggleSelect" update="formButtons" />
+                        <p:ajax event="rowSelectCheckbox" update="formButtons" />
+                        <p:ajax event="rowUnselectCheckbox" update="formButtons" />
+
+                         <p:ajax event="filter" listener="#{promocoesCartaoBean.cleanSelected()}" update="panelAprovacao,formButtons"/>
+
+                        <p:column selectionMode="multiple" style="width:16px;text-align:center" toggleable="false"/>
+
+                        <p:column headerText="GMUD" filterBy="#{tabelaRow.dtGmudStr}" filterMatchMode="exact" filterValue="#{promocoesCartaoBean.defaultFilterValue}" width="120" styleClass="#{tabelaRow.getStyleClass('GMUD')}">
+                            <f:facet name="filter">
+                                <p:selectOneMenu onchange="PF('tabelaCell').filter()" value="#{promocoesCartaoBean.defaultFilterValue}" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="PRODUÇÃO" itemValue="PRODUCAO"/>
+                                    <f:selectItems value="#{promocoesCartaoBean.gmudList}"/>
+                                </p:selectOneMenu>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.dtGmudStr}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="MODIFICADA" width="100" styleClass="#{tabelaRow.getStyleClass('MODIFICADA')}">
+                            <p:outputLabel value="#{tabelaRow.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy  HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100" styleClass="#{tabelaRow.getStyleClass('LOGIN')}">
+                            <p:outputLabel value="#{tabelaRow.user.login}"/>
+                        </p:column>
+                        <p:column headerText="IDBENEFICIO" filterBy="#{tabelaRow.tb_id_beneficio}" filterFunction="#{genericFilter.filter}" width="50" styleClass="#{tabelaRow.getStyleClass('TB_ID_BENEFICIO')}" toggleable="false">
+                            <p:outputLabel value="#{tabelaRow.tb_id_beneficio}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="IDPROGRAMA" filterBy="#{tabelaRow.tb_id_programa}" filterFunction="#{genericFilter.filter}" width="50" styleClass="#{tabelaRow.getStyleClass('TB_ID_PROGRAMA')}" toggleable="false">
+                            <p:outputLabel value="#{tabelaRow.tb_id_programa}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="TB_ID_OFERTA" filterBy="#{tabelaRow.tb_id_oferta}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_ID_OFERTA')}" visible="false">
+                            <p:outputLabel value="#{tabelaRow.tb_id_oferta}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="DDD" filterBy="#{tabelaRow.tb_ddd}" filterFunction="#{genericFilter.filter}" width="280" styleClass="#{tabelaRow.getStyleClass('TB_DDD')}" toggleable="false">
+                            <p:outputLabel id="dddId" value="#{tabelaRow.dddSub}" ondblclick="copyToClip($(this));"/>
+                            <p:tooltip id="toolTipDDD" for="dddId" value="#{tabelaRow.tb_ddd}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+                        </p:column>
+                        <p:column headerText="TB_REGIAO" filterBy="#{tabelaRow.tb_regiao}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_REGIAO')}" visible="false">
+                            <p:outputLabel value="#{tabelaRow.tb_regiao}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="INCENTIVO1" filterBy="#{tabelaRow.incentivo1}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('INCENTIVO1')}" visible="false"><p:outputLabel value="#{tabelaRow.incentivo1}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="INCENTIVO2" filterBy="#{tabelaRow.incentivo2}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('INCENTIVO2')}" visible="false"><p:outputLabel value="#{tabelaRow.incentivo2}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="OUTROSPLANOS" filterBy="#{tabelaRow.outrosplanos}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('OUTROSPLANOS')}" visible="false"><p:outputLabel value="#{tabelaRow.outrosplanos}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="OFERTAPROMO1" filterBy="#{tabelaRow.ofertapromo1}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('OFERTAPROMO1')}" visible="false"><p:outputLabel value="#{tabelaRow.ofertapromo1}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="OFERTAPROMO2" filterBy="#{tabelaRow.ofertapromo2}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('OFERTAPROMO2')}" visible="false"><p:outputLabel value="#{tabelaRow.ofertapromo2}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_NOME_PROMOCAO" filterBy="#{tabelaRow.tb_nome_promocao}" filterFunction="#{genericFilter.filter}" width="250" styleClass="#{tabelaRow.getStyleClass('TB_NOME_PROMOCAO')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_nome_promocao}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_TIPO_PROMO" filterBy="#{tabelaRow.tb_tipo_promo}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_TIPO_PROMO')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_tipo_promo}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_SN_ELEGIVEL_NOVA_PROMO" filterBy="#{tabelaRow.tb_sn_elegivel_nova_promoStr}" filterMatchMode="equals" width="80" styleClass="#{tabelaRow.getStyleClass('TB_SN_ELEGIVEL_NOVA_PROMO')}" visible="false">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_sn_elegivel_nova_promoStr}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_TAXAADESAO" filterBy="#{tabelaRow.tb_taxaadesao}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_TAXAADESAO')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_taxaadesao}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_SN_ELEGIVEL_ESTENDIDA" filterBy="#{tabelaRow.tb_sn_elegivel_estendidaStr}" filterMatchMode="equals" width="80" styleClass="#{tabelaRow.getStyleClass('TB_SN_ELEGIVEL_ESTENDIDA')}" visible="false">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_sn_elegivel_estendidaStr}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_DT_INICIO_PROMO" filterBy="#{tabelaRow.tb_dt_inicio_promo}" filterFunction="#{dateRangeFilter.filterByDate}" width="120" styleClass="#{tabelaRow.getStyleClass('TB_DT_INICIO_PROMO')}" toggleable="false">
+                            <f:facet name="filter">
+                                <h:inputHidden id="filterInic" />
+                            </f:facet>
+                            <f:facet name="header">
+                                <p:outputLabel value="TB_DT_INICIO_PROMO" />
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_dt_inicio_promo}" ondblclick="copyToClip($(this));">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="TB_DT_FIM_PROMO" filterBy="#{tabelaRow.tb_dt_fim_promo}" filterFunction="#{dateRangeFilter.filterByDate}" width="120" styleClass="#{tabelaRow.getStyleClass('TB_DT_FIM_PROMO')}" toggleable="false">
+                            <f:facet name="filter">
+                                <h:inputHidden id="filterFim" />
+                            </f:facet>
+                            <f:facet name="header">
+                                <p:outputLabel value="TB_DT_FIM_PROMO" />
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_dt_fim_promo}" ondblclick="copyToClip($(this));">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="TB_TIPO_BONUS" filterBy="#{tabelaRow.tb_tipo_bonus}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_TIPO_BONUS')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_tipo_bonus}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_RECARGA_MIN" filterBy="#{tabelaRow.tb_recarga_min}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_RECARGA_MIN')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_recarga_min}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_RECARGA_MAX" filterBy="#{tabelaRow.tb_recarga_max}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_RECARGA_MAX')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_recarga_max}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_BONUS_MIN" filterBy="#{tabelaRow.tb_bonus_min}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_BONUS_MIN')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_bonus_min}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_BONUS_MAX" filterBy="#{tabelaRow.tb_bonus_max}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_BONUS_MAX')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_bonus_max}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_MULTIPLICADOR" filterBy="#{tabelaRow.tb_multiplicador}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_MULTIPLICADOR')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_multiplicador}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_SN_BONUS_TORPEDO" filterBy="#{tabelaRow.tb_sn_bonus_torpedoStr}" filterMatchMode="equals" width="80" styleClass="#{tabelaRow.getStyleClass('TB_SN_BONUS_TORPEDO')}" visible="false">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_sn_bonus_torpedoStr}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_QTD_TORP" filterBy="#{tabelaRow.tb_qtd_torp}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_QTD_TORP')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_qtd_torp}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_BONUS_TORP" filterBy="#{tabelaRow.tb_bonus_torp}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_BONUS_TORP')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_bonus_torp}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_PRORROGACAO_6_MESES" filterBy="#{tabelaRow.tb_prorrogacao_6_mesesStr}" filterMatchMode="equals" width="80" styleClass="#{tabelaRow.getStyleClass('TB_PRORROGACAO_6_MESES')}" visible="false">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_prorrogacao_6_mesesStr}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_PRORROGACAO_12_MESES" filterBy="#{tabelaRow.tb_prorrogacao_12_mesesStr}" filterMatchMode="equals" width="80" styleClass="#{tabelaRow.getStyleClass('TB_PRORROGACAO_12_MESES')}" visible="false">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_prorrogacao_12_mesesStr}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_VALORTAXA_6_MESES" filterBy="#{tabelaRow.tb_valortaxa_6_meses}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_VALORTAXA_6_MESES')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_valortaxa_6_meses}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_VALORTAXA_12_MESES" filterBy="#{tabelaRow.tb_valortaxa_12_meses}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_VALORTAXA_12_MESES')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_valortaxa_12_meses}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_ID_BENEFICIO_6_MESES" filterBy="#{tabelaRow.tb_id_beneficio_6_meses}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_ID_BENEFICIO_6_MESES')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_id_beneficio_6_meses}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_ID_PROGRAMA_6_MESES" filterBy="#{tabelaRow.tb_id_programa_6_meses}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_ID_PROGRAMA_6_MESES')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_id_programa_6_meses}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_ID_BENEFICIO_12_MESES" filterBy="#{tabelaRow.tb_id_beneficio_12_meses}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_ID_BENEFICIO_12_MESES')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_id_beneficio_12_meses}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_ID_PROGRAMA_12_MESES" filterBy="#{tabelaRow.tb_id_programa_12_meses}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_ID_PROGRAMA_12_MESES')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_id_programa_12_meses}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_BONUSBOLSODIFERENCIADO" filterBy="#{tabelaRow.tb_bonusbolsodiferenciadoStr}" filterMatchMode="equals" width="80" styleClass="#{tabelaRow.getStyleClass('TB_BONUSBOLSODIFERENCIADO')}" visible="false">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_bonusbolsodiferenciado}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_RECARGABOLSODEGRAU2" filterBy="#{tabelaRow.tb_recargabolsodegrau2}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_RECARGABOLSODEGRAU2')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_recargabolsodegrau2}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_BOLSOBONUSDEGRAU2" filterBy="#{tabelaRow.tb_bolsobonusdegrau2}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_BOLSOBONUSDEGRAU2')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_bolsobonusdegrau2}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_RECARGABOLSODEGRAU3" filterBy="#{tabelaRow.tb_recargabolsodegrau3}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_RECARGABOLSODEGRAU3')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_recargabolsodegrau3}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_BOLSOBONUSDEGRAU3" filterBy="#{tabelaRow.tb_bolsobonusdegrau3}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_BOLSOBONUSDEGRAU3')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_bolsobonusdegrau3}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_BONUSLIGACAOOIMOVEL" filterBy="#{tabelaRow.tb_bonusligacaooimovelStr}" filterMatchMode="equals" width="80" styleClass="#{tabelaRow.getStyleClass('TB_BONUSLIGACAOOIMOVEL')}" visible="false">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_bonusligacaooimovelStr}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_BONUSLIGACAOOIMOVELFIXO" filterBy="#{tabelaRow.tb_bonusligacaooimovelfixoStr}" filterMatchMode="equals" width="80" styleClass="#{tabelaRow.getStyleClass('TB_BONUSLIGACAOOIMOVELFIXO')}" visible="false">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_bonusligacaooimovelfixoStr}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_BONUSLIGACAOMIX" filterBy="#{tabelaRow.tb_bonusligacaomixStr}" filterMatchMode="equals" width="80" styleClass="#{tabelaRow.getStyleClass('TB_BONUSLIGACAOMIX')}" visible="false">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_bonusligacaomixStr}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_LIGACAOOIMOVELFIXO_DADOS" filterBy="#{tabelaRow.tb_ligacaooimovelfixo_dadosStr}" filterMatchMode="equals" width="80" styleClass="#{tabelaRow.getStyleClass('TB_LIGACAOOIMOVELFIXO_DADOS')}" visible="false">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_ligacaooimovelfixo_dadosStr}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_BONUSLIGACAOMIX_DADOS" filterBy="#{tabelaRow.tb_bonusligacaomix_dadosStr}" filterMatchMode="equals" width="80" styleClass="#{tabelaRow.getStyleClass('TB_BONUSLIGACAOMIX_DADOS')}" visible="false">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_bonusligacaomix_dadosStr}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_SEMCARENCIA" filterBy="#{tabelaRow.tb_semcarenciaStr}" filterMatchMode="equals" width="80" styleClass="#{tabelaRow.getStyleClass('TB_SEMCARENCIA')}" visible="false">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_semcarenciaStr}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TEM_BCE" filterBy="#{tabelaRow.tem_bceStr}" filterMatchMode="equals" width="80" styleClass="#{tabelaRow.getStyleClass('TEM_BCE')}" visible="false">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tem_bceStr}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="ELEGIVEL_PROMO_SECUNDARIA" filterBy="#{tabelaRow.elegivel_promo_secundariaStr}" filterMatchMode="equals" width="80" styleClass="#{tabelaRow.getStyleClass('ELEGIVEL_PROMO_SECUNDARIA')}" visible="false">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.elegivel_promo_secundariaStr}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="PRIORIDADE" filterBy="#{tabelaRow.prioridade}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('PRIORIDADE')}" visible="false"><p:outputLabel value="#{tabelaRow.prioridade}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="OFERTAR_SEMPROMO" filterBy="#{tabelaRow.ofertar_sempromo}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('OFERTAR_SEMPROMO')}" visible="false"><p:outputLabel value="#{tabelaRow.ofertar_sempromo}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="PRE_CONTRATACAO" filterBy="#{tabelaRow.pre_contratacaoStr}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('PRE_CONTRATACAO')}" visible="false">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.pre_contratacaoStr}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="COBRARTAXA" filterBy="#{tabelaRow.cobrartaxa}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('COBRARTAXA')}" visible="false"><p:outputLabel value="#{tabelaRow.cobrartaxa}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_USSD_CONVERTIDO" filterBy="#{tabelaRow.tb_ussd_convertidoStr}" filterMatchMode="equals" width="80" styleClass="#{tabelaRow.getStyleClass('TB_USSD_CONVERTIDO')}" visible="false">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_ussd_convertidoStr}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_CATEGORIA" filterBy="#{tabelaRow.tb_categoria}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_CATEGORIA')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_categoria}" ondblclick="copyToClip($(this));"/></p:column>
+                    </p:dataTable>
+                </h:form>
+            </h:panelGroup>
+
+            <!-- ADICIONAR PROMOCAO -->
+            <p:sidebar id="sideBarAddId" widgetVar="sidebarAdd" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Adicionar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesAdd"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formAdd">
+                   <ui:include src="/xhtml/pri/PromocoesCartao_addIds.xhtml" />
+                    <ui:include src="/xhtml/pri/PromocoesCartao_add.xhtml" >
+                        <ui:param name="mBean" value="#{promocoesCartaoBean}" />
+                        <ui:param name="mBeanNew" value="#{promocoesCartaoBean.newConfigOfertasPre}" />
+                    </ui:include>
+
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarAdd').hide()"/>
+                        <p:commandButton value="Adicionar" validateClient="true" update="messages,messagesAdd" actionListener="#{promocoesCartaoBean.adicionar()}" onstart="showLoader();" oncomplete="hideLoader();"/>
+                        <p:selectBooleanCheckbox itemLabel="Adicionar outra" value="#{promocoesCartaoBean.adicionarOutra}" style="min-width: 140px"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- EDITAR PROMOCAO -->
+            <p:sidebar id="sideBarEditId" widgetVar="sidebarEdit" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Editar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesEdit"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formEdit">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-12">
+                            <p:scrollPanel style="width:100%;height:100px">
+                                <p:panelGrid columns="6">
+                                    <p:repeat value="#{promocoesCartaoBean.selectedConfigOfertasPreList}" var="selectedConfigOfertasPreItem">
+                                        <p:button value="#{selectedConfigOfertasPreItem.idDdd}" disabled="true" style="margin: 2px;"/>
+                                    </p:repeat>
+                                </p:panelGrid>
+                            </p:scrollPanel>
+                        </div>
+                    </div>
+                    <h:panelGroup rendered="#{promocoesCartaoBean.isEditProd()}">
+                        <p:separator />
+                        <div class="ui-g ui-fluid">
+                            <div class="ui-g-12 ui-md-6 ui-lg-2">
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                    <p:calendar id="editDT_GMUD" placeholder="DT_GMUD" required="true" value="#{promocoesCartaoBean.editConfigOfertasPre.dt_gmud}" mask="99/99/9999" showOn="button">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                    </p:calendar>
+                                    <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox value="true"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                    <p:separator />
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText placeholder="INCENTIVO1" value="#{promocoesCartaoBean.editConfigOfertasPre.incentivo1}">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditIncentivo1(true)}" update="formEdit:checkeditIncentivo1"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditIncentivo1" value="#{promocoesCartaoBean.editConfigOfertasPre.editIncentivo1}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText placeholder="INCENTIVO2" value="#{promocoesCartaoBean.editConfigOfertasPre.incentivo2}">  
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditIncentivo2(true)}" update="formEdit:checkeditIncentivo2"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditIncentivo2" value="#{promocoesCartaoBean.editConfigOfertasPre.editIncentivo2}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText placeholder="OUTROSPLANOS" value="#{promocoesCartaoBean.editConfigOfertasPre.outrosplanos}">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditOutrosplanos(true)}" update="formEdit:checkeditOutrosplanos"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditOutrosplanos" value="#{promocoesCartaoBean.editConfigOfertasPre.editOutrosplanos}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText placeholder="OFERTAPROMO1" value="#{promocoesCartaoBean.editConfigOfertasPre.ofertapromo1}">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditOfertapromo1(true)}" update="formEdit:checkeditOfertapromo1"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditOfertapromo1" value="#{promocoesCartaoBean.editConfigOfertasPre.editOfertapromo1}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText placeholder="OFERTAPROMO2" value="#{promocoesCartaoBean.editConfigOfertasPre.ofertapromo2}">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditOfertapromo2(true)}" update="formEdit:checkeditOfertapromo2"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditOfertapromo2" value="#{promocoesCartaoBean.editConfigOfertasPre.editOfertapromo2}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="TB_NOME_PROMOCAO" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_nome_promocao}">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_nome_promocao(true)}" update="formEdit:checkeditTb_nome_promocao"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_nome_promocao" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_nome_promocao}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="TB_TIPO_PROMO" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_tipo_promo}">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_tipo_promo(true)}" update="formEdit:checkeditTb_tipo_promo"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_tipo_promo" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_tipo_promo}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="TB_TIPO_BONUS" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_tipo_bonus}">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_tipo_bonus(true)}" update="formEdit:checkeditTb_tipo_bonus"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_tipo_bonus" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_tipo_bonus}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:inputMask placeholder="TB_DT_INICIO_PROMO" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_dt_inicio_promo}" mask="99/99/9999">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_dt_inicio_promo(true)}" update="formEdit:checkeditTb_dt_inicio_promo"/>
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                                </p:inputMask>    
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_dt_inicio_promo" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_dt_inicio_promo}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:inputMask placeholder="TB_DT_FIM_PROMO" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_dt_fim_promo}" mask="99/99/9999">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_dt_fim_promo(true)}" update="formEdit:checkeditTb_dt_fim_promo"/>
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                                </p:inputMask>    
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_dt_fim_promo" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_dt_fim_promo}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber placeholder="TB_RECARGA_MIN" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_recarga_min}" decimalPlaces="2" thousandSeparator="">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_recarga_min(true)}" update="formEdit:checkeditTb_recarga_min"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_recarga_min" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_recarga_min}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber placeholder="TB_RECARGA_MAX" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_recarga_max}" decimalPlaces="2" thousandSeparator="">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_recarga_max(true)}" update="formEdit:checkeditTb_recarga_max"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_recarga_max" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_recarga_max}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber placeholder="TB_BONUS_MIN" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_bonus_min}" decimalPlaces="2" thousandSeparator="">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_bonus_min(true)}" update="formEdit:checkeditTb_bonus_min"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_bonus_min" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_bonus_min}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber placeholder="TB_BONUS_MAX" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_bonus_max}" decimalPlaces="2" thousandSeparator="">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_bonus_max(true)}" update="formEdit:checkeditTb_bonus_max"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_bonus_max" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_bonus_max}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber placeholder="TB_TAXAADESAO" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_taxaadesao}" decimalPlaces="2" thousandSeparator="">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_taxaadesao(true)}" update="formEdit:checkeditTb_taxaadesao"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_taxaadesao" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_taxaadesao}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputNumber placeholder="TB_MULTIPLICADOR" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_multiplicador}" decimalPlaces="0" thousandSeparator="">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_multiplicador(true)}" update="formEdit:checkeditTb_multiplicador"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_multiplicador" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_multiplicador}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputNumber placeholder="TB_QTD_TORP" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_qtd_torp}" decimalPlaces="0" thousandSeparator="">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_qtd_torp(true)}" update="formEdit:checkeditTb_qtd_torp"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_qtd_torp" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_qtd_torp}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputNumber placeholder="TB_BONUS_TORP" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_bonus_torp}" decimalPlaces="0" thousandSeparator="">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_bonus_torp(true)}" update="formEdit:checkeditTb_bonus_torp"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_bonus_torp" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_bonus_torp}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber placeholder="TB_VALORTAXA_6_MESES" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_valortaxa_6_meses}" decimalPlaces="2" thousandSeparator="">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_valortaxa_6_meses(true)}" update="formEdit:checkeditTb_valortaxa_6_meses"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_valortaxa_6_meses" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_valortaxa_6_meses}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber placeholder="TB_VALORTAXA_12_MESES" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_valortaxa_6_meses}" decimalPlaces="2" thousandSeparator="">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_valortaxa_12_meses(true)}" update="formEdit:checkeditTb_valortaxa_12_meses"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_valortaxa_12_meses" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_valortaxa_12_meses}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputMask placeholder="TB_ID_BENEFICIO_6_MESES" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_id_beneficio_6_meses}" mask="9?9">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_id_beneficio_6_meses(true)}" update="formEdit:checkeditTb_id_beneficio_6_meses"/>
+                                </p:inputMask>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_id_beneficio_6_meses" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_id_beneficio_6_meses}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputMask placeholder="TB_ID_PROGRAMA_6_MESES" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_id_programa_6_meses}" mask="9?9">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_id_programa_6_meses(true)}" update="formEdit:checkeditTb_id_programa_6_meses"/>
+                                </p:inputMask>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_id_programa_6_meses" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_id_programa_6_meses}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputMask placeholder="TB_ID_BENEFICIO_12_MESES" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_id_beneficio_12_meses}" mask="9?9">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_id_beneficio_12_meses(true)}" update="formEdit:checkeditTb_id_beneficio_12_meses"/>
+                                </p:inputMask>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_id_beneficio_12_meses" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_id_beneficio_12_meses}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputMask placeholder="TB_ID_PROGRAMA_12_MESES" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_id_programa_12_meses}" mask="9?9">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_id_programa_12_meses(true)}" update="formEdit:checkeditTb_id_programa_12_meses"/>
+                                </p:inputMask>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_id_programa_12_meses" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_id_programa_12_meses}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber placeholder="TB_RECARGABOLSODEGRAU2" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_recargabolsodegrau2}" decimalPlaces="2" thousandSeparator="">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_recargabolsodegrau2(true)}" update="formEdit:checkeditTb_recargabolsodegrau2"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_recargabolsodegrau2" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_recargabolsodegrau2}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber placeholder="TB_BOLSOBONUSDEGRAU2" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_bolsobonusdegrau2}" decimalPlaces="2" thousandSeparator="">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_bolsobonusdegrau2(true)}" update="formEdit:checkeditTb_bolsobonusdegrau2"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_bolsobonusdegrau2" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_bolsobonusdegrau2}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber placeholder="TB_RECARGABOLSODEGRAU3" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_recargabolsodegrau3}" decimalPlaces="2" thousandSeparator="">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_recargabolsodegrau3(true)}" update="formEdit:checkeditTb_recargabolsodegrau3"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_recargabolsodegrau3" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_recargabolsodegrau3}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber placeholder="TB_BOLSOBONUSDEGRAU3" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_bolsobonusdegrau3}" decimalPlaces="2" thousandSeparator="">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_bolsobonusdegrau3(true)}" update="formEdit:checkeditTb_bolsobonusdegrau3"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_bolsobonusdegrau3" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_bolsobonusdegrau3}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText placeholder="PRIORIDADE" value="#{promocoesCartaoBean.editConfigOfertasPre.prioridade}">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditPrioridade(true)}" update="formEdit:checkeditPrioridade"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditPrioridade" value="#{promocoesCartaoBean.editConfigOfertasPre.editPrioridade}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText placeholder="OFERTAR_SEMPROMO" value="#{promocoesCartaoBean.editConfigOfertasPre.ofertar_sempromo}">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditOfertar_sempromo(true)}" update="formEdit:checkeditOfertar_sempromo"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditOfertar_sempromo" value="#{promocoesCartaoBean.editConfigOfertasPre.editOfertar_sempromo}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText placeholder="COBRARTAXA" value="#{promocoesCartaoBean.editConfigOfertasPre.cobrartaxa}">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditCobrartaxa(true)}" update="formEdit:checkeditCobrartaxa"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditCobrartaxa" value="#{promocoesCartaoBean.editConfigOfertasPre.editCobrartaxa}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText placeholder="TB_CATEGORIA" value="#{promocoesCartaoBean.editConfigOfertasPre.tb_categoria}">      
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_categoria(true)}" update="formEdit:checkeditTb_categoria"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_categoria" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_categoria}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{promocoesCartaoBean.editConfigOfertasPre.tb_sn_elegivel_nova_promo}" onLabel="TB_SN_ELEGIVEL_NOVA_PROMO" offLabel="TB_SN_ELEGIVEL_NOVA_PROMO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_sn_elegivel_nova_promo(true)}" update="formEdit:checkeditTb_sn_elegivel_nova_promo"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_sn_elegivel_nova_promo" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_sn_elegivel_nova_promo}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{promocoesCartaoBean.editConfigOfertasPre.tb_sn_elegivel_estendida}" onLabel="TB_SN_ELEGIVEL_ESTENDIDA" offLabel="TB_SN_ELEGIVEL_ESTENDIDA" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_sn_elegivel_estendida(true)}" update="formEdit:checkeditTb_sn_elegivel_estendida"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_sn_elegivel_estendida" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_sn_elegivel_estendida}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{promocoesCartaoBean.editConfigOfertasPre.tb_sn_bonus_torpedo}" onLabel="TB_SN_BONUS_TORPEDO" offLabel="TB_SN_BONUS_TORPEDO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_sn_bonus_torpedo(true)}" update="formEdit:checkeditTb_sn_bonus_torpedo"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_sn_bonus_torpedo" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_sn_bonus_torpedo}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{promocoesCartaoBean.editConfigOfertasPre.tb_bonusbolsodiferenciado}" onLabel="TB_BONUSBOLSODIFERENCIADO" offLabel="TB_BONUSBOLSODIFERENCIADO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_bonusbolsodiferenciado(true)}" update="formEdit:checkeditTb_bonusbolsodiferenciado"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_bonusbolsodiferenciado" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_bonusbolsodiferenciado}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{promocoesCartaoBean.editConfigOfertasPre.tb_prorrogacao_6_meses}" onLabel="TB_PRORROGACAO_6_MESES" offLabel="TB_PRORROGACAO_6_MESES" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_prorrogacao_6_meses(true)}" update="formEdit:checkeditTb_prorrogacao_6_meses"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_prorrogacao_6_meses" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_prorrogacao_6_meses}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{promocoesCartaoBean.editConfigOfertasPre.tb_prorrogacao_12_meses}" onLabel="TB_PRORROGACAO_12_MESES" offLabel="TB_PRORROGACAO_12_MESES" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_prorrogacao_12_meses(true)}" update="formEdit:checkeditTb_prorrogacao_12_meses"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_prorrogacao_12_meses" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_prorrogacao_12_meses}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{promocoesCartaoBean.editConfigOfertasPre.tb_bonusligacaooimovel}" onLabel="TB_BONUSLIGACAOOIMOVEL" offLabel="TB_BONUSLIGACAOOIMOVEL" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_bonusligacaooimovel(true)}" update="formEdit:checkeditTb_bonusligacaooimovel"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_bonusligacaooimovel" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_bonusligacaooimovel}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{promocoesCartaoBean.editConfigOfertasPre.tb_bonusligacaooimovelfixo}" onLabel="TB_BONUSLIGACAOOIMOVELFIXO" offLabel="TB_BONUSLIGACAOOIMOVELFIXO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_bonusligacaooimovelfixo(true)}" update="formEdit:checkeditTb_bonusligacaooimovelfixo"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_bonusligacaooimovelfixo" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_bonusligacaooimovelfixo}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{promocoesCartaoBean.editConfigOfertasPre.tb_bonusligacaomix}" onLabel="TB_BONUSLIGACAOMIX" offLabel="TB_BONUSLIGACAOMIX" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_bonusligacaomix(true)}" update="formEdit:checkeditTb_bonusligacaomix"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_bonusligacaomix" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_bonusligacaomix}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{promocoesCartaoBean.editConfigOfertasPre.tb_ligacaooimovelfixo_dados}" onLabel="TB_LIGACAOOIMOVELFIXO_DADOS" offLabel="TB_LIGACAOOIMOVELFIXO_DADOS" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_ligacaooimovelfixo_dados(true)}" update="formEdit:checkeditTb_ligacaooimovelfixo_dados"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_ligacaooimovelfixo_dados" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_ligacaooimovelfixo_dados}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{promocoesCartaoBean.editConfigOfertasPre.tb_bonusligacaomix_dados}" onLabel="TB_BONUSLIGACAOMIX_DADOS" offLabel="TB_BONUSLIGACAOMIX_DADOS" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_bonusligacaomix_dados(true)}" update="formEdit:checkeditTb_bonusligacaomix_dados"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_bonusligacaomix_dados" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_bonusligacaomix_dados}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{promocoesCartaoBean.editConfigOfertasPre.tb_semcarencia}" onLabel="TB_SEMCARENCIA" offLabel="TB_SEMCARENCIA" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_semcarencia(true)}" update="formEdit:checkeditTb_semcarencia"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_semcarencia" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_semcarencia}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{promocoesCartaoBean.editConfigOfertasPre.tem_bce}" onLabel="TEM_BCE" offLabel="TEM_BCE" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTem_bce(true)}" update="formEdit:checkeditTem_bce"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTem_bce" value="#{promocoesCartaoBean.editConfigOfertasPre.editTem_bce}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{promocoesCartaoBean.editConfigOfertasPre.elegivel_promo_secundaria}" onLabel="ELEGIVEL_PROMO_SECUNDARIA" offLabel="ELEGIVEL_PROMO_SECUNDARIA" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditElegivel_promo_secundaria(true)}" update="formEdit:checkeditElegivel_promo_secundaria"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditElegivel_promo_secundaria" value="#{promocoesCartaoBean.editConfigOfertasPre.editElegivel_promo_secundaria}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{promocoesCartaoBean.editConfigOfertasPre.pre_contratacao}" onLabel="PRE_CONTRATACAO" offLabel="PRE_CONTRATACAO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditPre_contratacao(true)}" update="formEdit:checkeditPre_contratacao"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditPre_contratacao" value="#{promocoesCartaoBean.editConfigOfertasPre.editPre_contratacao}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{promocoesCartaoBean.editConfigOfertasPre.tb_ussd_convertido}" onLabel="TB_USSD_CONVERTIDO" offLabel="TB_USSD_CONVERTIDO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{promocoesCartaoBean.editConfigOfertasPre.setEditTb_ussd_convertido(true)}" update="formEdit:checkeditTb_ussd_convertido"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_ussd_convertido" value="#{promocoesCartaoBean.editConfigOfertasPre.editTb_ussd_convertido}"/></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarEdit').hide()"/>
+                        <p:commandButton value="Confirmar" validateClient="true" actionListener="#{promocoesCartaoBean.editar()}" update="messages,messagesEdit,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="hideLoader();"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- HISTORICO PROMOCAO -->
+            <p:sidebar id="sideBarHistoryId" widgetVar="sidebarHistory" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Histórico</h1>
+                <p:separator />
+                <h:form id="formHistory">
+                    <p:dataTable
+                        id="tabelaHistoryId"
+                        value="#{promocoesCartaoBean.selectedConfigOfertasPreHistoryList}"
+                        var="tabelaHistory"
+                        widgetVar="tabelaHistoryCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="370"  
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:column headerText="ÚLTIMO STATUS" width="100" groupRow="true">
+                            <p:outputLabel value="#{tabelaHistory.lastStatus}"/>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100">
+                            <p:outputLabel value="#{tabelaHistory.user.login}"/>
+                        </p:column>
+                        <p:column headerText="MODIFICADO" width="150">
+                            <p:outputLabel value="#{tabelaHistory.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00" />
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="INCENTIVO1" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INCENTIVO1',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.incentivo1}" rendered="#{tabelaHistory.editMap.getOrDefault('INCENTIVO1',true)}"/></p:column>
+                        <p:column headerText="INCENTIVO2" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INCENTIVO2',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.incentivo2}" rendered="#{tabelaHistory.editMap.getOrDefault('INCENTIVO2',true)}"/></p:column>
+                        <p:column headerText="OUTROSPLANOS" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('OUTROSPLANOS',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.outrosplanos}" rendered="#{tabelaHistory.editMap.getOrDefault('OUTROSPLANOS',true)}"/></p:column>
+                        <p:column headerText="OFERTAPROMO1" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('OFERTAPROMO1',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.ofertapromo1}" rendered="#{tabelaHistory.editMap.getOrDefault('OFERTAPROMO1',true)}"/></p:column>
+                        <p:column headerText="OFERTAPROMO2" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('OFERTAPROMO2',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.ofertapromo2}" rendered="#{tabelaHistory.editMap.getOrDefault('OFERTAPROMO2',true)}"/></p:column>
+                        <p:column headerText="TB_NOME_PROMOCAO" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_NOME_PROMOCAO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_nome_promocao}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_NOME_PROMOCAO',true)}"/></p:column>
+                        <p:column headerText="TB_TIPO_PROMO" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_TIPO_PROMO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_tipo_promo}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_TIPO_PROMO',true)}"/></p:column>
+                        <p:column headerText="TB_SN_ELEGIVEL_NOVA_PROMO" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_SN_ELEGIVEL_NOVA_PROMO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_sn_elegivel_nova_promoStr}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_SN_ELEGIVEL_NOVA_PROMO',true)}"/></p:column>
+                        <p:column headerText="TB_TAXAADESAO" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_TAXAADESAO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_taxaadesao}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_TAXAADESAO',true)}"/></p:column>
+                        <p:column headerText="TB_SN_ELEGIVEL_ESTENDIDA" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_SN_ELEGIVEL_ESTENDIDA',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_sn_elegivel_estendidaStr}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_SN_ELEGIVEL_ESTENDIDA',true)}"/></p:column>
+                        <p:column headerText="TB_DT_INICIO_PROMO" width="70" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_DT_INICIO_PROMO',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.tb_dt_inicio_promo}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_DT_INICIO_PROMO',true)}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="TB_DT_FIM_PROMO" width="70" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_DT_FIM_PROMO',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.tb_dt_fim_promo}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_DT_FIM_PROMO',true)}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="TB_TIPO_BONUS" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_TIPO_BONUS',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_tipo_bonus}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_TIPO_BONUS',true)}"/></p:column>
+                        <p:column headerText="TB_RECARGA_MIN" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_RECARGA_MIN',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_recarga_min}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_RECARGA_MIN',true)}"/></p:column>
+                        <p:column headerText="TB_RECARGA_MAX" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_RECARGA_MAX',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_recarga_max}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_RECARGA_MAX',true)}"/></p:column>
+                        <p:column headerText="TB_BONUS_MIN" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_BONUS_MIN',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_bonus_min}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_BONUS_MIN',true)}"/></p:column>
+                        <p:column headerText="TB_BONUS_MAX" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_BONUS_MAX',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_bonus_max}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_BONUS_MAX',true)}"/></p:column>
+                        <p:column headerText="TB_MULTIPLICADOR" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_MULTIPLICADOR',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_multiplicador}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_MULTIPLICADOR',true)}"/></p:column>
+                        <p:column headerText="TB_SN_BONUS_TORPEDO" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_SN_BONUS_TORPEDO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_sn_bonus_torpedoStr}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_SN_BONUS_TORPEDO',true)}"/></p:column>
+                        <p:column headerText="TB_QTD_TORP" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_QTD_TORP',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_qtd_torp}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_QTD_TORP',true)}"/></p:column>
+                        <p:column headerText="TB_BONUS_TORP" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_BONUS_TORP',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_bonus_torp}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_BONUS_TORP',true)}"/></p:column>
+                        <p:column headerText="TB_PRORROGACAO_6_MESES" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_PRORROGACAO_6_MESES',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_prorrogacao_6_mesesStr}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_PRORROGACAO_6_MESES',true)}"/></p:column>
+                        <p:column headerText="TB_PRORROGACAO_12_MESES" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_PRORROGACAO_12_MESES',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_prorrogacao_12_mesesStr}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_PRORROGACAO_12_MESES',true)}"/></p:column>
+                        <p:column headerText="TB_VALORTAXA_6_MESES" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_VALORTAXA_6_MESES',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_valortaxa_6_meses}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_VALORTAXA_6_MESES',true)}"/></p:column>
+                        <p:column headerText="TB_VALORTAXA_12_MESES" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_VALORTAXA_12_MESES',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_valortaxa_12_meses}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_VALORTAXA_12_MESES',true)}"/></p:column>
+                        <p:column headerText="TB_ID_BENEFICIO_6_MESES" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_ID_BENEFICIO_6_MESES',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_id_beneficio_6_meses}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_ID_BENEFICIO_6_MESES',true)}"/></p:column>
+                        <p:column headerText="TB_ID_PROGRAMA_6_MESES" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_ID_PROGRAMA_6_MESES',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_id_programa_6_meses}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_ID_PROGRAMA_6_MESES',true)}"/></p:column>
+                        <p:column headerText="TB_ID_BENEFICIO_12_MESES" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_ID_BENEFICIO_12_MESES',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_id_beneficio_12_meses}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_ID_BENEFICIO_12_MESES',true)}"/></p:column>
+                        <p:column headerText="TB_ID_PROGRAMA_12_MESES" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_ID_PROGRAMA_12_MESES',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_id_programa_12_meses}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_ID_PROGRAMA_12_MESES',true)}"/></p:column>
+                        <p:column headerText="TB_BONUSBOLSODIFERENCIADO" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_BONUSBOLSODIFERENCIADO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_bonusbolsodiferenciadoStr}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_BONUSBOLSODIFERENCIADO',true)}"/></p:column>
+                        <p:column headerText="TB_RECARGABOLSODEGRAU2" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_RECARGABOLSODEGRAU2',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_recargabolsodegrau2}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_RECARGABOLSODEGRAU2',true)}"/></p:column>
+                        <p:column headerText="TB_BOLSOBONUSDEGRAU2" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_BOLSOBONUSDEGRAU2',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_bolsobonusdegrau2}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_BOLSOBONUSDEGRAU2',true)}"/></p:column>
+                        <p:column headerText="TB_RECARGABOLSODEGRAU3" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_RECARGABOLSODEGRAU3',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_recargabolsodegrau3}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_RECARGABOLSODEGRAU3',true)}"/></p:column>
+                        <p:column headerText="TB_BOLSOBONUSDEGRAU3" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_BOLSOBONUSDEGRAU3',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_bolsobonusdegrau3}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_BOLSOBONUSDEGRAU3',true)}"/></p:column>
+                        <p:column headerText="TB_BONUSLIGACAOOIMOVEL" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_BONUSLIGACAOOIMOVEL',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_bonusligacaooimovelStr}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_BONUSLIGACAOOIMOVEL',true)}"/></p:column>
+                        <p:column headerText="TB_BONUSLIGACAOOIMOVELFIXO" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_BONUSLIGACAOOIMOVELFIXO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_bonusligacaooimovelfixoStr}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_BONUSLIGACAOOIMOVELFIXO',true)}"/></p:column>
+                        <p:column headerText="TB_BONUSLIGACAOMIX" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_BONUSLIGACAOMIX',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_bonusligacaomixStr}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_BONUSLIGACAOMIX',true)}"/></p:column>
+                        <p:column headerText="TB_LIGACAOOIMOVELFIXO_DADOS" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_LIGACAOOIMOVELFIXO_DADOS',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_ligacaooimovelfixo_dadosStr}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_LIGACAOOIMOVELFIXO_DADOS',true)}"/></p:column>
+                        <p:column headerText="TB_BONUSLIGACAOMIX_DADOS" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_BONUSLIGACAOMIX_DADOS',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_bonusligacaomix_dadosStr}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_BONUSLIGACAOMIX_DADOS',true)}"/></p:column>
+                        <p:column headerText="TB_SEMCARENCIA" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_SEMCARENCIA',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_semcarenciaStr}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_SEMCARENCIA',true)}"/></p:column>
+                        <p:column headerText="TEM_BCE" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TEM_BCE',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tem_bceStr}" rendered="#{tabelaHistory.editMap.getOrDefault('TEM_BCE',true)}"/></p:column>
+                        <p:column headerText="ELEGIVEL_PROMO_SECUNDARIA" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('ELEGIVEL_PROMO_SECUNDARIA',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.elegivel_promo_secundariaStr}" rendered="#{tabelaHistory.editMap.getOrDefault('ELEGIVEL_PROMO_SECUNDARIA',true)}"/></p:column>
+                        <p:column headerText="PRIORIDADE" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('PRIORIDADE',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.prioridade}" rendered="#{tabelaHistory.editMap.getOrDefault('PRIORIDADE',true)}"/></p:column>
+                        <p:column headerText="OFERTAR_SEMPROMO" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('OFERTAR_SEMPROMO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.ofertar_sempromo}" rendered="#{tabelaHistory.editMap.getOrDefault('OFERTAR_SEMPROMO',true)}"/></p:column>
+                        <p:column headerText="PRE_CONTRATACAO" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('PRE_CONTRATACAO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.pre_contratacaoStr}" rendered="#{tabelaHistory.editMap.getOrDefault('PRE_CONTRATACAO',true)}"/></p:column>
+                        <p:column headerText="COBRARTAXA" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('COBRARTAXA',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.cobrartaxa}" rendered="#{tabelaHistory.editMap.getOrDefault('COBRARTAXA',true)}"/></p:column>
+                        <p:column headerText="TB_USSD_CONVERTIDO" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_USSD_CONVERTIDO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_ussd_convertidoStr}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_USSD_CONVERTIDO',true)}"/></p:column>
+                        <p:column headerText="TB_CATEGORIA" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_CATEGORIA',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_categoria}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_CATEGORIA',true)}"/></p:column>
+
+                    </p:dataTable>
+                </h:form>
+            </p:sidebar>
+
+            <!-- DELETAR PROMOCAO -->
+            <p:sidebar id="sideBarDeleteId" widgetVar="sidebarDelete" position="top" baseZIndex="10000" style="overflow: auto;min-height: 160px;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Tem certeza?</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesDel"></p:messages>
+                    </div>
+                </div>
+                <p:separator />
+                <h:form id="formDel">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-3 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar id="delDT_GMUD" placeholder="DT_GMUD" required="true" value="#{promocoesCartaoBean.gmudToDelete}" disabled="#{promocoesCartaoBean.gmudToDelete != null}" mask="99/99/9999" pattern="dd/MM/yyyy" showOn="button">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                </p:calendar>
+                            </div>
+                        </div>
+                        <p:commandButton value="Sim" validateClient="true" actionListener="#{promocoesCartaoBean.deletar()}" onstart="showLoader();" oncomplete="hideLoader();" update="messages,messagesDel,formTable:tabelaId" icon="fa fa-check" />
+                        <p:commandButton value="Não" oncomplete="PF('sidebarDelete').hide()" icon="fa fa-times" />
+                    </div>
+                </h:form>
+            </p:sidebar>
+
+            <!-- SCRIPT PROMOCAO -->
+            <p:sidebar id="sideBarScriptId" widgetVar="sidebarScript" position="top" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Gerar Script</h1>
+                <h:form id="formScript">
+                    <p:separator />
+                    <p:commandButton value="USSD" ajax="false" actionListener="#{promocoesCartaoBean.generateScriptFile('USSD')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{promocoesCartaoBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                    <p:commandButton value="*880" ajax="false" actionListener="#{promocoesCartaoBean.generateScriptFile('880')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{promocoesCartaoBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                    <p:commandButton value="*144" ajax="false" actionListener="#{promocoesCartaoBean.generateScriptFile('144')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{promocoesCartaoBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                </h:form>
+            </p:sidebar>
+
+            <p:dialog id="expiredGmudDlgId" header="GMUD Expirada: #{promocoesCartaoBean.expiredGmud}" widgetVar="expiredGmudDlg" rendered="#{promocoesCartaoBean.expiredGmud != null and controleBean.canEdit()}" closable="false">
+                <h:form id="formExpired">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Essa GMUD expirou e suas alterações precisam ir para produção ou apenas adiada, antes de prosseguir com novas alterações.<br/>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-8">
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Adiar" onclick="PF('newDtGmudDlg').show();"/>
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Implantar" onclick="PF('confirmDlg').show();" style="float: right; display: #{controleBean.visibilityDeploy(promocoesCartaoBean.aprovacaoFiltered)}"/>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="newDtGmudDlg" showHeader="false" width="min-content" closable="false">
+                <h:form id="formNewDate">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            <p:datePicker id="inline" value="#{promocoesCartaoBean.newDtGmud}" locale="br" inline="true">
+                                <p:ajax event="dateSelect" listener="#{promocoesCartaoBean.adiar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist,expiredGmudDlgId" onstart="showLoader();" oncomplete="location.reload();"/>
+                            </p:datePicker>
+                            <div class="ui-g-6">
+                                <p:commandButton value="Cancelar" onclick="PF('newDtGmudDlg').hide();" icon="fa fa-times" />
+                            </div>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlg" header="Implantar GMUD" closable="false">
+                <h:form id="formConfirm">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Todas as alterações serão inseridas nos registros de produção!<br/>
+                            Confirmar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{promocoesCartaoBean.aprovar}" update="messages,formTable:tabelaId,formButtons" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlg').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgAprovar" header="Aprovar GMUD" closable="false">
+                <h:form id="formConfirmAprovar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Aprovar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{promocoesCartaoBean.aprovarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgAprovar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgIniciar" header="Iniciar GMUD" closable="false">
+                <h:form id="formConfirmIniciar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma o inicio da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{promocoesCartaoBean.iniciarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgIniciar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgIniciar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgValidar" header="Validar GMUD" closable="false">
+                <h:form id="formConfirmValidar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma a validação da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{promocoesCartaoBean.validarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgValidar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgValidar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgUAT" header="Enviar GMUD para UAT" closable="false">
+                <h:form id="formConfirmUAT">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para UAT?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{promocoesCartaoBean.uatGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgUAT').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgUAT').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgImplantacao" header="Enviar GMUD para Implantacao" closable="false">
+                <h:form id="formConfirmImplantacao">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para Implantacao?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{promocoesCartaoBean.implantarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgImplantacao').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgImplantacao').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+        </div>
+
+        <script  type="text/javascript" target="body">
+            $j = jQuery;
+            $j(document).ready(function () {
+                PF('tabelaCell').filter();
+                hideLoader();
+                try {
+                    PF('expiredGmudDlg').show();
+                } catch (e) {
+                }
+
+            });
+        </script>
+        <h:outputStylesheet name="css/template.css" library="pages" />
+    </ui:define>
+</ui:composition>

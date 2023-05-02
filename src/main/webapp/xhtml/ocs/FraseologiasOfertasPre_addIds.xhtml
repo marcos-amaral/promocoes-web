@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+<!--Adicionar Promoções ids -->
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="DT_GMUD" styleClass="field_label"/>
+             <div class="ui-inputgroup" style="padding: 0.15em; #{fraseologiasOfertasPreBean.isObrigatorio('DT_GMUD')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                <p:calendar id="addDT_GMUD" placeholder="DT_GMUD" required="#{fraseologiasOfertasPreBean.isObrigatorio('DT_GMUD')}" value="#{fraseologiasOfertasPreBean.newConfigOfertasPre.dt_gmud}" mask="99/99/9999" mindate="#{fraseologiasOfertasPreBean.today}" showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00" >
+                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                </p:calendar>    
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-2 ui-lg-2">
+            <p:outputLabel value="ID_BENEFICIO" styleClass="field_label"/>
+             <div class="ui-inputgroup" style="padding: 0.15em; #{fraseologiasOfertasPreBean.isObrigatorio('ID_BENEFICIO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                <p:inputMask id="addID_BENEFICIO" placeholder="ID_BENEFICIO" required="#{fraseologiasOfertasPreBean.isObrigatorio('ID_BENEFICIO')}" value="#{fraseologiasOfertasPreBean.newConfigOfertasPre.id_beneficio}" mask="99"/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-2 ui-lg-2">
+             <p:outputLabel value="ID_PROGRAMA" styleClass="field_label"/>
+             <div class="ui-inputgroup" style="padding: 0.15em; #{fraseologiasOfertasPreBean.isObrigatorio('ID_PROGRAMA')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                <p:inputMask id="addID_PROGRAMA" placeholder="ID_PROGRAMA" required="#{fraseologiasOfertasPreBean.isObrigatorio('ID_PROGRAMA')}" value="#{fraseologiasOfertasPreBean.newConfigOfertasPre.id_programa}" mask="9?9"/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-4 ui-lg-2">
+             <p:outputLabel value="ID_OFERTAOCS" styleClass="field_label"/>
+             <div class="ui-inputgroup" style="padding: 0.15em; #{fraseologiasOfertasPreBean.isObrigatorio('ID_OFERTAOCS')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                <p:inputMask id="addID_OFERTAOCS" placeholder="ID_OFERTAOCS" required="#{fraseologiasOfertasPreBean.isObrigatorio('ID_OFERTAOCS')}" value="#{fraseologiasOfertasPreBean.newConfigOfertasPre.id_ofertaocs}" mask="9999999"/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-12 ui-lg-3">
+            <p:outputLabel value="DDD" styleClass="field_label"/>
+             <div class="ui-inputgroup" style="padding: 0.15em; #{fraseologiasOfertasPreBean.isObrigatorio('DDD')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                <p:inputText id="addDDD" placeholder="DDD" required="#{fraseologiasOfertasPreBean.isObrigatorio('DDD')}" value="#{fraseologiasOfertasPreBean.newConfigOfertasPre.ddd}"/>
+            </div>
+        </div>
+    </div>
+    <p:separator />
+</ui:composition>

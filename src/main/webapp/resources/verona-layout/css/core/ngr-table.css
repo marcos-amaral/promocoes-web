@@ -1,0 +1,71 @@
+
+/***********************************************
+* TABELA DECORADA DO NGR
+***********************************************/
+div.ui-outputpanel.ui-widget.ngr-table{
+    font-size: 11px;
+}
+
+div.ui-outputpanel.ui-widget.ngr-table .ui-datatable-header {
+    border: 0px;
+    background: transparent;
+}
+
+div.ui-outputpanel.ui-widget.ngr-table .ui-paginator-bottom{
+    background: transparent;
+    border: none;
+    padding-top: 5px;
+    font-size: 10px;
+}
+
+div.ui-outputpanel.ui-widget.ngr-table .ui-paginator-rpp-options.ui-widget.ui-state-default.ui-corner-left{
+    font-family: "Lato", "Helvetica Neue", sans-serif;
+    font-size: 11px;
+}
+
+div.ui-outputpanel.ui-widget.ngr-table .ui-datatable thead th, .ui-datatable tbody td, .ui-datatable tfoot td, .ui-datatable tfoot th {
+    border-width: 0px;
+    border-style: none;
+}
+
+div.ui-outputpanel.ui-widget.ngr-table .ui-datatable-tablewrapper{
+    width: 99.99%;
+}
+
+div.ui-outputpanel.ui-widget.ngr-table .ui-datatable table{
+    width: 99.97%;
+}
+
+body div.ui-outputpanel.ui-widget.ngr-table .ui-datatable .ui-datatable-data > tr.ui-widget-content.ui-datatable-odd{
+    /*background-color: rgb(245, 248, 249, 0.63);*/
+}
+
+body div.ui-outputpanel.ui-widget.ngr-table .ui-datatable .ui-datatable-data > tr.ui-datatable-even {
+    /*background-color: rgb(255, 255, 255, 0.63);*/
+}
+
+body div.ui-outputpanel.ui-widget.ngr-table .ui-datatable .ui-datatable-data {
+    background-color: rgb(245, 248, 249, 0.3);
+}
+
+body div.ui-outputpanel.ui-widget.ngr-table .ui-datatable-footer.ui-widget-header.ui-corner-bottom{
+    background: none;
+    border: none;
+    text-align: right;
+}
+
+body div.ui-outputpanel.ui-widget.ngr-table a.ui-paginator-prev.ui-state-default.ui-corner-all {
+    padding-top: 5px;
+}
+
+body div.ui-outputpanel.ui-widget.ngr-table a.ui-paginator-first.ui-state-default.ui-corner-all.ui-state-disabled {
+    padding-top: 5px;
+}
+
+/************************************************************
+* AUTO SIZED TABLE
+************************************************************/
+table.ngr-table-auto{
+    table-layout: auto;
+    text-align: center;
+}

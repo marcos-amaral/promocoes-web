@@ -1,0 +1,77 @@
+#loading {
+    background: url('../../resources/pages/img/spinner.gif') no-repeat center center;
+    background-color: rgba(240, 240, 240, 0.7);
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 9999999;
+}
+
+.ui-datatable-header{
+    background: transparent !important;
+    border: none !important;
+}
+
+#formTable\:tabelaId\:fromInic_input, #formTable\:tabelaId\:toInic_input, #formTable\:tabelaId\:fromFim_input, #formTable\:tabelaId\:toFim_input {
+    width: 60%;
+}
+
+.dashboard .ngr-overview-box .overview-box-rate.overview-box-fail-rate {
+    background-color: #9c9494;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+.editedcell {
+    background-color: #ffffcc;
+    color: black;
+}
+
+.deletedcell {
+    background-color: #ffe1df;
+    color: black;
+}
+
+.ui-chips-container.ui-inputfield.ui-state-default.ui-corner-all{
+    width: 100%;
+}
+
+.cell-warn{
+    background: #ffffa6a8;
+}
+
+.cell-normal{
+}
+
+.inputnumber .ui-inputfield{
+    height: 100% !important;
+}
+
+.contentRow {
+    word-break: break-all;
+    height: 50px;
+}
+
+.ui-picklist-list.ui-picklist-source, .ui-picklist-list.ui-picklist-target {
+    width: 6em;
+    
+}
+
+.ui-picklist-buttons {
+    width: 1.5em;
+}
+
+#ui-datepicker-div{
+    z-index: 100000 !important;
+}
+
+.ui-autocomplete-panel {
+    z-index: 100000 !important;
+}
+/*
+///////////////////////////////////////////////////////////////////////
+*/

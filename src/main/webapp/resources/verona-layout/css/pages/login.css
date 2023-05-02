@@ -1,0 +1,37 @@
+/************************************
+ *LOGIN FEIO
+ ************************************/
+
+
+body.login-body{
+    /*    background-image: url("#{resource['verona-layout:images/core/back.svg']}");
+        background-size:cover;*/
+    border-top: none;
+}
+
+/************************************
+ *LOGO NGR
+ ************************************/
+div.ui-g-12.logo-container{
+    border-radius: 25px;
+    /*background: radial-gradient(circle at 50% 100%, #6d6d7e, #3b3b48);*/
+    /*margin-left: 20px;*/
+    /*margin-right: 20px;*/
+}
+
+.login-body .login-panel .logo-container img{
+    max-width: 390px;
+    width: auto;
+}
+
+.login-body .login-panel{
+    padding: 50px 80px;
+}
+
+
+@media (max-width: 640px){
+    .login-body .login-panel .logo-container img{
+        max-width: 290px;
+        width: auto;
+    }
+}

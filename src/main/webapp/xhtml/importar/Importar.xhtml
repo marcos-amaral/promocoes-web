@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/xhtml/template/template.xhtml">
+    <ui:define name="conteudo">
+        <p:growl id="messages" showDetail="true" />
+
+        <h:form id="form" enctype="multipart/form-data">
+            <div class="container">
+                <h:panelGroup>
+                    <p:wizard id="importarPanelId" flowListener="#{importarBean.onFlowProcess}" nextLabel="Próximo" backLabel="Anterior">
+                        <p:tab title="ARQUIVO" id="ARQUIVO">
+                            <div class="ui-g-12 ui-md-1">
+                                <div class="ui-inputgroup">
+                                    <p:fileUpload 
+                                        id="fileUploadId"
+                                        listener="#{importarBean.upload}"
+                                        auto="true"
+                                        mode="advanced"
+                                        update="form:fileId"
+                                        label="Arquivo"
+                                        />
+                                </div>
+                            </div>
+                            <div class="ui-g-12 ui-md-6" style="padding-top: 18px;">
+                                <p:outputLabel id="fileId" value="#{importarBean.file.fileName}"/>
+                            </div>
+                        </p:tab>
+                        <p:tab title="ABA" id="ABA">
+                            <p:selectOneMenu id="abasId" value="#{importarBean.selectedAba}">
+                                <f:selectItem itemLabel="" itemValue="" />
+                                <f:selectItems value="#{importarBean.abas}" />
+                                <p:ajax event="change" listener="#{importarBean.popularCampos()}"/>
+                            </p:selectOneMenu>
+                        </p:tab>
+                        <p:tab title="CAMPOS" id="CAMPOS">
+                            <p:dataTable
+                                id="rowsId"
+                                value="#{importarBean.campos}"
+                                var="templateRow"
+                                rowIndexVar="rowIdx">
+
+                                <p:column width="25%">
+                                    <h:outputText value="#{templateRow.nome}" />
+                                </p:column>
+                                <p:column width="10%">
+                                    <p:selectOneMenu id="selectTipoCampo" value="#{templateRow.tipo}">
+                                        <f:selectItems value="#{importarBean.tipoCampos}" var="tipoCampo" itemLabel="#{tipoCampo.tipo}" itemValue="#{tipoCampo}" />
+                                        <p:ajax event="change" process="form:rowsId" update="form:rowsId"/>
+                                    </p:selectOneMenu>
+                                </p:column>
+                                <p:column>
+                                    <h:panelGroup rendered="#{templateRow.tipo == 'COLUNA'}">
+                                        <p:dataTable
+                                            id="colunaId"
+                                            value="#{templateRow.columns}"
+                                            var="colunaHolder"
+                                            widgetVar="colunaHolderVar"
+                                            emptyMessage="">
+                                            <p:column headerText="SUBSTRING" width="45%">
+                                                <h:inputText value="#{colunaHolder.substringValue}" style="width: 100%"/>
+                                            </p:column>
+                                            <p:column headerText="COLUNA" width="40%">
+                                                <h:inputText value="#{colunaHolder.columnName}" style="width: 100%"/>
+                                            </p:column>
+                                            <p:column width="15%">
+                                                <p:commandButton value="Remover" styleClass="ui-priority-primary" process="@this" update="form:rowsId:#{rowIdx}:colunaId"
+                                                                 action="#{importarBean.onRemove(templateRow, colunaHolder)}"/>
+                                            </p:column>
+                                        </p:dataTable>
+                                        <div class="ui-g">
+                                            <div class="ui-g-12">
+                                                <p:commandButton value="Adicionar" styleClass="ui-priority-primary" process="@this"
+                                                                 action="#{importarBean.onAddNew(templateRow)}" oncomplete="PF('colunaHolderVar').addRow();"/>
+                                            </div>
+                                        </div>
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{templateRow.tipo != 'COLUNA'}">
+                                        <h:inputText value="#{templateRow.nomeColuna}" style="width: 100%"/>
+                                    </h:panelGroup>
+                                </p:column>
+                                <p:column width="20%">
+                                    <p:selectOneMenu id="selectTipoDado" value="#{templateRow.tipoDado}" disabled="#{templateRow.tipo == 'IGNORAR' or templateRow.tipo == 'COLUNA'}">
+                                        <f:selectItems value="#{importarBean.tipoDados}" var="tipoDado" itemLabel="#{tipoDado.tipo}" itemValue="#{tipoDado}" />
+                                    </p:selectOneMenu>
+                                </p:column>
+                            </p:dataTable>
+                        </p:tab>
+                        <p:tab title="VISUALIZAR" id="VISUALIZAR">
+                            <div class="ui-g">
+                                <div class="ui-g-12">
+                                    <p:outputLabel value="Registros: #{importarBean.tabelaList.size()}"/>
+                                </div>
+                            </div>
+                            <div class="ui-g">
+                                <div class="ui-g-12">
+                                    <p:dataTable
+                                        id="tabelaId"
+                                        value="#{importarBean.tabelaList}"
+                                        var="tabelaRow"
+                                        scrollable="true" 
+                                        scrollWidth="95%"
+                                        scrollHeight="350"  
+                                        style="font-size: 0.8em; display: inline-block;">
+
+                                        <p:columns value="#{importarBean.colunasChavesList}" var="chave" width="#{chave=='DDD'?300:100}">
+                                            <f:facet name="header">
+                                                <h:outputText value="#{chave}" style="word-break: break-word;"/>
+                                            </f:facet>
+                                            <h:outputText value="#{tabelaRow.chaves.get(chave)}" style="word-break: break-word;"/>
+                                        </p:columns>
+                                        <p:columns value="#{importarBean.colunasValuesList}" var="coluna" width="500">
+                                            <f:facet name="header">
+                                                <h:outputText value="#{coluna}" style="word-break: break-word;"/>
+                                            </f:facet>
+                                            <h:outputText value="#{tabelaRow.colunas.get(coluna)}" style="word-break: break-word;" />
+                                        </p:columns>
+                                    </p:dataTable>
+                                </div>
+                            </div>
+                        </p:tab>
+                        <p:tab title="SCRIPT" id="SCRIPT">
+                            <div class="ui-g">
+                                <div class="ui-g-12">
+                                    <p:selectOneRadio id="console" value="#{importarBean.scriptInsert}" unselectable="true">
+                                        <p:ajax event="change" update="form:tabelaScriptId" listener="#{importarBean.loadScript()}"/>
+                                        <f:selectItem itemLabel="INSERT" itemValue="true" />
+                                        <f:selectItem itemLabel="UPDATE" itemValue="false" />
+                                    </p:selectOneRadio>
+                                    <p:commandButton ajax="false" value="Download lista de prompts" actionListener="#{importarBean.generateScriptFile()}">
+                                        <p:fileDownload value="#{importarBean.scriptFile}" />
+                                    </p:commandButton>
+                                </div>
+                                <div class="ui-g-12">
+                                    <p:dataTable
+                                        id="tabelaScriptId"
+                                        value="#{importarBean.script}"
+                                        var="scriptRow"
+                                        scrollable="true" 
+                                        scrollWidth="95%"
+                                        scrollHeight="350"  
+                                        style="font-size: 0.8em; display: inline-block;">
+
+                                        <p:column>
+                                            <h:outputText value="#{scriptRow}"/>
+                                        </p:column>
+
+                                    </p:dataTable>
+                                </div>
+                            </div>
+                        </p:tab>
+                    </p:wizard>
+                </h:panelGroup>
+            </div>
+
+        </h:form>
+        <h:outputStylesheet name="css/importar.css" library="pages" />
+    </ui:define>
+</ui:composition>

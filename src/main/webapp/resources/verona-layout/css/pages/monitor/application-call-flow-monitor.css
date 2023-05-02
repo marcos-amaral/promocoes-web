@@ -1,0 +1,330 @@
+
+/************************************************************
+* DIAGRAM SIZE
+************************************************************/
+@media (min-height: 100px)  {
+    .ngr-diagram{
+        height:33em
+    }
+}
+
+@media (min-height: 300px)  {
+    .ngr-diagram{
+        height:33em
+    }
+}
+
+@media (min-height: 500px)  {
+    .ngr-diagram{
+        height:33em
+    }
+}
+
+@media (min-height: 540px)  {
+    .ngr-diagram{
+        height:33em
+    }
+}
+
+@media (min-height: 560px)  {
+    .ngr-diagram{
+        height:33em
+    }
+}
+
+@media (min-height: 600px)  {
+    .ngr-diagram{
+        height:34.5em
+    }
+}
+
+@media (min-height: 650px)  {
+    .ngr-diagram{
+        height:35em
+    }
+}
+
+@media (min-height: 660px)  {
+    .ngr-diagram{
+        height:36em
+    }
+}
+
+@media (min-height: 670px)  {
+    .ngr-diagram{
+        height:37em
+    }
+}
+
+@media (min-height: 680px)  {
+    .ngr-diagram{
+        height:38em
+    }
+}
+
+@media (min-height: 690px)  {
+    .ngr-diagram{
+        height:39em
+    }
+}
+
+@media (min-height: 700px)  {
+    .ngr-diagram{
+        height:40em
+    }
+}
+
+@media (min-height: 710px)  {
+    .ngr-diagram{
+        height:40.5em
+    }
+}
+
+@media (min-height: 720px)  {
+    .ngr-diagram{
+        height:41em
+    }
+}
+
+@media (min-height: 730px)  {
+    .ngr-diagram{
+        height:41.5em
+    }
+}
+
+@media (min-height: 740px)  {
+    .ngr-diagram{
+        height:42em
+    }
+}
+
+@media (min-height: 750px)  {
+    .ngr-diagram{
+        height:43em
+    }
+}
+@media (min-height: 760px)  {
+    .ngr-diagram{
+        height:43.5em
+    }
+}
+
+@media (min-height: 770px)  {
+    .ngr-diagram{
+        height:44em
+    }
+}
+
+@media (min-height: 780px)  {
+    .ngr-diagram{
+        height:45em
+    }
+}
+
+@media (min-height: 790px)  {
+    .ngr-diagram{
+        height:45.5em
+    }
+}
+
+@media (min-height: 800px)  {
+    .ngr-diagram{
+        height:47em
+    }
+}
+
+@media (min-height: 810px)  {
+    .ngr-diagram{
+        height:48em
+    }
+}
+
+@media (min-height: 820px)  {
+    .ngr-diagram{
+        height:49em
+    }
+}
+
+@media (min-height: 830px)  {
+    .ngr-diagram{
+        height:50em
+    }
+}
+
+@media (min-height: 840px)  {
+    .ngr-diagram{
+        height:51em
+    }
+}
+
+@media (min-height: 850px)  {
+    .ngr-diagram{
+        height:52em
+    }
+}
+
+@media (min-height: 860px)  {
+    .ngr-diagram{
+        height:52em
+    }
+}
+
+@media (min-height: 870px)  {
+    .ngr-diagram{
+        height:53em
+    }
+}
+
+@media (min-height: 880px)  {
+    .ngr-diagram{
+        height:53.5em
+    }
+}
+
+@media (min-height: 890px)  {
+    .ngr-diagram{
+        height:54em
+    }
+}
+
+@media (min-height: 900px)  {
+    .ngr-diagram{
+        height:54.5em
+    }
+}
+
+@media (min-height: 910px)  {
+    .ngr-diagram{
+        height:55em
+    }
+}
+
+@media (min-height: 930px)  {
+    .ngr-diagram{
+        height:58em
+    }
+}
+
+@media (min-height: 940px)  {
+    .ngr-diagram{
+        height:59em
+    }
+}
+
+@media (min-height: 960px)  {
+    .ngr-diagram{
+        height:60em
+    }
+}
+
+@media (min-height: 1000px)  {
+    .ngr-diagram{
+        height:64em
+    }
+}
+
+@media (min-height: 1060px)  {
+    .ngr-diagram{
+        height:68em
+    }
+}
+
+/************************************************************
+* DIAGRAM BACKGROUND
+************************************************************/
+.ui-diagram.ui-widget.ui-widget-content.ngr-diagram{
+    border: none;
+    background-color: rgba(250, 250, 250, 0.3);
+    border-radius: 25px;
+    background-image: -webkit-linear-gradient(top, rgb(223, 229, 232, 0.7), rgb(243, 244, 245, 0.4));
+}
+
+
+/************************************************************
+* DIAGRAM IMG FORMAT
+************************************************************/
+.ui-diagram-element img{
+    max-width: 40px;
+    padding-top: 2px;
+}
+
+/************************************************************
+* DIAGRAM ELEMENT
+************************************************************/
+.ui-diagram-element {
+    /*border:0.1em dotted #E5E4E2;*/ 
+    /*background-color: #EFEEEC;*/
+    width:6em; 
+    height:6em;
+    text-align: center;
+    /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);*/
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+    border-radius: 25px;
+    background-image: -webkit-linear-gradient(top, #d7dfe4, #f5f8fa);
+    background-image: -moz-linear-gradient(top, #d7dfe4, #f5f8fa);
+    background-image: -ms-linear-gradient(top, #d7dfe4, #f5f8fa);
+    background-image: -o-linear-gradient(top, #d7dfe4, #f5f8fa);
+    background-image: linear-gradient(top, #d7dfe4, #f5f8fa);
+}
+
+.ui-diagram-element:hover {
+    background-image: -webkit-linear-gradient(top, #d5e8f5, #f5f8fa);
+    background-image: -moz-linear-gradient(top, #d5e8f5, #f5f8fa);
+    background-image: -ms-linear-gradient(top, #d5e8f5, #f5f8fa);
+    background-image: -o-linear-gradient(top, #d5e8f5, #f5f8fa);
+    background-image: linear-gradient(top, #d5e8f5, #f5f8fa);
+    cursor: pointer;
+    /*background-color: #C7C6C4;*/
+}
+
+span.diagram-element-header-text {
+    display:block;
+    margin-top: 1.1em;
+    font-weight: bold;
+}
+
+span.diagram-element-header-text-alarm {
+    color: #d6d4d0;
+    font-weight: 900;
+    font-size: 13px;
+}
+
+div.ui-diagram-element.diagram-element-header-text-alarm:hover {
+    background-image: -webkit-linear-gradient(top, #fa392f, #f46f68);
+    background-image: -moz-linear-gradient(top, #fa392f, #f46f68);
+    background-image: -ms-linear-gradient(top, #fa392f, #f46f68);
+    background-image: -o-linear-gradient(top, #fa392f, #f46f68);
+    background-image: linear-gradient(top, #fa392f, #f46f68);
+    cursor: pointer;
+    /*background-color: #d43f3a;*/
+}
+
+div.ui-diagram-element.diagram-element-header-text-alarm{
+    background-image: -webkit-linear-gradient(top, #da392f, #e46f68);
+    background-image: -moz-linear-gradient(top, #da392f, #e46f68);
+    background-image: -ms-linear-gradient(top, #da392f, #e46f68);
+    background-image: -o-linear-gradient(top, #da392f, #e46f68);
+    background-image: linear-gradient(top, #da392f, #e46f68);
+    /*background-color: #cc4e49;*/
+    /*border:0.1em #d5403b;*/
+}
+
+div.ui-diagram-element.diagram-element-header-text-warn:hover {
+    background-image: -webkit-linear-gradient(top, #eff300, #a5a74b);
+    background-image: -moz-linear-gradient(top, #eff300, #a5a74b);
+    background-image: -ms-linear-gradient(top, #eff300, #a5a74b);
+    background-image: -o-linear-gradient(top, #eff300, #a5a74b);
+    background-image: linear-gradient(top, #eff300, #a5a74b);
+    cursor: pointer;
+    /*background-color: #d43f3a;*/
+}
+
+div.ui-diagram-element.diagram-element-header-text-warn{
+    background-image: -webkit-linear-gradient(top, #d1d400, #68692f);
+    background-image: -moz-linear-gradient(top, #d1d400, #68692f);
+    background-image: -ms-linear-gradient(top, #d1d400, #68692f);
+    background-image: -o-linear-gradient(top, #d1d400, #68692f);
+    background-image: linear-gradient(top, #d1d400, #68692f);
+    /*background-color: #cc4e49;*/
+    /*border:0.1em #d5403b;*/
+}

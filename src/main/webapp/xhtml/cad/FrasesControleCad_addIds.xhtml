@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+
+<!--Adicionar Promoção ids -->
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{frasesControleCadBean.isObrigatorio('DT_GMUD')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar id="addDT_GMUD" placeholder="DT_GMUD" required="#{frasesControleCadBean.isObrigatorio('DT_GMUD')}" value="#{frasesControleCadBean.newTemplate.dt_gmud}" mask="99/99/9999" mindate="#{frasesControleCadBean.today}" showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                                </p:calendar>    
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-3">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{frasesControleCadBean.isObrigatorio('DDD')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputText id="addDDD" placeholder="DDD" required="#{frasesControleCadBean.isObrigatorio('DDD')}" value="#{frasesControleCadBean.newTemplate.ddd}"/>
+                            </div>
+                        </div>
+                    </div>
+                    <p:separator />
+
+</ui:composition>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/xhtml/template/template.xhtml">
+    <ui:define name="conteudo">
+        <p:growl id="messages" showDetail="true" life="10000"/>
+
+        <h:form id="form">
+            <p:remoteCommand name="rc" update="form:btnFinalizarOCSPre,form:btnFinalizarINPre,form:btnFinalizarINControle" action="#{addIncentivoBean.setFinalizado(true)}" />
+
+            <div class="container">
+                <h:panelGroup>
+                    <p:wizard id="wizardId" 
+                              flowListener="#{addIncentivoBean.onFlowProcess}" 
+                              nextLabel="Próximo" 
+                              backLabel="Anterior"
+                              widgetVar="wiz">
+                        <p:ajax event="next" update="messages,form:tableConfirm,form:tableConfirmPreControle,form:tableConfirmCad,form:tableConfirmFrases" />
+
+                        <!-- ID -->
+                        <p:tab title="IDs" id="tabIds">
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel for="calendar_dt_gmud" value="Data GMUD:" />
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-2">
+                                    <p:calendar id="calendar_dt_gmud" required="true" value="#{addIncentivoBean.dt_gmud}" mindate="#{addIncentivoBean.today}" showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00"/>
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel for="radio_plano" value="Tipo Plano:" />
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-3">
+                                    <p:selectOneRadio id="radio_plano" required="true" value="#{addIncentivoBean.tipoPlano}" unselectable="true">
+                                        <p:ajax event="change" process="@this" update="form:radio_tarifador"/>
+                                        <f:selectItem itemLabel="Pré-pago" itemValue="PRE" />
+                                        <f:selectItem itemLabel="Oi Controle" itemValue="CONTROLE" />
+                                    </p:selectOneRadio>
+                                </div>
+                                <div class="ui-g-1 ui-md-3 ui-lg-8">
+                                    <p:message for="radio_plano" display="icon" />
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel for="radio_tarifador" value="Tarifador:" />
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-3">
+                                    <p:selectOneRadio id="radio_tarifador" required="true" value="#{addIncentivoBean.tarifador}" unselectable="true">
+                                        <p:ajax event="change" process="@this"/>
+                                        <f:selectItem itemLabel="IN" itemValue="IN" />
+                                        <f:selectItem itemLabel="OCS" itemValue="OCS" itemDisabled="#{addIncentivoBean.tipoPlano eq 'CONTROLE'}" />
+                                    </p:selectOneRadio>
+                                </div>
+                                <div class="ui-g-1 ui-md-3 ui-lg-8">
+                                    <p:message for="radio_tarifador" display="icon" />
+                                </div>
+                            </div>
+                        </p:tab>
+                        <!-- DDD -->
+                        <p:tab title="Grupos de DDD" id="tabDDDs">
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-12 ui-md-12 ui-lg-3">
+                                    <p:pickList id="pickList" value="#{addIncentivoBean.allDdds}" var="ddd" itemLabel="#{ddd}" itemValue="#{ddd}" />
+                                </div>
+                                <div class="ui-g-3 ui-md-3 ui-lg-1">
+                                    <p:commandButton value="Adicionar" 
+                                                     update="form:pickList,form:tableDdds,messages"
+                                                     actionListener="#{addIncentivoBean.addGrupoDdd()}" 
+                                                     styleClass="ui-priority-primary"/>
+                                </div>
+                                <div class="ui-g-12 ui-md-12 ui-lg-7">
+                                    <p:dataTable id="tableDdds"
+                                                 value="#{addIncentivoBean.ddds144}"
+                                                 var="dddGrupo"
+                                                 rowIndexVar="rowIndex"
+                                                 emptyMessage=""
+                                                 reflow="true">
+                                        <f:facet name="header">
+                                            *144 / *880 / USSD
+                                        </f:facet>
+
+                                        <p:column width="10%">
+                                            <p:outputLabel value="Grupo #{rowIndex+1}"/>
+                                        </p:column>
+                                        <p:column  width="75%">
+                                            <p:chips id="chipsDdd" value="#{dddGrupo}" valueChangeListener="#{addIncentivoBean.setCurrentDddGroupIndex(rowIndex)}">
+                                                <p:ajax event="itemUnselect" listener="#{addIncentivoBean.removeDdd}" update="form:pickList, form:tableDdds" />
+                                                <p:ajax event="itemSelect" listener="#{addIncentivoBean.addDdd}" update="form:pickList, form:tableDdds" />
+                                            </p:chips>
+                                        </p:column>
+                                        <p:column  width="15%">
+                                            <p:commandButton value="Remover" 
+                                                             update="form:pickList,form:tableDdds"
+                                                             actionListener="#{addIncentivoBean.removeGrupoDdd(rowIndex)}" 
+                                                             styleClass="ui-priority-primary"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-12 ui-md-12 ui-lg-3">
+                                </div>
+                                <div class="ui-g-3 ui-md-3 ui-lg-1">
+                                    <p:commandButton value="Adicionar" 
+                                                     update="form:pickList,form:tableDddsCadastro,messages"
+                                                     actionListener="#{addIncentivoBean.addGrupoDddCadastro()}" 
+                                                     styleClass="ui-priority-primary"
+                                                     disabled="true"/>
+                                </div>
+                                <div class="ui-g-12 ui-md-12 ui-lg-7">
+                                    <p:dataTable id="tableDddsCadastro"
+                                                 value="#{addIncentivoBean.dddsCadastro}"
+                                                 var="dddGrupoCadastro"
+                                                 rowIndexVar="rowIndexCad"
+                                                 emptyMessage=""
+                                                 reflow="true">
+                                        <f:facet name="header">
+                                            URA Cadastro
+                                        </f:facet>
+
+                                        <p:column width="10%">
+                                            <p:outputLabel value="Grupo #{rowIndexCad+1}"/>
+                                        </p:column>
+                                        <p:column  width="75%">
+                                            <p:chips id="chipsDdd" value="#{dddGrupoCadastro}" valueChangeListener="#{addIncentivoBean.setCurrentDddGroupIndex(rowIndexCad)}">
+                                                <p:ajax event="itemUnselect" listener="#{addIncentivoBean.removeDddCadastro}" update="form:pickList, form:tableDddsCadastro" />
+                                                <p:ajax event="itemSelect" listener="#{addIncentivoBean.addDddCadastro}" update="form:pickList, form:tableDddsCadastro" />
+                                            </p:chips>
+                                        </p:column>
+                                        <p:column  width="15%">
+                                            <p:commandButton value="Remover" 
+                                                             update="form:pickList,form:tableDddsCadastro"
+                                                             actionListener="#{addIncentivoBean.removeGrupoDddCadastro(rowIndex)}" 
+                                                             styleClass="ui-priority-primary"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </div>
+                            </div>
+
+                        </p:tab>
+                        <!-- Dados -->
+                        <p:tab title="Dados" id="tabDados" >
+                            <p:tabView id="tabViewAppsDados" tabindex="tabDadosIndex" style="z-index: 10">
+                                <p:ajax event="tabChange" listener="#{addIncentivoBean.onTabChangeTemplate144}"/>
+
+                                <p:tab title="*144 / *880 / USSD #{('IN' eq addIncentivoBean.tarifador and 'CONTROLE' eq addIncentivoBean.tipoPlano)?'(Controle > Controle)':''}" rendered="#{addIncentivoBean.ddds144!=null and addIncentivoBean.ddds144.size() gt 0}">
+                                    <p:tabView id="tabView144Ddds"
+                                               value="#{addIncentivoBean.ddds144}" 
+                                               activeIndex="#{addIncentivoBean.indexGrupoDados144}"
+                                               var="ddd144GrupoTab">
+                                        <p:ajax event="tabChange" listener="#{addIncentivoBean.onTabChange144}"/>
+
+                                        <p:tab title="Grupo #{addIncentivoBean.ddds144.indexOf(ddd144GrupoTab)+1}" >
+                                            <p:chips id="chipsDddGroup" value="#{ddd144GrupoTab}" readonly="true" disabled="true" styleClass="chipsView"/>
+                                            <h:panelGroup id="mainInsertDiv" style="" layout="block">
+                                                <h:panelGroup rendered="#{'OCS' eq addIncentivoBean.tarifador and 'PRE' eq addIncentivoBean.tipoPlano}" layout="block">
+                                                    <ui:include id="includeId" src="/xhtml/ocs/IncentivoOfertasPre_add.xhtml">
+                                                        <ui:param name="mBean" value="#{incentivoOfertasPreBean}" />
+                                                        <ui:param name="mBeanNew" value="#{incentivoOfertasPreBean.getNewTemplate(
+                                                                                           addIncentivoBean.ddds144.size(),
+                                                                                           addIncentivoBean.ddds144.indexOf(ddd144GrupoTab),
+                                                                                           addIncentivoBean.getDddsString(addIncentivoBean.ddds144.indexOf(ddd144GrupoTab)),
+                                                                                           addIncentivoBean.dt_gmud)}" />
+                                                    </ui:include>
+                                                </h:panelGroup>
+                                                <h:panelGroup rendered="#{'IN' eq addIncentivoBean.tarifador and 'PRE' eq addIncentivoBean.tipoPlano}" layout="block">
+                                                    <ui:include id="includeId" src="/xhtml/sec/IoCartaoCartao_add.xhtml">
+                                                        <ui:param name="mBean" value="#{ioCartaoCartaoBean}" />
+                                                        <ui:param name="mBeanNew" value="#{ioCartaoCartaoBean.getNewTemplate(
+                                                                                           addIncentivoBean.ddds144.size(),
+                                                                                           addIncentivoBean.ddds144.indexOf(ddd144GrupoTab),
+                                                                                           addIncentivoBean.getDddsString(addIncentivoBean.ddds144.indexOf(ddd144GrupoTab)),
+                                                                                           addIncentivoBean.dt_gmud)}" />
+                                                    </ui:include>
+                                                </h:panelGroup>
+                                                <h:panelGroup rendered="#{'IN' eq addIncentivoBean.tarifador and 'CONTROLE' eq addIncentivoBean.tipoPlano}" layout="block">
+                                                    <ui:include id="includeId" src="/xhtml/template/addTemplate.xhtml">
+                                                        <ui:param name="mBean" value="#{ioControleControleBean}" />
+                                                        <ui:param name="mBeanNew" value="#{ioControleControleBean.getNewTemplate(
+                                                                                           addIncentivoBean.ddds144.size(),
+                                                                                           addIncentivoBean.ddds144.indexOf(ddd144GrupoTab),
+                                                                                           addIncentivoBean.getDddsString(addIncentivoBean.ddds144.indexOf(ddd144GrupoTab)),
+                                                                                           addIncentivoBean.dt_gmud)}" />
+                                                    </ui:include>
+                                                </h:panelGroup>
+
+                                            </h:panelGroup>
+                                        </p:tab>
+                                    </p:tabView>
+                                </p:tab>
+                                <p:tab title="*144 / *880 / USSD #{('IN' eq addIncentivoBean.tarifador and 'CONTROLE' eq addIncentivoBean.tipoPlano)?'(Pre > Controle)':''}" rendered="#{addIncentivoBean.ddds144!=null and addIncentivoBean.ddds144.size() gt 0 and 'IN' eq addIncentivoBean.tarifador and 'CONTROLE' eq addIncentivoBean.tipoPlano}">
+                                    <p:tabView id="tabViewDddsPreControle"
+                                               value="#{addIncentivoBean.ddds144PreControle}" 
+                                               activeIndex="#{addIncentivoBean.indexGrupoDados144PreControle}"
+                                               var="ddd144PreControleGrupoTab">
+                                        <p:ajax event="tabChange" listener="#{addIncentivoBean.onTabChange144PreControle}"/>
+
+                                        <p:tab title="Grupo #{addIncentivoBean.ddds144PreControle.indexOf(ddd144PreControleGrupoTab)+1}" >
+                                            <f:facet name="actions">
+                                                <p:menuButton value="Opções">
+                                                    <p:menuitem value="Editar" icon="fa fa-edit" actionListener="#{addIncentivoBean.loadPickListDddPreControle(ddd144PreControleGrupoTab)}" update="formDDDsPreControle:pickListPreControle" onclick="PF('dlgDddEditPreControle').show();"/>
+                                                    <p:menuitem value="Adicionar" icon="fa fa-plus" actionListener="#{addIncentivoBean.loadPickListDddPreControle(null)}" update="formDDDsPreControle:pickListPreControle" onclick="PF('dlgDddEditPreControle').show();"/>
+                                                    <p:menuitem value="Remover" icon="fa fa-close" actionListener="#{addIncentivoBean.deleteDddsPreControle(ddd144PreControleGrupoTab)}" update="form:tabViewAppsDados:tabViewDddsPreControle"/>
+                                                </p:menuButton>
+                                            </f:facet>
+
+                                            <p:chips id="chipsDddGroup" value="#{ddd144PreControleGrupoTab}" readonly="true" disabled="true" styleClass="chipsView"/>
+                                            <h:panelGroup id="mainInsertDiv" style="" layout="block">
+                                                <h:panelGroup rendered="#{'IN' eq addIncentivoBean.tarifador and 'CONTROLE' eq addIncentivoBean.tipoPlano}" layout="block">
+                                                    <ui:include id="includeId" src="/xhtml/template/addTemplate.xhtml">
+                                                        <ui:param name="mBean" value="#{ioCartaoControleBean}" />
+                                                        <ui:param name="mBeanNew" value="#{ioCartaoControleBean.getNewTemplate(
+                                                                                           addIncentivoBean.ddds144PreControle.size(),
+                                                                                           addIncentivoBean.ddds144PreControle.indexOf(ddd144PreControleGrupoTab),
+                                                                                           addIncentivoBean.getDdds144PreControleString(addIncentivoBean.ddds144PreControle.indexOf(ddd144PreControleGrupoTab)),
+                                                                                           addIncentivoBean.dt_gmud)}" />
+                                                    </ui:include>
+                                                </h:panelGroup>
+                                            </h:panelGroup>
+                                        </p:tab>
+                                    </p:tabView>
+                                </p:tab>
+                            </p:tabView>
+                        </p:tab>
+                        <!-- Frases -->
+                        <p:tab title="Frases" id="tabFrases">
+                            <br/><br/>
+                            <p:outputLabel value="Frases não se aplicam para incentivo *144 / *880 / USSD" rendered="#{addIncentivoBean.dddsCadastro==null or addIncentivoBean.dddsCadastro.size() le 0}"/>
+                            <br/><br/>
+                            <p:tabView id="tabViewDddsFrases"
+                                       rendered="#{addIncentivoBean.dddsCadastro!=null and addIncentivoBean.dddsCadastro.size() gt 0}"
+                                       value="#{addIncentivoBean.dddsFrases}" 
+                                       var="dddFrasesGrupoTab">
+                                <p:ajax event="tabClose" listener="#{addIncentivoBean.onTabClose}"/>
+
+                                <p:tab title="Grupo #{addIncentivoBean.dddsFrases.indexOf(dddFrasesGrupoTab)+1}">
+                                    <f:facet name="actions">
+                                        <p:menuButton value="Opções">
+                                            <p:menuitem value="Editar" icon="fa fa-edit" actionListener="#{addIncentivoBean.loadPickListDddFrases(dddFrasesGrupoTab)}" update="formDDDsFrases:pickList" onclick="PF('dlgDddEditFrases').show();"/>
+                                            <p:menuitem value="Adicionar" icon="fa fa-plus" actionListener="#{addIncentivoBean.loadPickListDddFrases(null)}" update="formDDDsFrases:pickList" onclick="PF('dlgDddEditFrases').show();"/>
+                                            <p:menuitem value="Remover" icon="fa fa-close" actionListener="#{addIncentivoBean.deleteDddsFrases(dddFrasesGrupoTab)}" update="form:tabViewDddsFrases"/>
+                                        </p:menuButton>
+                                    </f:facet>
+
+                                    <p:chips id="chipsDddFrasesGroup" value="#{dddFrasesGrupoTab}" readonly="true" disabled="true" styleClass="chipsView"/>
+                                    <h:panelGroup id="mainFrasesDiv" style="" layout="block">
+                                        <h:panelGroup rendered="#{'OCS' eq addIncentivoBean.tarifador and 'PRE' eq addIncentivoBean.tipoPlano}" layout="block">
+                                            <ui:include id="includeId" src="/xhtml/cad/FrasePreOcs_add.xhtml">
+                                                <ui:param name="mBean" value="#{frasePreOcsBean}" />
+                                                <ui:param name="mBeanNew" value="#{frasePreOcsBean.getNewTemplate(
+                                                                                   addIncentivoBean.dddsFrases.size(),
+                                                                                   addIncentivoBean.dddsFrases.indexOf(dddFrasesGrupoTab),
+                                                                                   addIncentivoBean.getDddsFrasesString(addIncentivoBean.dddsFrases.indexOf(dddFrasesGrupoTab)),
+                                                                                   addIncentivoBean.dt_gmud)}" />
+                                            </ui:include>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{'IN' eq addIncentivoBean.tarifador and 'PRE' eq addIncentivoBean.tipoPlano}" layout="block">
+                                            <ui:include id="includeId" src="/xhtml/cad/FrasePre_add.xhtml">
+                                                <ui:param name="mBean" value="#{frasePreBean}" />
+                                                <ui:param name="mBeanNew" value="#{frasePreBean.getNewTemplate(
+                                                                                   addIncentivoBean.dddsFrases.size(),
+                                                                                   addIncentivoBean.dddsFrases.indexOf(dddFrasesGrupoTab),
+                                                                                   addIncentivoBean.getDddsFrasesString(addIncentivoBean.dddsFrases.indexOf(dddFrasesGrupoTab)),
+                                                                                   addIncentivoBean.dt_gmud)}" />
+                                            </ui:include>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{'IN' eq addIncentivoBean.tarifador and 'CONTROLE' eq addIncentivoBean.tipoPlano}" layout="block">
+                                            <ui:include id="includeId" src="/xhtml/cad/FrasesControleCad_add.xhtml">
+                                                <ui:param name="mBean" value="#{frasesControleCadBean}" />
+                                                <ui:param name="mBeanNew" value="#{frasesControleCadBean.getNewTemplate(
+                                                                                   addIncentivoBean.dddsFrases.size(),
+                                                                                   addIncentivoBean.dddsFrases.indexOf(dddFrasesGrupoTab),
+                                                                                   addIncentivoBean.getDddsStringCadastro(addIncentivoBean.dddsFrases.indexOf(dddFrasesGrupoTab)),
+                                                                                   addIncentivoBean.dt_gmud)}" />
+                                            </ui:include>
+                                        </h:panelGroup>
+                                    </h:panelGroup>
+                                </p:tab>
+                            </p:tabView>
+                        </p:tab>
+                        <!-- View -->
+                        <p:tab title="Confirmação" id="tabConfirm">
+                            <br/><br/>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-6 ui-md-3 ui-lg-2">
+                                    <p:commandButton id="btnFinalizarOCSPre"
+                                                     rendered="#{'OCS' eq addIncentivoBean.tarifador and 'PRE' eq addIncentivoBean.tipoPlano}"
+                                                     value="Finalizar" 
+                                                     actionListener="#{addIncentivoBean.adicionar(incentivoOfertasPreBean.tabelasEnum,incentivoOfertasPreBean.newTemplateList,null,null,null,null,frasePreOcsBean.tabelasEnum,null)}" 
+                                                     oncomplete="rc()"
+                                                     immediate="true"
+                                                     update="messages"
+                                                     disabled="#{addIncentivoBean.finalizado}"
+                                                     styleClass="pink-btn"/>
+                                    <p:commandButton id="btnFinalizarINPre"
+                                                     rendered="#{'IN' eq addIncentivoBean.tarifador and 'PRE' eq addIncentivoBean.tipoPlano}"
+                                                     value="Finalizar" 
+                                                     actionListener="#{addIncentivoBean.adicionar(ioCartaoCartaoBean.tabelasEnum,ioCartaoCartaoBean.newTemplateList,null,null,tbTemplateBean.tabelasEnum,tbTemplateBean.newTemplateList,frasePreBean.tabelasEnum,frasePreBean.newTemplateList)}" 
+                                                     oncomplete="rc()"
+                                                     immediate="true"
+                                                     update="messages"
+                                                     disabled="#{addIncentivoBean.finalizado}"
+                                                     styleClass="pink-btn"/>
+                                    <p:commandButton id="btnFinalizarINControle"
+                                                     rendered="#{'IN' eq addIncentivoBean.tarifador and 'CONTROLE' eq addIncentivoBean.tipoPlano}"
+                                                     value="Finalizar" 
+                                                     actionListener="#{addIncentivoBean.adicionar(ioControleControleBean.tabelasEnum,ioControleControleBean.newTemplateList,ioCartaoControleBean.tabelasEnum,ioCartaoControleBean.newTemplateList,tbTemplateControleBean.tabelasEnum,tbTemplateControleBean.newTemplateList,frasesControleCadBean.tabelasEnum,frasesControleCadBean.newTemplateList)}" 
+                                                     oncomplete="rc()"
+                                                     immediate="true"
+                                                     update="messages"
+                                                     disabled="#{addIncentivoBean.finalizado}"
+                                                     styleClass="pink-btn"/>
+
+                                </div>
+                                <div class="ui-g-6 ui-md-3 ui-lg-2">
+                                    <p:commandButton value="Começar de novo" 
+                                                     actionListener="#{addIncentivoBean.reset()}" 
+                                                     oncomplete="PF('wiz').loadStep('tabIds', false)"
+                                                     immediate="true"
+                                                     update="form:wizardId"
+                                                     styleClass="black-btn"/>
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <p:dataTable
+                                    id="tableConfirm"
+                                    value="#{addIncentivoBean.listaNewTemplateDados}"
+                                    var="newTemplateDados"
+                                    scrollable="true" 
+                                    scrollWidth="99%"
+                                    scrollHeight="250">
+                                    <f:facet name="header">
+                                        Dados *144 / *880 / USSD #{('IN' eq addIncentivoBean.tarifador and 'CONTROLE' eq addIncentivoBean.tipoPlano)?'(Controle > Controle)':''}
+                                    </f:facet>
+
+                                    <p:columns value="#{addIncentivoBean.colunasTemplateDados}" var="field" headerText="#{field.key}" field="#{field.property}" width="#{field.width}" style="word-break: break-all">
+                                        <p:outputLabel id="tableColumnContentId" value="#{newTemplateDados[field.property]}"/>
+                                        <p:tooltip id="toolTip" for="tableColumnContentId" value="#{newTemplateDados[field.property]}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+                                    </p:columns>
+                                </p:dataTable>
+                                <br/><br/>
+                                <p:dataTable
+                                    id="tableConfirmPreControle"
+                                    rendered="#{'IN' eq addIncentivoBean.tarifador and 'CONTROLE' eq addIncentivoBean.tipoPlano}"
+                                    value="#{addIncentivoBean.listaNewTemplateDadosCartaoControle}"
+                                    var="newTemplateDadosCartaoControle"
+                                    scrollable="true" 
+                                    scrollWidth="99%"
+                                    scrollHeight="250">
+                                    <f:facet name="header">
+                                        Dados *144 / *880 / USSD (Pre > Controle)
+                                    </f:facet>
+
+                                    <p:columns value="#{addIncentivoBean.colunasTemplateDadosPreControle}" var="field" headerText="#{field.key}" field="#{field.property}" width="#{field.width}" style="word-break: break-all">
+                                        <p:outputLabel id="tableColumnContentId" value="#{newTemplateDadosCartaoControle[field.property]}"/>
+                                        <p:tooltip id="toolTip" for="tableColumnContentId" value="#{newTemplateDadosCartaoControle[field.property]}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+                                    </p:columns>
+                                </p:dataTable>
+                                <br/><br/>
+                                <p:dataTable
+                                    id="tableConfirmCad"
+                                    rendered="#{addIncentivoBean.dddsCadastro!=null and addIncentivoBean.dddsCadastro.size() gt 0}"
+                                    value="#{addIncentivoBean.dddsCadastro}"
+                                    var="dddsCadastro"
+                                    reflow="true">
+                                    <f:facet name="header">
+                                        Dados URA Cadastro
+                                    </f:facet>
+
+                                    <p:column headerText="DDDs">
+                                        <p:outputLabel value="#{dddsCadastro}"/>
+                                    </p:column>
+                                </p:dataTable>
+                            </div>
+                            <br/><br/>
+                            <div class="ui-g ui-fluid">
+                                <p:dataTable
+                                    id="tableConfirmFrases"
+                                    rendered="#{addIncentivoBean.dddsFrases!=null and addIncentivoBean.dddsFrases.size() gt 0}"
+                                    value="#{addIncentivoBean.dddsFrases}"
+                                    var="dddsFrases"
+                                    reflow="true">
+                                    <f:facet name="header">
+                                        Frases URA Cadastro
+                                    </f:facet>
+
+                                    <p:column headerText="DDDs">
+                                        <p:outputLabel value="#{dddsFrases}"/>
+                                    </p:column>
+                                </p:dataTable>
+                            </div>
+                        </p:tab>
+                    </p:wizard>
+                </h:panelGroup>
+            </div>
+        </h:form>
+
+        <p:dialog widgetVar="dlgDddEditFrases" id="dialogFrasesId" closable="true" modal="true">
+            <h:form id="formDDDsFrases">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12">
+                        <p:pickList id="pickList" 
+                                    value="#{addIncentivoBean.allDddsFrases}" 
+                                    var="dddFrase" 
+                                    itemLabel="#{dddFrase}" 
+                                    itemValue="#{dddFrase}" >
+                            <f:facet name="sourceCaption">DDDs disponíveis</f:facet>
+                            <f:facet name="targetCaption">DDDs escolhidos</f:facet>
+                        </p:pickList>
+                    </div>
+                </div>
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12">
+                        <p:commandButton value="Confirmar" 
+                                         update="form:tabViewDddsFrases"
+                                         oncomplete="PF('dlgDddEditFrases').hide();"
+                                         actionListener="#{addIncentivoBean.confirmDddsFrases()}"/>
+                    </div>
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <p:dialog widgetVar="dlgDddEditPreControle" id="dialogPreControleId" closable="true" modal="true">
+            <h:form id="formDDDsPreControle">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12">
+                        <p:pickList id="pickListPreControle" 
+                                    value="#{addIncentivoBean.allDddsPreControle}" 
+                                    var="dddPreControle" 
+                                    itemLabel="#{dddPreControle}" 
+                                    itemValue="#{dddPreControle}" >
+                            <f:facet name="sourceCaption">DDDs disponíveis</f:facet>
+                            <f:facet name="targetCaption">DDDs escolhidos</f:facet>
+                        </p:pickList>
+                    </div>
+                </div>
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12">
+                        <p:commandButton value="Confirmar" 
+                                         update="form:tabViewAppsDados:tabViewDddsPreControle"
+                                         oncomplete="PF('dlgDddEditPreControle').hide();"
+                                         actionListener="#{addIncentivoBean.confirmDddsPreControle()}"/>
+                    </div>
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <h:outputStylesheet name="css/template.css" library="pages" />
+
+        <style type="text/css">
+            .chipsView .ui-icon-close {
+                visibility: hidden !important;
+            }
+        </style>
+    </ui:define>
+</ui:composition>

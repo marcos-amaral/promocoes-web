@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+    <!-- ADICIONAR PROMOCAO -->
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="DATA_INIC" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('DATA_INIC')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                <p:calendar id="addDATA_INIC" placeholder="DATA_INIC" required="#{mBean.isObrigatorio('DATA_INIC')}" value="#{mBeanNew.data_inic}" showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00"/>    
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="DATA_FIM" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('DATA_FIM')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                <p:calendar id="addDATA_FIM" placeholder="DATA_FIM" required="#{mBean.isObrigatorio('DATA_FIM')}" value="#{mBeanNew.data_fim}" showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00" mindate="#{mBean.today}"/>         
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="VALOR_TAXAADESAO" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" id="taxaAdesaoDivId" style="padding: 0.15em; #{mBean.isObrigatorio('VALOR_TAXAADESAO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                <p:inputNumber id="addVALOR_TAXAADESAO"  placeholder="VALOR_TAXAADESAO" required="#{mBean.isObrigatorio('VALOR_TAXAADESAO')}" value="#{mBeanNew.valor_taxaadesao}" decimalPlaces="2" thousandSeparator=""/>      
+            </div>
+        </div>
+    </div>    
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="LIMMAXCONVMIN" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{mBean.isObrigatorio('LIMMAXCONVMIN')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-clock-o"></i></span>
+                <p:inputNumber id="addLIMMAXCONVMIN" placeholder="LIMMAXCONVMIN" required="#{mBean.isObrigatorio('LIMMAXCONVMIN')}" value="#{mBeanNew.limmaxconvmin}" decimalPlaces="0" thousandSeparator=""/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="LIMMAXCONVMB" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{mBean.isObrigatorio('LIMMAXCONVMB')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-wifi"></i></span>
+                <p:inputNumber id="addLIMMAXCONVMB" placeholder="LIMMAXCONVMB" required="#{mBean.isObrigatorio('LIMMAXCONVMB')}" value="#{mBeanNew.limmaxconvmb}" decimalPlaces="0" thousandSeparator=""/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="SALDOMINDADOSCONVMB" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{mBean.isObrigatorio('SALDOMINDADOSCONVMB')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-wifi"></i></span>
+                <p:inputNumber id="addSALDOMINDADOSCONVMB" placeholder="SALDOMINDADOSCONVMB" required="#{mBean.isObrigatorio('SALDOMINDADOSCONVMB')}" value="#{mBeanNew.saldomindadosconvmb}" decimalPlaces="0" thousandSeparator=""/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <p:outputLabel value="TIPO_OFERTA" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('TIPO_OFERTA')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputText id="addTIPO_OFERTA" placeholder="TIPO_OFERTA" required="#{mBean.isObrigatorio('TIPO_OFERTA')}" value="#{mBeanNew.tipo_oferta}"/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="SHORT_CODE" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{mBean.isObrigatorio('SHORT_CODE')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                <p:inputNumber id="addSHORT_CODE" placeholder="SHORT_CODE" required="#{mBean.isObrigatorio('SHORT_CODE')}" value="#{mBeanNew.short_code}" decimalPlaces="0" thousandSeparator=""/>      
+            </div>
+        </div>
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <p:outputLabel value="FREEUNITVOZELEGIVEL" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('FREEUNITVOZELEGIVEL')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputText id="addFREEUNITVOZELEGIVEL" placeholder="FREEUNITVOZELEGIVEL" required="#{mBean.isObrigatorio('FREEUNITVOZELEGIVEL')}" value="#{mBeanNew.freeunitvozelegivel}"/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <p:outputLabel value="FREEUNITDADOSELEGIVEL" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('FREEUNITDADOSELEGIVEL')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputText id="addFREEUNITDADOSELEGIVEL" placeholder="FREEUNITDADOSELEGIVEL" required="#{mBean.isObrigatorio('FREEUNITDADOSELEGIVEL')}" value="#{mBeanNew.freeunitdadoselegivel}"/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <p:outputLabel value="ID_OFERTA_RENTCYCLE" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('ID_OFERTA_RENTCYCLE')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputText  id="addID_OFERTA_RENTCYCLE" placeholder="ID_OFERTA_RENTCYCLE" required="#{mBean.isObrigatorio('ID_OFERTA_RENTCYCLE')}" value="#{mBeanNew.id_oferta_rentcycle}"/>      
+            </div>
+        </div>
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('ELEGIVELCONVERSAO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                <p:selectBooleanButton  id="addELEGIVELCONVERSAO" required="#{mBean.isObrigatorio('ELEGIVELCONVERSAO')}" value="#{mBeanNew.elegivelconversao}" onLabel="ELEGIVELCONVERSAO" offLabel="ELEGIVELCONVERSAO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('EXISTEFALLBACK')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                <p:selectBooleanButton id="addEXISTEFALLBACK" required="#{mBean.isObrigatorio('EXISTEFALLBACK')}" value="#{mBeanNew.existefallback}" onLabel="EXISTEFALLBACK" offLabel="EXISTEFALLBACK" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('EXISTEROLLOVER')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                <p:selectBooleanButton id="addEXISTEROLLOVER" required="#{mBean.isObrigatorio('EXISTEROLLOVER')}" value="#{mBeanNew.existerollover}" onLabel="EXISTEROLLOVER" offLabel="EXISTEROLLOVER" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('USSD_CONVERTIDO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                <p:selectBooleanButton id="addUSSD_CONVERTIDO" required="#{mBean.isObrigatorio('USSD_CONVERTIDO')}" value="#{mBeanNew.ussd_convertido}" onLabel="USSD_CONVERTIDO" offLabel="USSD_CONVERTIDO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+            </div>
+        </div>
+    </div>
+
+
+</ui:composition>

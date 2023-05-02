@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+    <!-- ADICIONAR PROMOCAO -->
+    <div class="ui-g ui-fluid">
+        <ui:repeat varStatus="addVarStatus" value="#{mBean.colunasTemplateNotId}" var="field">
+            <h:panelGroup rendered="#{field.type eq 'class java.util.Date'}">
+                <div class="#{field.responsiveClass}">
+                    <p:outputLabel value="#{field.label}" for="@parent:addCalendar" indicateRequired="false" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio(field.key)?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                        <p:calendar id="addCalendar" placeholder="#{field.key}" required="#{mBean.isObrigatorio(field.key)}" requiredMessage="#{field.label}: Erro de validação: o valor é necessário." validatorMessage="#{field.key.concat(field.key.endsWith('FIM')?': Erro de validação: a data deve ser maior que hoje.':' inválida')}" value="#{mBeanNew[field.property]}" showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00" mindate="#{field.key.endsWith('FIM')?mBean.today:null}"/>         
+                    </div>
+                </div>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{(field.inputType.toString() eq 'STRING' or field.inputType.toString() eq 'WAV') and field.type eq 'class java.lang.String'}">
+                <div class="#{field.responsiveClass}">
+                    <p:outputLabel value="#{field.label}" for="@parent:addText" indicateRequired="false" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio(field.key)?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputText id="addText" placeholder="#{field.key}" required="#{mBean.isObrigatorio(field.key)}" requiredMessage="#{field.label}: Erro de validação: o valor é necessário." value="#{mBeanNew[field.property]}"/>  
+                    </div>
+                </div>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{field.inputType.toString() eq 'MONEY'}">
+                <div class="#{field.responsiveClass}">
+                    <p:outputLabel value="#{field.label}" for="@parent:addMoney" indicateRequired="false" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio(field.key)?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                        <p:inputNumber id="addMoney" placeholder="#{field.key}" required="#{mBean.isObrigatorio(field.key)}" requiredMessage="#{field.label}: Erro de validação: o valor é necessário." value="#{mBeanNew[field.property]}" decimalPlaces="2" thousandSeparator="" decimalSeparator="," decimalSeparatorAlternative="." symbol="R$" converter="moneyConverter"/>
+                    </div>
+                </div>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{field.inputType.toString() eq 'INTEGER'}">
+                <div class="#{field.responsiveClass}">
+                    <p:outputLabel value="#{field.label}" for="@parent:addNumber" indicateRequired="false" styleClass="field_label"/>
+                    <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{mBean.isObrigatorio(field.key)?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-calculator"></i></span>
+                        <p:inputNumber id="addNumber" placeholder="#{field.key}" required="#{mBean.isObrigatorio(field.key)}" requiredMessage="#{field.label}: Erro de validação: o valor é necessário." value="#{mBeanNew[field.property]}" decimalPlaces="0" thousandSeparator=""/>      
+                    </div>
+                </div>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{field.inputType.toString() eq 'AUTOCOMPLETE'}">
+                <div class="#{field.responsiveClass}" style="z-index: 20;">
+                    <p:outputLabel value="#{field.label}" for="@parent:addAuto" indicateRequired="false" styleClass="field_label"/>
+                    <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{mBean.isObrigatorio(field.key)?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:selectOneMenu id="addAuto" placeholder="#{field.key}" required="#{mBean.isObrigatorio(field.key)}" requiredMessage="#{field.label}: Erro de validação: o valor é necessário." value="#{mBeanNew[field.property]}" appendTo="@this">
+                            <f:selectItems value="#{field.autoComplete}" />
+                        </p:selectOneMenu>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </ui:repeat>
+    </div>
+    <div class="ui-g ui-fluid">
+        <ui:repeat varStatus="addVarStatus" value="#{mBean.colunasTemplateNotId}" var="field">
+            <h:panelGroup rendered="#{field.type eq 'boolean'}">
+                <div class="#{field.responsiveClass}">
+                    <p:outputLabel value="#{field.label}" for="@parent:addBoolean" indicateRequired="false" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio(field.key)?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                        <p:selectBooleanButton id="addBoolean" required="#{mBean.isObrigatorio(field.key)}" requiredMessage="#{field.label}: Erro de validação: o valor é necessário." value="#{mBeanNew[field.property]}" onLabel="#{field.key}" offLabel="#{field.key}" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/> 
+                    </div>
+                </div>
+            </h:panelGroup>
+        </ui:repeat>
+    </div>
+    <div class="ui-g ui-fluid">
+        <ui:repeat varStatus="addVarStatus" value="#{mBean.colunasTemplateNotId}" var="field">
+            <h:panelGroup rendered="#{field.inputType.toString() eq 'DROPDOWN'}">
+                <div class="ui-g-12 ui-md-6 ui-lg-4" style="z-index: #{19-addVarStatus.index}">
+                    <p:outputLabel value="#{field.label}" for="@parent:addDropDown" indicateRequired="false" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio(field.key)?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                        <p:selectOneMenu id="addDropDown" placeholder="#{field.key}" required="#{mBean.isObrigatorio(field.key)}" requiredMessage="#{field.label}: Erro de validação: o valor é necessário." value="#{mBeanNew[field.property]}" appendTo="@this" styleClass="DROPDOWN">
+                            <f:selectItems value="#{mBean.validTipoPlanoList}" />
+                        </p:selectOneMenu>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </ui:repeat>
+    </div>
+
+
+</ui:composition>

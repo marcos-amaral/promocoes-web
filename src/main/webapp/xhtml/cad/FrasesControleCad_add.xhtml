@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+    <!--Adicionar Promoção -->
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTA_CADASTRO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-file-audio-o"></i></span>
+                <p:inputText placeholder="OFERTA_CADASTRO" required="#{mBean.isObrigatorio('OFERTA_CADASTRO')}" value="#{mBeanNew.oferta_cadastro}"/>
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTA_CADASTRO_CONTEUDO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputTextarea placeholder="OFERTA_CADASTRO_CONTEUDO" required="#{mBean.isObrigatorio('OFERTA_CADASTRO_CONTEUDO')}" value="#{mBeanNew.oferta_cadastro_conteudo}" cols="2500" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddOFERTA_CADASTRO_CONTEUDO"/>
+            </div>
+            <h:outputText id="caracAddOFERTA_CADASTRO_CONTEUDO" />
+        </div>
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTA_ESCOLHIDA')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-file-audio-o"></i></span>
+                <p:inputText placeholder="OFERTA_ESCOLHIDA" required="#{mBean.isObrigatorio('OFERTA_ESCOLHIDA')}" value="#{mBeanNew.oferta_escolhida}"/>
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTA_ESCOLHIDA_CONTEUDO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputTextarea placeholder="OFERTA_ESCOLHIDA_CONTEUDO" required="#{mBean.isObrigatorio('OFERTA_ESCOLHIDA_CONTEUDO')}" value="#{mBeanNew.oferta_escolhida_conteudo}" cols="2500" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddOFERTA_ESCOLHIDA_CONTEUDO"/>
+            </div>
+            <h:outputText id="caracAddOFERTA_ESCOLHIDA_CONTEUDO" />
+        </div>
+    </div>
+
+</ui:composition>

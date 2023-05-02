@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+    <p:dataTable
+        id="tabelaHistoryId"
+        value="#{mBean.selectedHistoryList}"
+        var="tabelaHistory"
+        widgetVar="tabelaHistoryCell"
+        scrollable="true" 
+        scrollWidth="95%"
+        scrollHeight="370"  
+        style="font-size: 0.8em; display: inline-block;"
+        styleClass="hidden">
+
+        <p:column headerText="ÚLTIMO STATUS" width="100" groupRow="true">
+            <p:outputLabel value="#{tabelaHistory.lastStatus}"/>
+        </p:column>
+        <p:column headerText="LOGIN" width="100">
+            <p:outputLabel value="#{tabelaHistory.user.login}"/>
+        </p:column>
+        <p:column headerText="MODIFICADO" width="150">
+            <p:outputLabel value="#{tabelaHistory.modified}">
+                <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00" />
+            </p:outputLabel>
+        </p:column>
+        <p:columns value="#{mBean.colunasTemplateNotId}" 
+                   var="field" 
+                   headerText="#{field.key}" 
+                   width="#{field.width}" 
+                   styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault(field.key,true)?'editedcell':'')}">
+            <p:outputLabel rendered="#{tabelaHistory.editMap.getOrDefault(field.key,true) and not tabelaHistory.deleted}"
+                           value="#{tabelaHistory[field.property]}" 
+                           ondblclick="copyToClip($(this));">
+                <f:converter converterId="genericConverter"/>
+            </p:outputLabel>
+        </p:columns>
+    </p:dataTable>
+
+</ui:composition>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+<!--Adicionar Promoção ids -->
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="DT_GMUD" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('DT_GMUD')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar id="addDT_GMUD" placeholder="DT_GMUD" required="#{promocoesCartaoBean.isObrigatorio('DT_GMUD')}" value="#{promocoesCartaoBean.newConfigOfertasPre.dt_gmud}" mask="99/99/9999" mindate="#{promocoesCartaoBean.today}" showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                                </p:calendar>    
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_ID_BENEFICIO" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_ID_BENEFICIO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputMask id="addTB_ID_BENEFICIO" placeholder="TB_ID_BENEFICIO" required="#{promocoesCartaoBean.isObrigatorio('TB_ID_BENEFICIO')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_id_beneficio}" mask="9?9"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_ID_PROGRAMA" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_ID_PROGRAMA')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputMask id="addTB_ID_PROGRAMA" placeholder="TB_ID_PROGRAMA" required="#{promocoesCartaoBean.isObrigatorio('TB_ID_PROGRAMA')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_id_programa}" mask="9?9"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_REGIAO" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_REGIAO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputText id="addTB_REGIAO" placeholder="TB_REGIAO" required="#{promocoesCartaoBean.isObrigatorio('TB_REGIAO')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_regiao}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-3">
+                            <p:outputLabel value="TB_DDD" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_DDD')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputText id="addTB_DDD" placeholder="TB_DDD" required="#{promocoesCartaoBean.isObrigatorio('TB_DDD')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_ddd}"/>
+                            </div>
+                        </div>
+                    </div>
+                    <p:separator />
+                    
+
+</ui:composition>

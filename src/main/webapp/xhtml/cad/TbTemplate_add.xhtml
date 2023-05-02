@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+    <!--Adcionar Promoção-->
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-2"><div class="ui-inputgroup" style="padding: 0.15em; #{tbTemplateBean.isObrigatorio('OFERTA1')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span><p:inputText placeholder="OFERTA1" required="#{tbTemplateBean.isObrigatorio('OFERTA1')}" value="#{tbTemplateBean.newTemplate.oferta1}" /></div></div>
+        <div class="ui-g-12 ui-md-6 ui-lg-2"><div class="ui-inputgroup" style="padding: 0.15em; #{tbTemplateBean.isObrigatorio('OFERTA2')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span><p:inputText placeholder="OFERTA2" required="#{tbTemplateBean.isObrigatorio('OFERTA2')}" value="#{tbTemplateBean.newTemplate.oferta2}" /></div></div>
+        <div class="ui-g-12 ui-md-6 ui-lg-2"><div class="ui-inputgroup" style="padding: 0.15em; #{tbTemplateBean.isObrigatorio('OFERTA3')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span><p:inputText placeholder="OFERTA3" required="#{tbTemplateBean.isObrigatorio('OFERTA3')}" value="#{tbTemplateBean.newTemplate.oferta3}" /></div></div>
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-2"><div class="ui-inputgroup" style="padding: 0.15em; #{tbTemplateBean.isObrigatorio('OFERTA_ERRO_IN')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span><p:inputText placeholder="OFERTA_ERRO_IN" required="#{tbTemplateBean.isObrigatorio('OFERTA_ERRO_IN')}" value="#{tbTemplateBean.newTemplate.oferta_erro_in}" /></div></div>
+        <div class="ui-g-12 ui-md-6 ui-lg-2"><div class="ui-inputgroup" style="padding: 0.15em; #{tbTemplateBean.isObrigatorio('OFERTA_ERRO_SIEBEL')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span><p:inputText placeholder="OFERTA_ERRO_SIEBEL" required="#{tbTemplateBean.isObrigatorio('OFERTA_ERRO_SIEBEL')}" value="#{tbTemplateBean.newTemplate.oferta_erro_siebel}" /></div></div>
+        <div class="ui-g-12 ui-md-6 ui-lg-2"><div class="ui-inputgroup" style="padding: 0.15em; #{tbTemplateBean.isObrigatorio('SEGPROMPT')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="SEGPROMPT" required="#{tbTemplateBean.isObrigatorio('SEGPROMPT')}" value="#{tbTemplateBean.newTemplate.segprompt}" /></div></div>
+    </div>
+
+</ui:composition>

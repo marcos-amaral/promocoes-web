@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pv="http://primefaces.org/verona"
+      >
+    <h:head>
+        <meta charset="UTF-8"/>
+
+        <link rel='stylesheet prefetch' href='https://fonts.googleapis.com/css?family=Dosis'/>
+        <h:outputStylesheet library="menu" name="css/style.css" />
+        <h:outputStylesheet library="menu" name="css/container.css" />
+
+
+    </h:head>
+
+
+
+    <h:body>
+        <div class="layout-wrapper layout-menu-static">
+
+        </div>
+        <!-- MENU -->
+        <h:panelGroup id="stickyMenu">
+            <div id="menu-container">
+
+                <div id="menu-wrapper">
+                    <div id="hamburger-menu">
+                        <span style="background-color: #6a6a6a"></span>
+                        <span style="background-color: #6a6a6a"></span>
+                        <span style="background-color: #6a6a6a"></span>
+                    </div>
+                    <!-- hamburger-menu -->
+                </div>
+                <!-- menu-wrapper -->
+                <ul class="menu-list accordion">
+                    <!-- menu-submenu accordon-content-->
+                    <li id="nav2" class="toggle accordion-toggle"> 
+                        <span class="icon-plus"></span>
+                        <a class="menu-link" href="#">Importar</a>
+                    </li>
+                    <!-- accordion-toggle -->
+                    <ul class="menu-submenu accordion-content">
+                        <li>
+                            <p:link rendered="#{controleBean.isRenderComponentes()}" onclick="PF('statusDialog').show();"  outcome="#{controleBean.routeToImportar()}">
+                                Importar xlsx
+                            </p:link>
+                        </li>
+                    </ul>
+                    <!-- menu-submenu accordon-content-->
+                    <li id="nav3" class="toggle accordion-toggle"> 
+                        <span class="icon-plus"></span>
+                        <a class="menu-link" href="#">Templates</a>
+                    </li>
+                    <!-- accordion-toggle -->
+                    <ul class="menu-submenu accordion-content">
+                        <h:outputLabel value="Template URA OCS_Ofertas_Massivas" style="font-weight: bold"/>
+                        <li>
+                            <p:link rendered="#{controleBean.isRenderComponentes()}" onclick="PF('statusDialog').show();"  outcome="#{controleBean.routeToConfigOfertasPre()}">
+                                <h:outputText value="CONFIG_OFERTASPRE" style="padding-left: 5%;"/>
+                            </p:link>
+                        </li>
+                        <li>
+                            <p:link rendered="#{controleBean.isRenderComponentes()}" onclick="PF('statusDialog').show();"  outcome="#{controleBean.routeToPromptsOfertasPre()}">
+                                <h:outputText value="PROMPTS_OFERTASPRE" style="padding-left: 5%;"/>
+                            </p:link>
+                        </li>
+                        <li>
+                            <p:link rendered="#{controleBean.isRenderComponentes()}" onclick="PF('statusDialog').show();"  outcome="#{controleBean.routeToFraseologiasOfertasPre()}">
+                                <h:outputText value="FRASEOLOGIAS_OFERTASPRE" style="padding-left: 5%;"/>
+                            </p:link>
+                        </li>
+                        <li>
+                            <p:link rendered="#{controleBean.isRenderComponentes()}" onclick="PF('statusDialog').show();"  outcome="#{controleBean.routeToIncentivoOfertasPre()}">
+                                <h:outputText value="INCENTIVO_OFERTASPRE" style="padding-left: 5%;"/>
+                            </p:link>
+                        </li>
+                        <br/>
+                        <h:outputLabel value="TemplateSecundariaUnificada" style="font-weight: bold"/>
+                        <li>
+                            <p:link rendered="#{controleBean.isRenderComponentes()}" onclick="PF('statusDialog').show();"  outcome="#{controleBean.routeToVoCartao()}">
+                                <h:outputText value="VO_CARTAO" style="padding-left: 5%;"/>
+                            </p:link>
+                        </li>
+                        <li>
+                            <p:link rendered="#{controleBean.isRenderComponentes()}" onclick="PF('statusDialog').show();"  outcome="#{controleBean.routeToBoCartao()}">
+                                <h:outputText value="BO_CARTAO" style="padding-left: 5%;"/>
+                            </p:link>
+                        </li>
+                        <li>
+                            <p:link rendered="#{controleBean.isRenderComponentes()}" onclick="PF('statusDialog').show();"  outcome="#{controleBean.routeToFrasesCartao()}">
+                                <h:outputText value="FRASES_CARTAO" style="padding-left: 5%;"/>
+                            </p:link>
+                        </li>
+                        <li>
+                            <p:link rendered="#{controleBean.isRenderComponentes()}" onclick="PF('statusDialog').show();"  outcome="#{controleBean.routeToIoCartaoCartao()}">
+                                <h:outputText value="IO_CARTAO_CARTAO" style="padding-left: 5%;"/>
+                            </p:link>
+                        </li>
+                        <li>
+                            <p:link rendered="#{controleBean.isRenderComponentes()}" onclick="PF('statusDialog').show();"  outcome="#{controleBean.routeToIoCartaoControle()}">
+                                <h:outputText value="IO_CARTAO_CONTROLE" style="padding-left: 5%;"/>
+                            </p:link>
+                        </li>
+                    </ul>
+                    <!-- menu-submenu accordon-content-->
+                </ul>
+
+                <!-- menu-list accordion-->
+            </div>
+        </h:panelGroup>
+        <p:sticky target="stickyMenu" />
+
+        <!-- menu-container -->
+        <div style="min-height: calc(100% - 80px);" id="mainContainer">
+            <ui:insert name="conteudo">
+            </ui:insert>
+        </div>
+
+        <h:outputScript library="menu" name="js/index.js"/>
+    </h:body>
+</html>

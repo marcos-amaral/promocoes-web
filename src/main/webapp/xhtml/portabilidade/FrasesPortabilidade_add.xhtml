@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+<!--Adicionar Promocoes-->
+          <div class="ui-g ui-fluid">
+                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                     <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('INFORMAPROMO')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea placeholder="INFORMAPROMO" required="#{mBean.isObrigatorio('INFORMAPROMO')}" value="#{mBeanNew.informapromo}" cols="120" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddINFORMAPROMO"/>      
+                    </div>
+                    <h:outputText id="caracAddINFORMAPROMO" />
+                </div>
+              <div class="ui-g-12 ui-md-6 ui-lg-4">
+                     <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('INCENTIVO_PORTABILIDADE')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea placeholder="INCENTIVO_PORTABILIDADE" required="#{mBean.isObrigatorio('INCENTIVO_PORTABILIDADE')}" value="#{mBeanNew.incentivo_portabilidade}" cols="120" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddINCENTIVO_PORTABILIDADE"/>      
+                    </div>
+                    <h:outputText id="caracAddINCENTIVO_PORTABILIDADE" />
+                </div>
+              <div class="ui-g-12 ui-md-6 ui-lg-4">
+                     <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('NAOCLIENTE_SVA')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea placeholder="NAOCLIENTE_SVA" required="#{mBean.isObrigatorio('NAOCLIENTE_SVA')}" value="#{mBeanNew.naocliente_sva}" cols="120" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddNAOCLIENTE_SVA"/>      
+                    </div>
+                    <h:outputText id="caracAddNAOCLIENTE_SVA" />
+                </div>
+               
+          </div>
+    
+</ui:composition>

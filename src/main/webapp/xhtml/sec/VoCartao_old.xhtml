@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/xhtml/template/template.xhtml">
+
+
+    <ui:define name="conteudo">
+        <h:outputScript name="js/template.js" library="pages" />
+        <div id="loading"></div>
+        <p:growl id="messages" showDetail="true" />
+
+        <div class="container">
+
+            <h:form>
+                <ui:include src="/xhtml/template/ModalDialog.xhtml" />
+            </h:form>
+
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12">
+                    <h:panelGroup id="panelAprovacao" style="visibility: #{voCartaoBean.aprovacaoFiltered != null?'unset':'hidden'}">
+                        <i class="fa fa-check-circle-o" style="color: yellowgreen; font-size: 2em;"></i>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value=" GMUD status #{voCartaoBean.aprovacaoFiltered.status.tipo} por #{voCartaoBean.aprovacaoFiltered.user.name} em "/>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value="#{voCartaoBean.aprovacaoFiltered.dt_aprovacao}">
+                            <f:convertDateTime timeStyle="short" type="both" dateStyle="full" locale="pt-BR" timeZone="GMT-03:00"/>
+                        </p:outputLabel>
+                    </h:panelGroup>
+                </div>
+            </div>
+
+            <h:form id="formButtons">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Adicionar" id="buttonAdd" oncomplete="PF('sidebarAdd').show()" actionListener="#{voCartaoBean.preLoadEditBean()}" update="sideBarAddId" disabled="#{!controleBean.canEdit() or voCartaoBean.expiredGmud != null}" styleClass="ui-priority-primary" icon="fa fa-plus"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Editar" id="buttonEdit" oncomplete="PF('sidebarEdit').show()" actionListener="#{voCartaoBean.preLoadEditBean()}" update="sideBarEditId" disabled="#{voCartaoBean.selectedConfigOfertasPreList.size() eq 0 or !controleBean.canEdit() or voCartaoBean.expiredGmud != null or !voCartaoBean.canEdit()}" styleClass="ui-priority-primary" icon="fa fa-edit"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Excluir" id="buttonDel" oncomplete="PF('sidebarDelete').show()" actionListener="#{voCartaoBean.preLoadEditBean()}" update="sideBarDeleteId" styleClass="ui-priority-primary" disabled="#{voCartaoBean.selectedConfigOfertasPreList.size() eq 0 or !controleBean.canEdit() or voCartaoBean.expiredGmud != null}" icon="fa fa-eraser"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Histórico" id="buttonHist" oncomplete="hideLoader();PF('sidebarHistory').show()" update="formHistory:tabelaHistoryId" styleClass="ui-priority-primary" disabled="#{voCartaoBean.selectedConfigOfertasPreList.size() eq 0 or voCartaoBean.selectedConfigOfertasPreList.size() gt 1}" icon="fa fa-history"/>
+                    </div>
+                    <!--
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Script" id="buttonScript" oncomplete="PF('sidebarScript').show()" styleClass="ui-priority-primary" icon="fa fa-file-code-o"/>
+                    </div>
+                    -->
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:splitButton  value="Adiar" id="buttonAdm" onclick="PF('newDtGmudDlg').show();" icon="fa fa-clock-o" disabled="#{voCartaoBean.defaultFilterValue eq 'PRODUCAO' or controleBean.isMarketing()}">
+                            <p:menuitem value="Iniciar" onclick="PF('confirmDlgIniciar').show();" disabled="#{voCartaoBean.defaultFilterValue eq 'PRODUCAO' or !(voCartaoBean.expiredGmud == null and controleBean.canStart(voCartaoBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Validar" onclick="PF('confirmDlgValidar').show();" disabled="#{voCartaoBean.defaultFilterValue eq 'PRODUCAO' or !(voCartaoBean.expiredGmud == null and controleBean.canValidate(voCartaoBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Aprovar" onclick="PF('confirmDlgAprovar').show();" disabled="#{voCartaoBean.defaultFilterValue eq 'PRODUCAO' or !(voCartaoBean.expiredGmud == null and controleBean.canAprove(voCartaoBean.aprovacaoFiltered, false))}"/>
+                            <p:menuitem value="Liberar UAT" onclick="PF('confirmDlgUAT').show();" disabled="#{voCartaoBean.defaultFilterValue eq 'PRODUCAO' or !(voCartaoBean.expiredGmud == null and controleBean.canUAT(voCartaoBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Liberar Implantação" onclick="PF('confirmDlgImplantacao').show();" disabled="#{voCartaoBean.defaultFilterValue eq 'PRODUCAO' or !(voCartaoBean.expiredGmud == null and controleBean.canReleaseDeployment(voCartaoBean.aprovacaoFiltered, false))}"/>
+                            <p:menuitem value="Implantar" onclick="PF('confirmDlg').show();" disabled="#{voCartaoBean.defaultFilterValue eq 'PRODUCAO' or !controleBean.canDeploy(voCartaoBean.aprovacaoFiltered)}"/>
+                        </p:splitButton>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4">
+                        <h:outputLabel value="#{voCartaoBean.aprovacaoFiltered.status.tipo}" style="float: right; font-style: oblique; color: #fa392f"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-3" style="float: right; padding-right: 50px;">
+                        <h:outputLabel value="VO_CARTAO" style="float: right;"/>
+                    </div>
+                </div>
+            </h:form>
+
+            <!-- TABELA PRINCIPAL --> 
+            <h:panelGroup>
+                <h:form id="formTable">
+                    <p:dataTable
+                        id="tabelaId"
+                        value="#{voCartaoBean.dataModel}"
+                        lazy="true"
+                        paginator="true"
+                        rows="50"
+                        paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        paginatorPosition="bottom"
+                        rowsPerPageTemplate="10,50,100"
+                        var="tabelaRow"
+                        widgetVar="tabelaCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="330"  
+                        editable="true" 
+                        editMode="cell" 
+                        selection="#{voCartaoBean.selectedConfigOfertasPreList}"
+                        rowKey="#{tabelaRow.id}"
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:ajax event="rowSelect" update="formButtons" />
+                        <p:ajax event="rowUnselect" update="formButtons" />
+                        <p:ajax event="toggleSelect" update="formButtons" />
+                        <p:ajax event="rowSelectCheckbox" update="formButtons" />
+                        <p:ajax event="rowUnselectCheckbox" update="formButtons" />
+
+                        <p:ajax event="filter" listener="#{voCartaoBean.cleanSelected()}" update="panelAprovacao,formButtons"/>
+
+                        <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+
+                        <p:column headerText="GMUD" filterBy="#{tabelaRow.dtGmudStr}" filterMatchMode="exact" filterValue="#{voCartaoBean.defaultFilterValue}" width="120" styleClass="#{tabelaRow.getStyleClass('GMUD')}">
+                            <f:facet name="filter">
+                                <p:selectOneMenu onchange="PF('tabelaCell').filter()" value="#{voCartaoBean.defaultFilterValue}" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="PRODUÇÃO" itemValue="PRODUCAO"/>
+                                    <f:selectItems value="#{voCartaoBean.gmudList}"/>
+                                </p:selectOneMenu>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.dtGmudStr}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="MODIFICADA" width="100" styleClass="#{tabelaRow.getStyleClass('MODIFICADA')}">
+                            <p:outputLabel value="#{tabelaRow.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy  HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100" styleClass="#{tabelaRow.getStyleClass('LOGIN')}">
+                            <p:outputLabel value="#{tabelaRow.user.login}"/>
+                        </p:column>
+                        <p:column headerText="IDBENEFICIO" filterBy="#{tabelaRow.idbeneficio}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('IDBENEFICIO')}">
+                            <p:outputLabel value="#{tabelaRow.idbeneficio}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="IDPROGRAMA" filterBy="#{tabelaRow.idprograma}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('IDPROGRAMA')}">
+                            <p:outputLabel value="#{tabelaRow.idprograma}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="DDD" filterBy="#{tabelaRow.ddd}"  filterFunction="#{genericFilter.filter}" width="280" styleClass="#{tabelaRow.getStyleClass('DDD')}">
+                            <p:outputLabel id="dddId" value="#{tabelaRow.dddSub}" ondblclick="copyToClip($(this));"/>
+                            <p:tooltip id="toolTipDDD" for="dddId" value="#{tabelaRow.ddd}" rendered="#{tabelaRow.ddd.length() gt 59}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+                        </p:column>
+                        <p:column headerText="INCENTIVO1" filterBy="#{tabelaRow.incentivo1}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('INCENTIVO1')}">
+                            <p:outputLabel value="#{tabelaRow.incentivo1}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="INCENTIVO2" filterBy="#{tabelaRow.incentivo2}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('INCENTIVO2')}">
+                            <p:outputLabel value="#{tabelaRow.incentivo2}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="OUTROSPLANOS" filterBy="#{tabelaRow.outrosplanos}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('OUTROSPLANOS')}">
+                            <p:outputLabel value="#{tabelaRow.outrosplanos}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="OFERTAPROMO1" filterBy="#{tabelaRow.ofertapromo1}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('OFERTAPROMO1')}">
+                            <p:outputLabel value="#{tabelaRow.ofertapromo1}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="OFERTAPROMO2" filterBy="#{tabelaRow.ofertapromo2}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('OFERTAPROMO2')}">
+                            <p:outputLabel value="#{tabelaRow.ofertapromo2}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="TB_TIPO_BONUS" filterBy="#{tabelaRow.tb_tipo_bonus}"  filterFunction="#{genericFilter.filter}" width="200" styleClass="#{tabelaRow.getStyleClass('TB_TIPO_BONUS')}">
+                            <p:outputLabel value="#{tabelaRow.tb_tipo_bonus}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="DATA_INIC" filterFunction="#{dateRangeFilter.filterByDate}" width="120" styleClass="#{tabelaRow.getStyleClass('DATA_INIC')}">
+                            <f:facet name="filter">
+                                <h:inputHidden id="filterInic" />
+                            </f:facet>
+                            <f:facet name="header">
+                                <p:outputLabel value="DATA_INIC" />
+
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.data_inic}" ondblclick="copyToClip($(this));">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="DATA_FIM" filterFunction="#{dateRangeFilter.filterByDate}" width="120" styleClass="#{tabelaRow.getStyleClass('DATA_FIM')}">
+                            <f:facet name="filter">
+                                <h:inputHidden id="filterFim" />
+                            </f:facet>
+                            <f:facet name="header">
+                                <p:outputLabel value="DATA_FIM" />
+
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.data_fim}" ondblclick="copyToClip($(this));">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="TAXAADESAO" filterBy="#{tabelaRow.taxaadesao}" filterFunction="#{genericFilter.filter}" width="250" styleClass="#{tabelaRow.getStyleClass('TAXAADESAO')}">
+                            <p:outputLabel value="#{tabelaRow.taxaadesao}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="TARIFASMSDADOSWIFI" filterBy="#{tabelaRow.tarifasmsdadoswifi}"  filterFunction="#{genericFilter.filter}" width="250" styleClass="#{tabelaRow.getStyleClass('TARIFASMSDADOSWIFI')}">
+                            <p:outputLabel value="#{tabelaRow.tarifasmsdadoswifi}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="TARIFASMS" filterBy="#{tabelaRow.tarifasms}"  filterFunction="#{genericFilter.filter}" width="250" styleClass="#{tabelaRow.getStyleClass('TARIFASMS')}">
+                            <p:outputLabel value="#{tabelaRow.tarifasms}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="TARIFADADOS" filterBy="#{tabelaRow.tarifadados}"  filterFunction="#{genericFilter.filter}" width="250" styleClass="#{tabelaRow.getStyleClass('TARIFADADOS')}">
+                            <p:outputLabel value="#{tabelaRow.tarifadados}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="TARIFAVOZ" filterBy="#{tabelaRow.tarifavoz}"  filterFunction="#{genericFilter.filter}" width="250" styleClass="#{tabelaRow.getStyleClass('TARIFAVOZ')}">
+                            <p:outputLabel value="#{tabelaRow.tarifavoz}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="TARIFAVOZFIXO" filterBy="#{tabelaRow.tarifavozfixo}"  filterFunction="#{genericFilter.filter}" width="250" styleClass="#{tabelaRow.getStyleClass('TARIFAVOZFIXO')}">
+                            <p:outputLabel value="#{tabelaRow.tarifavozfixo}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="RECARGAMIN" filterBy="#{tabelaRow.recargamin}"  filterFunction="#{genericFilter.filter}" width="250" styleClass="#{tabelaRow.getStyleClass('RECARGAMIN')}">
+                            <p:outputLabel value="#{tabelaRow.recargamin}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="ELEGIVEL_NOVA_PROMO" width="120" filterBy="#{tabelaRow.elegivel_nova_promoStr}" filterMatchMode="equals" styleClass="#{tabelaRow.getStyleClass('ELEGIVEL_NOVA_PROMO')}">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.elegivel_nova_promoStr}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="ELEGIVEL_PROMO_TEMPLATE_PRIMARIA" filterBy="#{tabelaRow.elegivel_promo_template_primariaStr}" filterMatchMode="equals" width="100" styleClass="#{tabelaRow.getStyleClass('ELEGIVEL_PROMO_TEMPLATE_PRIMARIA')}">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.elegivel_promo_template_primariaStr}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="PRIORIDADE" filterBy="#{tabelaRow.prioridade}"  filterFunction="#{genericFilter.filter}" width="100" styleClass="#{tabelaRow.getStyleClass('PRIORIDADE')}">
+                            <p:outputLabel value="#{tabelaRow.prioridade}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="OFERTAR_SEMPROMO" filterBy="#{tabelaRow.ofertar_sempromoStr}" filterMatchMode="equals" width="100" styleClass="#{tabelaRow.getStyleClass('OFERTAR_SEMPROMO')}">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.ofertar_sempromoStr}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="PRECONTRATACAO" filterBy="#{tabelaRow.precontratacaoStr}" filterMatchMode="equals" width="100" styleClass="#{tabelaRow.getStyleClass('PRECONTRATACAO')}">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.precontratacaoStr}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="COBRARTAXA" filterBy="#{tabelaRow.cobrartaxa}"  filterFunction="#{genericFilter.filter}" width="100" styleClass="#{tabelaRow.getStyleClass('COBRARTAXA')}">
+                            <p:outputLabel value="#{tabelaRow.cobrartaxa}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="TB_USSD_CONVERTIDO" filterBy="#{tabelaRow.tb_ussd_convertidoStr}" filterMatchMode="equals" width="100" styleClass="#{tabelaRow.getStyleClass('TB_USSD_CONVERTIDO')}">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_ussd_convertidoStr}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="TB_GATILHOOFERTASFLEX" filterBy="#{tabelaRow.tb_gatilhoofertasflex}"  filterFunction="#{genericFilter.filter}" width="100" styleClass="#{tabelaRow.getStyleClass('TB_GATILHOOFERTASFLEX')}">
+                            <p:outputLabel value="#{tabelaRow.tb_gatilhoofertasflex}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </h:panelGroup>
+
+            <!-- ADICIONAR PROMOCAO -->
+            <p:sidebar id="sideBarAddId" widgetVar="sidebarAdd" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Adicionar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesAdd"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formAdd">
+                    <ui:include src="/xhtml/sec/VoCartao_addIds.xhtml" />
+                    <ui:include src="/xhtml/sec/VoCartao_add.xhtml" >
+                        <ui:param name="mBean" value="#{voCartaoBean}" />
+                        <ui:param name="mBeanNew" value="#{voCartaoBean.newConfigOfertasPre}" />
+                    </ui:include>
+
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarAdd').hide()"/>
+                        <p:commandButton value="Adicionar" validateClient="true" update="messages,messagesAdd" actionListener="#{voCartaoBean.adicionar()}" onstart="showLoader();" oncomplete="hideLoader();"/>
+                        <p:selectBooleanCheckbox itemLabel="Adicionar outra" value="#{voCartaoBean.adicionarOutra}" style="min-width: 140px"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- EDITAR PROMOCAO -->
+            <p:sidebar id="sideBarEditId" widgetVar="sidebarEdit" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Editar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesEdit"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formEdit">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-12">
+                            <p:scrollPanel style="width:100%;height:100px">
+                                <p:panelGrid columns="6">
+                                    <p:repeat value="#{voCartaoBean.selectedConfigOfertasPreList}" var="selectedConfigOfertasPreItem">
+                                        <p:button value="#{selectedConfigOfertasPreItem.idDdd}" disabled="true" style="margin: 2px;"/>
+                                    </p:repeat>
+                                </p:panelGrid>
+                            </p:scrollPanel>
+                        </div>
+                    </div>
+                    <h:panelGroup rendered="#{voCartaoBean.isEditProd()}">
+                        <p:separator />
+                        <div class="ui-g ui-fluid">
+                            <div class="ui-g-12 ui-md-6 ui-lg-2">
+                                <p:outputLabel value="DT_GMUD" styleClass="field_label"/>
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                    <p:calendar id="editDT_GMUD" placeholder="DT_GMUD" required="true" value="#{voCartaoBean.editConfigOfertasPre.dt_gmud}" mask="99/99/9999" showOn="button">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                    </p:calendar>
+                                    <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox value="true"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                    <p:separator />
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="TB_TIPO_BONUS" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="TB_TIPO_BONUS" value="#{voCartaoBean.editConfigOfertasPre.tb_tipo_bonus}">      
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditTb_tipo_bonus(true)}" update="formEdit:checkeditTb_tipo_bonus"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_tipo_bonus" value="#{voCartaoBean.editConfigOfertasPre.editTb_tipo_bonus}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="INCENTIVO1" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="INCENTIVO1" value="#{voCartaoBean.editConfigOfertasPre.incentivo1}">      
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditIncentivo1(true)}" update="formEdit:checkeditIncentivo1"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditIncentivo1" value="#{voCartaoBean.editConfigOfertasPre.editIncentivo1}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="INCENTIVO2" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="INCENTIVO2" value="#{voCartaoBean.editConfigOfertasPre.incentivo2}">      
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditIncentivo2(true)}" update="formEdit:checkeditIncentivo2"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditIncentivo2" value="#{voCartaoBean.editConfigOfertasPre.editIncentivo2}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="OUTROSPLANOS" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="OUTROSPLANOS" value="#{voCartaoBean.editConfigOfertasPre.outrosplanos}">      
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditOutrosplanos(true)}" update="formEdit:checkeditOutrosplanos"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditOutrosplanos" value="#{voCartaoBean.editConfigOfertasPre.editOutrosplanos}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="OFERTAPROMO1" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="OFERTAPROMO1" value="#{voCartaoBean.editConfigOfertasPre.ofertapromo1}">      
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditOfertapromo1(true)}" update="formEdit:checkeditOfertapromo1"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditOfertapromo1" value="#{voCartaoBean.editConfigOfertasPre.editOfertapromo1}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="OFERTAPROMO2" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="OFERTAPROMO2" value="#{voCartaoBean.editConfigOfertasPre.ofertapromo2}">      
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditOfertapromo2(true)}" update="formEdit:checkeditOfertapromo2"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditOfertapromo2" value="#{voCartaoBean.editConfigOfertasPre.editOfertapromo2}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-4 ui-lg-2">
+                            <p:outputLabel value="DATA_INIC" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar  placeholder="DATA_INIC" value="#{voCartaoBean.editConfigOfertasPre.data_inic}" pattern="dd/MM/yyyy" showOn="button">
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditData_inic(true)}" update="formEdit:checkeditData_inic"/>
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                                </p:calendar>    
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditData_inic" value="#{voCartaoBean.editConfigOfertasPre.editData_inic}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-4 ui-lg-2">
+                            <p:outputLabel value="DATA_FIM" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar placeholder="DATA_FIM" value="#{voCartaoBean.editConfigOfertasPre.data_fim}" pattern="dd/MM/yyyy" showOn="button" mindate="#{voCartaoBean.today}">
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditData_fim(true)}" update="formEdit:checkeditData_fim"/>
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                                </p:calendar>         
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditData_fim" value="#{voCartaoBean.editConfigOfertasPre.editData_fim}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-4 ui-lg-2">
+                            <p:outputLabel value="TAXAADESAO" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputMask placeholder="TAXAADESAO" value="#{voCartaoBean.editConfigOfertasPre.taxaadesao}">      
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditTaxaadesao(true)}" update="formEdit:checkeditTaxaadesao"/>
+                                </p:inputMask>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTaxaadesao" value="#{voCartaoBean.editConfigOfertasPre.editTaxaadesao}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-4 ui-lg-2">
+                            <p:outputLabel value="TARIFASMSDADOSWIFI" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputMask placeholder="TARIFASMSDADOSWIFI" value="#{voCartaoBean.editConfigOfertasPre.tarifasmsdadoswifi}" >      
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditTarifasmsdadoswifi(true)}" update="formEdit:checkeditTarifasmsdadoswifi"/>
+                                </p:inputMask>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTarifasmsdadoswifi" value="#{voCartaoBean.editConfigOfertasPre.editTarifasmsdadoswifi}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-4 ui-lg-2">
+                            <p:outputLabel value="RECARGAMIN" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputMask placeholder="RECARGAMIN" value="#{voCartaoBean.editConfigOfertasPre.recargamin}">      
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditRecargamin(true)}" update="formEdit:checkeditRecargamin"/>
+                                </p:inputMask>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditRecargamin" value="#{voCartaoBean.editConfigOfertasPre.editRecargamin}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-4 ui-lg-2">
+                            <p:outputLabel value="TB_GATILHOOFERTASFLEX" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputMask placeholder="TB_GATILHOOFERTASFLEX" value="#{voCartaoBean.editConfigOfertasPre.tb_gatilhoofertasflex}">      
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditTb_gatilhoofertasflex(true)}" update="formEdit:checkeditTb_gatilhoofertasflex"/>
+                                </p:inputMask>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_gatilhoofertasflex" value="#{voCartaoBean.editConfigOfertasPre.editTb_gatilhoofertasflex}"/></span>
+                            </div>
+                        </div>
+                    </div>    
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-4 ui-lg-2">
+                            <p:outputLabel value="TARIFAVOZ" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputMask placeholder="TARIFAVOZ" value="#{voCartaoBean.editConfigOfertasPre.tarifavoz}">      
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditTarifavoz(true)}" update="formEdit:checkeditTarifavoz"/>
+                                </p:inputMask>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTarifavoz" value="#{voCartaoBean.editConfigOfertasPre.editTarifavoz}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-4 ui-lg-2">
+                            <p:outputLabel value="TARIFAVOZFIXO" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputMask placeholder="TARIFAVOZFIXO" value="#{voCartaoBean.editConfigOfertasPre.tarifavozfixo}" >      
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditTarifavozfixo(true)}" update="formEdit:checkeditTarifavozfixo"/>
+                                </p:inputMask>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTarifavozfixo" value="#{voCartaoBean.editConfigOfertasPre.editTarifavozfixo}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-4 ui-lg-2">
+                            <p:outputLabel value="TARIFASMS" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputMask placeholder="TARIFASMS" value="#{voCartaoBean.editConfigOfertasPre.tarifasms}" >      
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditTarifasms(true)}" update="formEdit:checkeditTarifasms"/>
+                                </p:inputMask>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTarifasms" value="#{voCartaoBean.editConfigOfertasPre.editTarifasms}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-4 ui-lg-2">
+                            <p:outputLabel value="TARIFADADOS" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputMask placeholder="TARIFADADOS" value="#{voCartaoBean.editConfigOfertasPre.tarifadados}">      
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditTarifadados(true)}" update="formEdit:checkeditTarifadados"/>
+                                </p:inputMask>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTarifadados" value="#{voCartaoBean.editConfigOfertasPre.editTarifadados}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{voCartaoBean.editConfigOfertasPre.elegivel_promo_template_primaria}" onLabel="ELEGIVEL_PROMO_TEMPLATE_PRIMARIA" offLabel="ELEGIVEL_PROMO_TEMPLATE_PRIMARIA" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditElegivel_promo_template_primaria(true)}" update="formEdit:checkeditElegivel_promo_template_primaria"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditElegivel_promo_template_primaria" value="#{voCartaoBean.editConfigOfertasPre.editElegivel_promo_template_primaria}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{voCartaoBean.editConfigOfertasPre.elegivel_nova_promo}" onLabel="ELEGIVEL_NOVA_PROMO" offLabel="ELEGIVEL_NOVA_PROMO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditElegivel_nova_promo(true)}" update="formEdit:checkeditElegivel_nova_promo"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditElegivel_nova_promo" value="#{voCartaoBean.editConfigOfertasPre.editElegivel_nova_promo}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{voCartaoBean.editConfigOfertasPre.tb_ussd_convertido}" onLabel="TB_USSD_CONVERTIDO" offLabel="TB_USSD_CONVERTIDO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditTb_ussd_convertido(true)}" update="formEdit:checkeditTb_ussd_convertido"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_ussd_convertido" value="#{voCartaoBean.editConfigOfertasPre.editTb_ussd_convertido}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{voCartaoBean.editConfigOfertasPre.ofertar_sempromo}" onLabel="OFERTAR_SEMPROMO" offLabel="OFERTAR_SEMPROMO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditOfertar_sempromo(true)}" update="formEdit:checkeditOfertar_sempromo"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditOfertar_sempromo" value="#{voCartaoBean.editConfigOfertasPre.editOfertar_sempromo}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{voCartaoBean.editConfigOfertasPre.precontratacao}" onLabel="PRECONTRATACAO" offLabel="PRECONTRATACAO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditPrecontratacao(true)}" update="formEdit:checkeditPrecontratacao"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditPrecontratacao" value="#{voCartaoBean.editConfigOfertasPre.editPrecontratacao}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="PRIORIDADE" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="PRIORIDADE" value="#{voCartaoBean.editConfigOfertasPre.prioridade}">      
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditPrioridade(true)}" update="formEdit:checkeditPrioridade"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditPrioridade" value="#{voCartaoBean.editConfigOfertasPre.editPrioridade}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="COBRARTAXA" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="COBRARTAXA" value="#{voCartaoBean.editConfigOfertasPre.cobrartaxa}">      
+                                    <p:ajax event="change" listener="#{voCartaoBean.editConfigOfertasPre.setEditCobrartaxa(true)}" update="formEdit:checkeditCobrartaxa"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditCobrartaxa" value="#{voCartaoBean.editConfigOfertasPre.editCobrartaxa}"/></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarEdit').hide()"/>
+                        <p:commandButton value="Confirmar" validateClient="true" actionListener="#{voCartaoBean.editar()}" update="messages,messagesEdit,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="hideLoader();"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- HISTORICO PROMOCAO -->
+            <p:sidebar id="sideBarHistoryId" widgetVar="sidebarHistory" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Histórico</h1>
+                <p:separator />
+                <h:form id="formHistory">
+                    <p:dataTable
+                        id="tabelaHistoryId"
+                        value="#{voCartaoBean.selectedConfigOfertasPreHistoryList}"
+                        var="tabelaHistory"
+                        widgetVar="tabelaHistoryCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="370"  
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:column headerText="ÚLTIMO STATUS" width="100" groupRow="true">
+                            <p:outputLabel value="#{tabelaHistory.lastStatus}"/>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100">
+                            <p:outputLabel value="#{tabelaHistory.user.login}"/>
+                        </p:column>
+                        <p:column headerText="MODIFICADO" width="150">
+                            <p:outputLabel value="#{tabelaHistory.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00" />
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="OUTROSPLANOS" width="80" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('OUTROSPLANOS',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.outrosplanos}" rendered="#{tabelaHistory.editMap.getOrDefault('OUTROSPLANOS',true)}"/>
+                        </p:column>
+                        <p:column headerText="OFERTAPROMO1" width="80" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('OFERTAPROMO1',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.ofertapromo1}" rendered="#{tabelaHistory.editMap.getOrDefault('OFERTAPROMO1',true)}"/>
+                        </p:column>
+                        <p:column headerText="OFERTAPROMO2" width="80" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('OFERTAPROMO2',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.ofertapromo2}" rendered="#{tabelaHistory.editMap.getOrDefault('OFERTAPROMO2',true)}"/>
+                        </p:column>
+                        <p:column headerText="TB_TIPO_BONUS" width="80" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_TIPO_BONUS',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.tb_tipo_bonus}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_TIPO_BONUS',true)}"/>
+                        </p:column>
+                        <p:column headerText="DATA_INIC" width="70" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('DATA_INIC',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.data_inic}" rendered="#{tabelaHistory.editMap.getOrDefault('DATA_INIC',true)}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="DATA_FIM" width="70" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('DATA_FIM',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.data_fim}" rendered="#{tabelaHistory.editMap.getOrDefault('DATA_FIM',true)}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="TAXAADESAO" width="250" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TAXAADESAO',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.taxaadesao}" rendered="#{tabelaHistory.editMap.getOrDefault('TAXAADESAO',true)}"/>
+                        </p:column>
+                        <p:column headerText="TARIFASMSDADOSWIFI" width="250" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TARIFASMSDADOSWIFI',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.tarifasmsdadoswifi}" rendered="#{tabelaHistory.editMap.getOrDefault('TARIFASMSDADOSWIFI',true)}"/>
+                        </p:column>
+                        <p:column headerText="TARIFASMS" width="250" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TARIFASMS',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.tarifasms}" rendered="#{tabelaHistory.editMap.getOrDefault('TARIFASMS',true)}"/>
+                        </p:column>
+                        <p:column headerText="TARIFADADOS" width="250" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TARIFADADOS',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.tarifadados}" rendered="#{tabelaHistory.editMap.getOrDefault('TARIFADADOS',true)}"/>
+                        </p:column>
+                        <p:column headerText="TARIFAVOZ" width="250" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TARIFAVOZ',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.tarifavoz}" rendered="#{tabelaHistory.editMap.getOrDefault('TARIFAVOZ',true)}"/>
+                        </p:column>
+                        <p:column headerText="TARIFAVOZFIXO" width="250" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TARIFAVOZFIXO',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.tarifavozfixo}" rendered="#{tabelaHistory.editMap.getOrDefault('TARIFAVOZFIXO',true)}"/>
+                        </p:column>
+                        <p:column headerText="RECARGAMIN" width="250" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('RECARGAMIN',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.recargamin}" rendered="#{tabelaHistory.editMap.getOrDefault('RECARGAMIN',true)}"/>
+                        </p:column>
+                        <p:column headerText="ELEGIVEL_NOVA_PROMO" width="120" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('ELEGIVEL_NOVA_PROMO',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.elegivel_nova_promoStr}" rendered="#{tabelaHistory.editMap.getOrDefault('ELEGIVEL_NOVA_PROMO',true)}"/>
+                        </p:column>
+                        <p:column headerText="ELEGIVEL_PROMO_TEMPLATE_PRIMARIA" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('ELEGIVEL_PROMO_TEMPLATE_PRIMARIA',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.elegivel_promo_template_primariaStr}" rendered="#{tabelaHistory.editMap.getOrDefault('ELEGIVEL_PROMO_TEMPLATE_PRIMARIA',true)}"/>
+                        </p:column>
+                        <p:column headerText="PRIORIDADE" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('PRIORIDADE',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.prioridade}" rendered="#{tabelaHistory.editMap.getOrDefault('PRIORIDADE',true)}"/>
+                        </p:column>
+                        <p:column headerText="OFERTAR_SEMPROMO" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('OFERTAR_SEMPROMO',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.ofertar_sempromoStr}" rendered="#{tabelaHistory.editMap.getOrDefault('OFERTAR_SEMPROMO',true)}"/>
+                        </p:column>
+                        <p:column headerText="PRECONTRATACAO" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('PRECONTRATACAO',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.precontratacaoStr}" rendered="#{tabelaHistory.editMap.getOrDefault('PRECONTRATACAO',true)}"/>
+                        </p:column>
+                        <p:column headerText="COBRARTAXA" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('COBRARTAXA',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.cobrartaxa}" rendered="#{tabelaHistory.editMap.getOrDefault('COBRARTAXA',true)}"/>
+                        </p:column>
+                        <p:column headerText="TB_USSD_CONVERTIDO" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_USSD_CONVERTIDO',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.tb_ussd_convertidoStr}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_USSD_CONVERTIDO',true)}"/>
+                        </p:column>
+                        <p:column headerText="TB_GATILHOOFERTASFLEX" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_GATILHOOFERTASFLEX',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.tb_gatilhoofertasflex}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_GATILHOOFERTASFLEX',true)}"/>
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </p:sidebar>
+
+            <!-- DELETAR PROMOCAO -->
+            <p:sidebar id="sideBarDeleteId" widgetVar="sidebarDelete" position="top" baseZIndex="10000" style="overflow: auto;min-height: 160px;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Tem certeza?</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesDel"></p:messages>
+                    </div>
+                </div>
+                <p:separator />
+                <h:form id="formDel">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-3 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar id="delDT_GMUD" placeholder="DT_GMUD" required="true" value="#{voCartaoBean.gmudToDelete}" disabled="#{voCartaoBean.gmudToDelete != null}" mask="99/99/9999" pattern="dd/MM/yyyy" showOn="button">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                </p:calendar>
+                            </div>
+                        </div>
+                        <p:commandButton value="Sim" validateClient="true" actionListener="#{voCartaoBean.deletar()}" onstart="showLoader();" oncomplete="hideLoader();" update="messages,messagesDel,formTable:tabelaId" icon="fa fa-check" />
+                        <p:commandButton value="Não" oncomplete="PF('sidebarDelete').hide()" icon="fa fa-times" />
+                    </div>
+                </h:form>
+            </p:sidebar>
+
+            <!-- SCRIPT PROMOCAO -->
+            <p:sidebar id="sideBarScriptId" widgetVar="sidebarScript" position="top" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Gerar Script</h1>
+                <h:form id="formScript">
+                    <p:separator />
+                    <p:commandButton value="USSD" ajax="false" actionListener="#{voCartaoBean.generateScriptFile('USSD')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{voCartaoBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                    <p:commandButton value="*880" ajax="false" actionListener="#{voCartaoBean.generateScriptFile('880')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{voCartaoBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                    <p:commandButton value="*144" ajax="false" actionListener="#{voCartaoBean.generateScriptFile('144')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{voCartaoBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                </h:form>
+            </p:sidebar>
+
+            <p:dialog id="expiredGmudDlgId" header="GMUD Expirada: #{voCartaoBean.expiredGmud}" widgetVar="expiredGmudDlg" rendered="#{voCartaoBean.expiredGmud != null and controleBean.canEdit()}" closable="false">
+                <h:form id="formExpired">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Essa GMUD expirou e suas alterações precisam ir para produção ou apenas adiada, antes de prosseguir com novas alterações.<br/>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-8">
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Adiar" onclick="PF('newDtGmudDlg').show();"/>
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Implantar" onclick="PF('confirmDlg').show();" style="float: right; display: #{controleBean.visibilityDeploy(ioControleControleBean.aprovacaoFiltered)}"/>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="newDtGmudDlg" showHeader="false" width="min-content" closable="false">
+                <h:form id="formNewDate">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            <p:datePicker id="inline" value="#{voCartaoBean.newDtGmud}" locale="br" inline="true">
+                                <p:ajax event="dateSelect" listener="#{voCartaoBean.adiar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist,expiredGmudDlgId" onstart="showLoader();" oncomplete="location.reload();"/>
+                            </p:datePicker>
+                            <div class="ui-g-6">
+                                <p:commandButton value="Cancelar" onclick="PF('newDtGmudDlg').hide();" icon="fa fa-times" />
+                            </div>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlg" header="Implantar GMUD" closable="false">
+                <h:form id="formConfirm">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Todas as alterações serão inseridas nos registros de produção!<br/>
+                            Confirmar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{voCartaoBean.aprovar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlg').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgAprovar" header="Aprovar GMUD" closable="false">
+                <h:form id="formConfirmAprovar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Aprovar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{voCartaoBean.aprovarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgAprovar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>			
+            <p:dialog widgetVar="confirmDlgIniciar" header="Iniciar GMUD" closable="false">
+                <h:form id="formConfirmIniciar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma o inicio da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{voCartaoBean.iniciarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgIniciar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgIniciar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgValidar" header="Validar GMUD" closable="false">
+                <h:form id="formConfirmValidar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma a validação da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{voCartaoBean.validarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgValidar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgValidar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgUAT" header="Enviar GMUD para UAT" closable="false">
+                <h:form id="formConfirmUAT">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para UAT?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{voCartaoBean.uatGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgUAT').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgUAT').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgImplantacao" header="Enviar GMUD para Implantacao" closable="false">
+                <h:form id="formConfirmImplantacao">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para Implantacao?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{voCartaoBean.implantarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgImplantacao').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgImplantacao').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+        </div>
+
+        <script  type="text/javascript" target="body">
+            $j = jQuery;
+            $j(document).ready(function () {
+                PF('tabelaCell').filter();
+                hideLoader();
+                try {
+                    PF('expiredGmudDlg').show();
+                } catch (e) {
+                }
+
+            });
+        </script>
+        <h:outputStylesheet name="css/template.css" library="pages" />
+    </ui:define>
+</ui:composition>

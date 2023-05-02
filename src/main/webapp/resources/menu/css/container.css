@@ -1,0 +1,208 @@
+
+.container {
+    background: white;
+    border: 1px solid rgba(0,0,0,.0625);
+    margin: 1em;
+    padding: 1em; 
+}
+
+label.custom-form {
+    display: grid !important;
+}
+
+.custom-form {
+    width: -webkit-fill-available !important;
+}
+
+.custom-form-row {
+
+}
+
+.custom-form-dialog {
+    height: 90% !important;
+    width: 70% !important;
+}
+
+.custom-form .ui-spinner-input {
+    width: -webkit-fill-available !important;
+}
+
+.custom-form .ui-inputfield {
+    width: -webkit-fill-available !important;
+}
+
+
+.badge1 {
+    position:relative !important;
+    border: none !important;
+    background: none !important;
+    margin-right: 0.5em !important;
+    margin-bottom: 0.5em !important;
+}
+.badge1[data-badge]:after {
+    content:attr(data-badge);
+    position:absolute;
+    top:-10px;
+    right:-10px;
+    font-size:.7em;
+    background:#0480be;
+    color:white;
+    width:18px;height:18px;
+    text-align:center;
+    line-height:18px;
+    border-radius:50%;
+    box-shadow:0 0 1px #333;
+}
+
+/*
+///////////////////////////////////////////////////////////////////////
+// ConfirmDialog PrimeFaces
+///////////////////////////////////////////////////////////////////////
+*/
+.ui-confirm-dialog {
+    width: 12em !important;
+    height: 6em !important;
+}
+
+/*
+///////////////////////////////////////////////////////////////////////
+// DataList PrimeFaces
+///////////////////////////////////////////////////////////////////////
+*/
+.ui-datalist-data {
+    padding-left: 2em !important;
+}
+
+.ui-datalist-item {
+    height: 1.5em; 
+}
+
+/*
+///////////////////////////////////////////////////////////////////////
+// DataTable PrimeFaces
+///////////////////////////////////////////////////////////////////////
+*/
+.ui-datatable-header {
+    min-height: 2em !important;
+}
+
+.ui-datatable-footer {
+    min-height: 3em !important;
+}
+
+/*
+///////////////////////////////////////////////////////////////////////
+// SelectOneMenu PrimeFaces
+///////////////////////////////////////////////////////////////////////
+*/
+.selectOneMenuFilter {
+    min-width: 0px !important;
+    width: -webkit-fill-available !important;
+}
+
+/*
+///////////////////////////////////////////////////////////////////////
+// SelectCheckBoxMenu PrimeFaces
+///////////////////////////////////////////////////////////////////////
+*/
+.ui-selectcheckboxmenu-items-wrapper {
+    overflow-x: hidden !important;
+}
+
+/*
+///////////////////////////////////////////////////////////////////////
+// PanelGrid PrimeFaces
+///////////////////////////////////////////////////////////////////////
+*/
+.ui-panelgrid-content {
+    border: none !important;
+}
+
+/*
+///////////////////////////////////////////////////////////////////////
+// Dialog PrimeFaces
+///////////////////////////////////////////////////////////////////////
+*/
+.ui-dialog .ui-dialog-titlebar {
+    display: none !important;
+}
+
+.ui-dialog .ui-dialog-content {
+    width: -webkit-fill-available !important;
+    height: 89% !important;
+    overflow: hidden !important;
+    position: absolute !important;
+}
+
+.ui-dialog .ui-dialog-footer {
+    position: absolute !important;
+    bottom: 0px !important;
+    width: -webkit-fill-available !important;
+}
+/*
+///////////////////////////////////////////////////////////////////////
+// DataTable PrimeFaces com aparência de DataTable JQuery
+///////////////////////////////////////////////////////////////////////
+*/
+div.ngr-table .ui-panelgrid-content.ui-widget-content.ui-grid.ui-grid-responsive {
+    border: none !important;
+}
+
+div.ngr-table .ui-datatable-tablewrapper {
+    overflow: hidden !important;
+}
+
+div.ngr-table .ui-datatable thead th {
+    font-weight: 700 !important;
+    background-image: none !important;
+    border: none !important;
+    background-color: transparent !important;
+    color: grey !important;
+    font-size: 12px;
+    box-shadow: none !important;
+    border-bottom: 1px solid #111 !important;
+}
+
+div.ngr-table .ui-datatable tbody td {
+    border-style: none !important;
+    /*color: #555;*/
+    line-height: 20px !important;
+    /*font-size: 0.9em;*/
+    font-size: 85%;
+}
+
+div.ngr-table .ui-widget-header {
+    border: none !important;
+    background: transparent !important;
+    color: grey !important;
+    font-weight: normal !important;
+}
+
+div.ngr-table .ui-widget-content .newicon {
+    background: url(../../resources/bootstrap3/css/images/details_open.png) no-repeat center center !important;
+    width: 19px !important;
+    height: 19px !important;
+    display: block;
+    text-indent: -99999px;
+    overflow: hidden;
+    background-repeat: no-repeat;
+    background-repeat-x: no-repeat;
+    background-repeat-y: no-repeat;
+}
+
+div.ngr-table .ui-paginator.ui-paginator-bottom {
+    border-top: 1px solid #111 !important;
+}
+
+div.ngr-table .ui-datatable-footer.ui-widget-header.ui-corner-bottom {
+    text-align: right;
+    font-size: 90%;
+}
+
+div.ngr-table input.ui-inputfield.ui-inputtext.ui-widget.ui-state-default.ui-corner-all.tableFilterInput{
+    margin-left: 8px;
+    width:150px;
+}
+/*
+///////////////////////////////////////////////////////////////////////
+*/

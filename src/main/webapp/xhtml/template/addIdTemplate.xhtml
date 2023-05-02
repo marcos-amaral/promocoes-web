@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="DT_GMUD" for="formAdd:addDT_GMUD" indicateRequired="false" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('DT_GMUD')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                <p:calendar id="addDT_GMUD" placeholder="DT_GMUD" required="#{mBean.isObrigatorio('DT_GMUD')}" requiredMessage="#{field.label}: Erro de validação: o valor é necessário." value="#{mBean.newTemplate.dt_gmud}" mask="99/99/9999" mindate="#{mBean.today}" showOn="button" pattern="dd/MM/yyyy" locale="pt_BR" timeZone="GMT-03:00" >
+                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                    <p:ajax event="dateSelect" process="@this" listener="#{mBean.reloadGmud()}" update="@(.DROPDOWN)" /> 
+                </p:calendar>    
+            </div>
+        </div>
+        <p:repeat id="addFieldsIdLoopId" varStatus="addVarStatus" value="#{mBean.colunasTemplateId}" var="field">
+            <h:panelGroup rendered="#{field.inputType.toString() eq 'STRING' and field.type eq 'class java.lang.String' and field.mask eq null}">
+                <div class="#{field.responsiveClass}">
+                    <p:outputLabel value="#{field.key}" for="formAdd:addFieldsIdLoopId:#{addVarStatus.index}:addText" indicateRequired="false" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio(field.key)?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                        <p:inputText id="addText" placeholder="#{field.key}" required="#{mBean.isObrigatorio(field.key)}" requiredMessage="#{field.label}: Erro de validação: o valor é necessário." value="#{mBeanNew[field.property]}"/>  
+                    </div>
+                </div>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{field.inputType.toString() eq 'STRING' and field.type eq 'class java.lang.String' and field.mask != null and field.mask != ',99'}">
+                <div class="#{field.responsiveClass}">
+                    <p:outputLabel value="#{field.key}" for="formAdd:addFieldsIdLoopId:#{addVarStatus.index}:addMask" indicateRequired="false" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio(field.key)?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                        <p:inputMask id="addMask" placeholder="#{field.key}" required="#{mBean.isObrigatorio(field.key)}" requiredMessage="#{field.label}: Erro de validação: o valor é necessário." value="#{mBeanNew[field.property]}" mask="#{field.mask}"/>  
+                    </div>
+                </div>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{field.inputType.toString() eq 'STRING' and field.type eq 'class java.lang.String' and field.mask eq ',99'}">
+                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                    <p:outputLabel value="#{field.key}" for="@parent:addTextMask" indicateRequired="false" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio(field.key)?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                        <p:inputText id="addTextMask" placeholder="#{field.key}" required="#{mBean.isObrigatorio(field.key)}" requiredMessage="#{field.label}: Erro de validação: o valor é necessário." value="#{mBeanNew[field.property]}">
+                            <f:validator validatorId="dddListValidator" />
+                        </p:inputText>  
+                    </div>
+                </div>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{field.inputType.toString() eq 'INTEGER'}">
+                <div class="#{field.responsiveClass}">
+                    <p:outputLabel value="#{field.key}" for="formAdd:addFieldsIdLoopId:#{addVarStatus.index}:addNumber" indicateRequired="false" styleClass="field_label"/>
+                    <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{mBean.isObrigatorio(field.key)?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                        <p:inputNumber id="addNumber" placeholder="#{field.key}" required="#{mBean.isObrigatorio(field.key)}" requiredMessage="#{field.label}: Erro de validação: o valor é necessário." value="#{mBeanNew[field.property]}" decimalPlaces="0" thousandSeparator=""/>      
+                    </div>
+                </div>
+            </h:panelGroup>
+        </p:repeat>
+    </div>
+    <p:separator />
+
+</ui:composition>

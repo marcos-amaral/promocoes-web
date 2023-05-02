@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+    <!--Adicionar Promoção-->
+
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFFERCODE')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                <p:inputText placeholder="OFFERCODE" required="#{mBean.isObrigatorio('OFFERCODE')}" value="#{mBeanNew.offercode}" >
+                    <p:ajax event="change" process="@this"/>
+                </p:inputText>
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTA_CADASTRO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-file-audio-o"></i></span>
+                <p:inputText placeholder="OFERTA_CADASTRO" required="#{mBean.isObrigatorio('OFERTA_CADASTRO')}" value="#{mBeanNew.oferta_cadastro}" >
+                    <p:ajax event="change" process="@this"/>
+                </p:inputText>
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTA_CADASTRO_ESCOLHIDA')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-file-audio-o"></i></span>
+                <p:inputText placeholder="OFERTA_CADASTRO_ESCOLHIDA" required="#{mBean.isObrigatorio('OFERTA_CADASTRO_ESCOLHIDA')}" value="#{mBeanNew.oferta_cadastro_escolhida}" >
+                    <p:ajax event="change" process="@this"/>
+                </p:inputText>
+            </div>
+        </div>
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('TX_ADESAO_BOLETO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                <p:inputMask placeholder="TX_ADESAO_BOLETO" required="#{mBean.isObrigatorio('TX_ADESAO_BOLETO')}" value="#{mBeanNew.tx_adesao_boleto}" >
+                    <p:ajax event="change" process="@this"/>
+                </p:inputMask>
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('TB_FRANQUIA_OFERTA')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                <p:inputMask placeholder="TB_FRANQUIA_OFERTA" required="#{mBean.isObrigatorio('TB_FRANQUIA_OFERTA')}" value="#{mBeanNew.tb_franquia_oferta}" >
+                    <p:ajax event="change" process="@this"/>
+                </p:inputMask>
+            </div>
+        </div>
+        
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('TIPO_PAGAMENTO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                
+                <p:selectOneMenu 
+                    appendTo="@this"
+                    value="#{mBeanNew.tipo_pagamento}"
+                    required="#{mBean.isObrigatorio('TIPO_PAGAMENTO')}"
+                    label="TIPO_PAGAMENTO" 
+                    
+                    >
+                    <f:selectItem itemLabel="" itemValue=""/>
+                    <f:selectItem itemLabel="CREDITO" itemValue="CREDITO"/>
+                    <f:selectItem itemLabel="BOLETO" itemValue="BOLETO"/>
+     
+                    <p:ajax event="valueChange" process="@this"/>
+                </p:selectOneMenu>
+                    
+            </div>
+        </div>
+    
+    </div>
+
+</ui:composition>

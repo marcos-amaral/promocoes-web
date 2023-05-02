@@ -1,0 +1,78 @@
+
+/************************************************************
+* DETAILS BUTTON DECORATION
+************************************************************/
+div.ngr-table .ui-datatable .ui-datatable-data > tr td:nth-child(1) {  
+    font-size: 11px;
+    padding: 2px 2px;
+    width: 2.4em;
+}
+
+div.ngr-table .ui-datatable .ui-datatable-data > tr td:nth-child(1) button.ui-button.ui-widget.ui-state-default.ui-corner-all.ui-button-icon-only {  
+    border-radius: 100%;
+    font-size: 11px;
+}
+
+div.ngr-table .ui-datatable .ui-datatable-data > tr td:nth-child(1) .ui-button-text.ui-c{
+    padding-top: 0px;
+    padding-bottom: 4px;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+div.ngr-table .ui-datatable .ui-datatable-data > tr td:nth-child(1) .ui-button-icon-left.ui-icon.ui-c.fa.fa-search-plus {
+    margin-top: -6px;
+}
+
+/************************************************************
+* AUTO SIZED TABLE div.ngr-table .ui-datatable div.ui-paginator 
+************************************************************/
+div.ngr-table table{
+    table-layout: auto;
+    text-align: center;
+}
+
+.ui-panel.ui-widget.ui-widget-content.ui-corner-all.card{
+    /*height: 8em;*/
+    width: 30em;
+}
+
+#cardsForm\:applicationCallFlowTab\:toggleableServices_footer.hide{
+    display: none;
+}
+
+#cardsForm\:applicationCallFlowTab\:toggleableError_footer.hide{
+    display: none;
+}
+
+#cardsForm\:applicationCallFlowTab\:toggleableTransferApp_footer.hide{
+    display: none;
+}
+
+#cardTransferAppDetail.hide{
+    display: none;
+}
+
+#cardServicesDetail.hide{
+    display: none;
+}
+
+#cardErrorDetail.hide{
+    display: none;
+}
+
+.ui-panel.ui-widget.ui-widget-content.ui-corner-all{
+    margin-right: 1em;
+}
+
+.noHeader.ui-datatable table thead tr {
+    display: none;
+}
+
+.dashboard .ngr-overview-box .overview-box-rate.overview-box-old-rate {
+    background-color: #afafc0;
+}
+
+.tooltip{
+    font-size: 1em;
+}

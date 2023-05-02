@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+<!--Adicionar Promoções ids -->
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+             <div class="ui-inputgroup" style="padding: 0.15em; #{frasesPortabilidadeOcsBean.isObrigatorio('DT_GMUD')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                <p:calendar id="addDT_GMUD" placeholder="DT_GMUD" required="#{frasesPortabilidadeOcsBean.isObrigatorio('DT_GMUD')}" value="#{frasesPortabilidadeOcsBean.newTemplate.dt_gmud}" mask="99/99/9999" mindate="#{frasesPortabilidadeOcsBean.today}" showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00" >
+                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                </p:calendar>    
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-2 ui-lg-1">
+             <div class="ui-inputgroup" style="padding: 0.15em; #{frasesPortabilidadeOcsBean.isObrigatorio('IDBENEFICIO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                <p:inputMask placeholder="IDBENEFICIO" required="#{frasesPortabilidadeOcsBean.isObrigatorio('IDBENEFICIO')}" value="#{frasesPortabilidadeOcsBean.newTemplate.idbeneficio}" mask="99"/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-2 ui-lg-1">
+             <div class="ui-inputgroup" style="padding: 0.15em; #{frasesPortabilidadeOcsBean.isObrigatorio('IDPROGRAMA')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                <p:inputMask placeholder="IDPROGRAMA" required="#{frasesPortabilidadeOcsBean.isObrigatorio('IDPROGRAMA')}" value="#{frasesPortabilidadeOcsBean.newTemplate.idprograma}" mask="9?9"/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-2 ui-lg-1">
+             <div class="ui-inputgroup" style="padding: 0.15em; #{frasesPortabilidadeOcsBean.isObrigatorio('IDOFERTAOCS')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                <p:inputMask placeholder="IDOFERTAOCS" required="#{frasesPortabilidadeOcsBean.isObrigatorio('IDOFERTAOCS')}" value="#{frasesPortabilidadeOcsBean.newTemplate.idofertaocs}" />      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-12 ui-lg-3">
+             <div class="ui-inputgroup" style="padding: 0.15em; #{frasesPortabilidadeOcsBean.isObrigatorio('DDD')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                <p:inputText id="addDDD" placeholder="DDD" required="#{frasesPortabilidadeOcsBean.isObrigatorio('DDD')}" value="#{frasesPortabilidadeOcsBean.newTemplate.ddd}"/>
+            </div>
+        </div>
+    </div>
+    <p:separator />
+</ui:composition>

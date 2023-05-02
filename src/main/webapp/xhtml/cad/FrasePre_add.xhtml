@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+    <!--Adicionar Promoção -->
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTA1')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputTextarea placeholder="OFERTA1" required="#{mBean.isObrigatorio('OFERTA1')}" value="#{mBeanNew.oferta1}" cols="2500" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddOFERTA1"/>
+            </div>
+            <h:outputText id="caracAddOFERTA1" />
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTA2')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputTextarea placeholder="OFERTA2" required="#{mBean.isObrigatorio('OFERTA2')}" value="#{mBeanNew.oferta2}" cols="2500" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddOFERTA2"/>
+            </div>
+            <h:outputText id="caracAddOFERTA2" />
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTA3')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputTextarea placeholder="OFERTA3" required="#{mBean.isObrigatorio('OFERTA3')}" value="#{mBeanNew.oferta2}" cols="2500" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddOFERTA3"/>
+            </div>
+            <h:outputText id="caracAddOFERTA3" />
+        </div>
+
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTA_ERRO_IN')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputTextarea placeholder="OFERTA_ERRO_IN" required="#{mBean.isObrigatorio('OFERTA_ERRO_IN')}" value="#{mBeanNew.oferta2}" cols="2500" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddOFERTA_ERRO_IN"/>
+            </div>
+            <h:outputText id="caracAddOFERTA_ERRO_IN" />
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTA_SIEBEL')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                <p:inputTextarea placeholder="OFERTA_SIEBEL" required="#{mBean.isObrigatorio('OFERTA_SIEBEL')}" value="#{mBeanNew.oferta2}" cols="2500" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddOFERTA_SIEBEL"/>
+            </div>
+            <h:outputText id="caracAddOFERTA_SIEBEL" />
+        </div>
+    </div>
+
+</ui:composition>

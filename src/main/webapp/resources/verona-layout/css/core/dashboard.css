@@ -1,0 +1,70 @@
+.transparent .ui-tabs-panel.ui-widget-content.ui-corner-bottom{
+    background: transparent;
+    background-color: transparent;
+}
+
+.transparent .ui-tabs-panel.ui-widget-content.ui-corner-bottom {
+    border-bottom: none;
+}
+
+.dashboard .ngr-overview-box {
+    font-size: 17px;
+    display: inline-block;
+    width: 100%;
+}
+
+.overview-box-name{
+    font-weight: bold;
+}
+
+.dashboard .ngr-overview-box .overview-box-count {
+    font-size: 22px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.dashboard .ngr-overview-box .ui-g-12{
+    padding: 1px;
+    text-align: center;
+}
+.dashboard .ngr-overview-box .ui-g-4{
+    padding: 1px;
+    text-align: center;
+}
+
+
+.dashboard .ngr-overview-box .overview-box-rate {
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    padding: 2px 4px;
+    background-color: #9fd037;
+    font-weight: bold;
+    color: #ffffff;
+    display: inline-block;
+    margin-top: 4px;
+}
+
+.dashboard .ngr-overview-box .overview-box-rate.overview-box-fail-rate {
+    background-color: #f18983;
+}
+
+.dashboard .ngr-overview-box .overview-box-rate.overview-box-warn-rate {
+    background-color: #d0c437;
+}
+
+.ui-panelgrid.form-elements .ui-grc-2 {
+    padding-left: 80px;
+}
+
+@media (max-width:1024px) {
+    .ui-panelgrid.form-elements .ui-grc-2 {
+        padding-left: 20px;
+    }
+}
+
+@media (max-width:640px) {
+    .ui-panelgrid.form-elements .ui-grc-2 {
+        padding-left: 0px;
+    }
+}

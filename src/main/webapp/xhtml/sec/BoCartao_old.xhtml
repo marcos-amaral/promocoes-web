@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/xhtml/template/template.xhtml">
+
+
+    <ui:define name="conteudo">
+        <h:outputScript name="js/template.js" library="pages" />
+        <div id="loading"></div>
+        <p:growl id="messages" showDetail="true" />
+
+        <div class="container">
+            <h:form>
+                <ui:include src="/xhtml/template/ModalDialog.xhtml" />
+            </h:form>
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12">
+                    <h:panelGroup id="panelAprovacao" style="visibility: #{boCartaoBean.aprovacaoFiltered != null?'unset':'hidden'}">
+                        <i class="fa fa-check-circle-o" style="color: yellowgreen; font-size: 2em;"></i>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value=" GMUD atualizada por #{boCartaoBean.aprovacaoFiltered.user.name} em "/>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value="#{boCartaoBean.aprovacaoFiltered.dt_aprovacao}">
+                            <f:convertDateTime timeStyle="short" type="both" dateStyle="full" locale="pt-BR" timeZone="GMT-03:00"/>
+                        </p:outputLabel>
+                    </h:panelGroup>
+                </div>
+            </div>
+            <h:form id="formButtons">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Adicionar" id="buttonAdd" oncomplete="PF('sidebarAdd').show()" actionListener="#{boCartaoBean.preLoadEditBean()}" update="sideBarAddId" disabled="#{!controleBean.canEdit() or boCartaoBean.expiredGmud != null}" styleClass="ui-priority-primary" icon="fa fa-plus"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Editar" id="buttonEdit" oncomplete="PF('sidebarEdit').show()" actionListener="#{boCartaoBean.preLoadEditBean()}" update="sideBarEditId" disabled="#{boCartaoBean.selectedConfigOfertasPreList.size() eq 0 or !controleBean.canEdit() or boCartaoBean.expiredGmud != null or !boCartaoBean.canEdit()}" styleClass="ui-priority-primary" icon="fa fa-edit"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Excluir" id="buttonDel" oncomplete="PF('sidebarDelete').show()" actionListener="#{boCartaoBean.preLoadEditBean()}" update="sideBarDeleteId" styleClass="ui-priority-primary" disabled="#{boCartaoBean.selectedConfigOfertasPreList.size() eq 0 or !controleBean.canEdit() or boCartaoBean.expiredGmud != null}" icon="fa fa-eraser"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Histórico" id="buttonHist" oncomplete="hideLoader();PF('sidebarHistory').show()" update="formHistory:tabelaHistoryId" styleClass="ui-priority-primary" disabled="#{boCartaoBean.selectedConfigOfertasPreList.size() eq 0 or boCartaoBean.selectedConfigOfertasPreList.size() gt 1}" icon="fa fa-history"/>
+                    </div>
+                    <!--
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Script" id="buttonScript" oncomplete="PF('sidebarScript').show()" styleClass="ui-priority-primary" icon="fa fa-file-code-o"/>
+                    </div>
+                    -->
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:splitButton  value="Adiar" id="buttonAdm" onclick="PF('newDtGmudDlg').show();" icon="fa fa-clock-o" disabled="#{boCartaoBean.defaultFilterValue eq 'PRODUCAO' or controleBean.isMarketing()}">
+                            <p:menuitem value="Validar" onclick="PF('confirmDlgValidar').show();" disabled="#{boCartaoBean.defaultFilterValue eq 'PRODUCAO' or !(boCartaoBean.expiredGmud == null and controleBean.canValidate(boCartaoBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Liberar Implantação" onclick="PF('confirmDlgImplantacao').show();" disabled="#{boCartaoBean.defaultFilterValue eq 'PRODUCAO' or !(boCartaoBean.expiredGmud == null and controleBean.canReleaseDeployment(boCartaoBean.aprovacaoFiltered, true))}"/>
+                            <p:menuitem value="Implantar" onclick="PF('confirmDlg').show();" disabled="#{boCartaoBean.defaultFilterValue eq 'PRODUCAO' or !controleBean.canDeploy(boCartaoBean.aprovacaoFiltered)}"/>
+                        </p:splitButton>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4">
+                        <h:outputLabel value="#{boCartaoBean.aprovacaoFiltered.status.tipo}" style="float: right; font-style: oblique; color: #fa392f"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-3" style="float: right; padding-right: 50px;">
+                        <h:outputLabel value="BO_CARTAO" style="float: right;"/>
+                    </div>
+                </div>
+            </h:form>
+
+            <!-- TABELA PRINCIPAL --> 
+            <h:panelGroup>
+                <h:form id="formTable">
+                    <p:dataTable
+                        id="tabelaId"
+                        value="#{boCartaoBean.dataModel}"
+                        lazy="true"
+                        paginator="true"
+                        rows="50"
+                        paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        paginatorPosition="bottom"
+                        rowsPerPageTemplate="10,50,100"
+                        var="tabelaRow"
+                        widgetVar="tabelaCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="350"  
+                        editable="true" 
+                        editMode="cell" 
+                        selection="#{boCartaoBean.selectedConfigOfertasPreList}"
+                        rowKey="#{tabelaRow.id}"
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:ajax event="rowSelect" update="formButtons" />
+                        <p:ajax event="rowUnselect" update="formButtons" />
+                        <p:ajax event="toggleSelect" update="formButtons" />
+                        <p:ajax event="rowSelectCheckbox" update="formButtons" />
+                        <p:ajax event="rowUnselectCheckbox" update="formButtons" />
+
+                        <p:ajax event="filter" listener="#{boCartaoBean.cleanSelected()}" update="panelAprovacao,formButtons"/>
+
+                        <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+
+                        <p:column headerText="GMUD" filterBy="#{tabelaRow.dtGmudStr}" filterMatchMode="exact" filterValue="#{boCartaoBean.defaultFilterValue}" width="120" styleClass="#{tabelaRow.getStyleClass('GMUD')}">
+                            <f:facet name="filter">
+                                <p:selectOneMenu onchange="PF('tabelaCell').filter()" value="#{boCartaoBean.defaultFilterValue}" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="PRODUÇÃO" itemValue="PRODUCAO"/>
+                                    <f:selectItems value="#{boCartaoBean.gmudList}"/>
+                                </p:selectOneMenu>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.dtGmudStr}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="MODIFICADA" width="100" styleClass="#{tabelaRow.getStyleClass('MODIFICADA')}">
+                            <p:outputLabel value="#{tabelaRow.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy  HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100" styleClass="#{tabelaRow.getStyleClass('LOGIN')}">
+                            <p:outputLabel value="#{tabelaRow.user.login}"/>
+                        </p:column>
+                        <p:column headerText="IDBENEFICIO" filterBy="#{tabelaRow.idbeneficio}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('IDBENEFICIO')}">
+                            <p:outputLabel value="#{tabelaRow.idbeneficio}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="IDPROGRAMA" filterBy="#{tabelaRow.idprograma}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('IDPROGRAMA')}">
+                            <p:outputLabel value="#{tabelaRow.idprograma}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="DDD" filterBy="#{tabelaRow.ddd}"  filterFunction="#{genericFilter.filter}" width="280" styleClass="#{tabelaRow.getStyleClass('DDD')}">
+                            <p:outputLabel id="dddId" value="#{tabelaRow.dddSub}" ondblclick="copyToClip($(this));"/>
+                            <p:tooltip id="toolTipDDD" for="dddId" value="#{tabelaRow.ddd}" rendered="#{tabelaRow.ddd.length() gt 59}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+                        </p:column>
+                        <p:column headerText="CPFXC_PROMOPADRAO" filterBy="#{tabelaRow.cpfxc_promopadrao}"  filterFunction="#{genericFilter.filter}" width="550" styleClass="#{tabelaRow.getStyleClass('CPFXC_PROMOPADRAO')}">
+                            <p:outputLabel value="#{tabelaRow.cpfxc_promopadrao}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="CPFXC_SEMRECARGA" filterBy="#{tabelaRow.cpfxc_semrecarga}"  filterFunction="#{genericFilter.filter}" width="550" styleClass="#{tabelaRow.getStyleClass('CPFXC_SEMRECARGA')}">
+                            <p:outputLabel value="#{tabelaRow.cpfxc_semrecarga}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="CPFXC_CHAMADA" filterBy="#{tabelaRow.cpfxc_chamada}"  filterFunction="#{genericFilter.filter}" width="550" styleClass="#{tabelaRow.getStyleClass('CPFXC_CHAMADA')}">
+                            <p:outputLabel value="#{tabelaRow.cpfxc_chamada}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="CPFXC_DETALHES" filterBy="#{tabelaRow.cpfxc_detalhes}"  filterFunction="#{genericFilter.filter}" width="550" styleClass="#{tabelaRow.getStyleClass('CPFXC_DETALHES')}">
+                            <p:outputLabel value="#{tabelaRow.cpfxc_detalhes}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="CPFXC_RECARGA" filterBy="#{tabelaRow.cpfxc_recarga}"  filterFunction="#{genericFilter.filter}" width="550" styleClass="#{tabelaRow.getStyleClass('CPFXC_RECARGA')}">
+                            <p:outputLabel value="#{tabelaRow.cpfxc_recarga}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="CPFXC_INFORMAVALIDADE" filterBy="#{tabelaRow.cpfxc_informavalidade}"  filterFunction="#{genericFilter.filter}" width="550" styleClass="#{tabelaRow.getStyleClass('CPFXC_INFORMAVALIDADE')}">
+                            <p:outputLabel value="#{tabelaRow.cpfxc_informavalidade}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="CPFXC_VALIDADE" filterBy="#{tabelaRow.cpfxc_validade}"  filterFunction="#{genericFilter.filter}" width="550" styleClass="#{tabelaRow.getStyleClass('CPFXC_VALIDADE')}">
+                            <p:outputLabel value="#{tabelaRow.cpfxc_validade}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="CPFXC_CONTINGENCIA" filterBy="#{tabelaRow.cpfxc_contingencia}"  filterFunction="#{genericFilter.filter}" width="550" styleClass="#{tabelaRow.getStyleClass('CPFXC_CONTINGENCIA')}">
+                            <p:outputLabel value="#{tabelaRow.cpfxc_contingencia}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="NAOCPFXC_INFORMAPROMO" filterBy="#{tabelaRow.naocpfxc_informapromo}"  filterFunction="#{genericFilter.filter}" width="550" styleClass="#{tabelaRow.getStyleClass('NAOCPFXC_INFORMAPROMO')}">
+                            <p:outputLabel value="#{tabelaRow.naocpfxc_informapromo}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="NAOCPFXC_VALIDADE" filterBy="#{tabelaRow.naocpfxc_validade}"  filterFunction="#{genericFilter.filter}" width="550" styleClass="#{tabelaRow.getStyleClass('NAOCPFXC_VALIDADE')}">
+                            <p:outputLabel value="#{tabelaRow.naocpfxc_validade}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="NAOCPFXC_REGRAS" filterBy="#{tabelaRow.naocpfxc_regras}"  filterFunction="#{genericFilter.filter}" width="550" styleClass="#{tabelaRow.getStyleClass('NAOCPFXC_REGRAS')}">
+                            <p:outputLabel value="#{tabelaRow.naocpfxc_regras}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="NAOCPFXC_RECARGA" filterBy="#{tabelaRow.naocpfxc_recarga}"  filterFunction="#{genericFilter.filter}" width="550" styleClass="#{tabelaRow.getStyleClass('NAOCPFXC_RECARGA')}">
+                            <p:outputLabel value="#{tabelaRow.naocpfxc_recarga}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="INCENTIVO_OFERTA_PRE" filterBy="#{tabelaRow.incentivo_oferta_pre}"  filterFunction="#{genericFilter.filter}" width="550" styleClass="#{tabelaRow.getStyleClass('INCENTIVO_OFERTA_PRE')}">
+                            <p:outputLabel value="#{tabelaRow.incentivo_oferta_pre}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="FALLBACK" filterBy="#{tabelaRow.fallback}"  filterFunction="#{genericFilter.filter}" width="550" styleClass="#{tabelaRow.getStyleClass('FALLBACK')}">
+                            <p:outputLabel value="#{tabelaRow.fallback}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="JACLIENTE_SVA" filterBy="#{tabelaRow.jacliente_sva}"  filterFunction="#{genericFilter.filter}" width="550" styleClass="#{tabelaRow.getStyleClass('JACLIENTE_SVA')}">
+                            <p:outputLabel value="#{tabelaRow.jacliente_sva}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="INFORMASALDOPROMO" filterBy="#{tabelaRow.informasaldopromo}"  filterFunction="#{genericFilter.filter}" width="550" styleClass="#{tabelaRow.getStyleClass('INFORMASALDOPROMO')}">
+                            <p:outputLabel value="#{tabelaRow.informasaldopromo}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="OFERTAMIGRADOS" filterBy="#{tabelaRow.ofertamigrados}"  filterFunction="#{genericFilter.filter}" width="550" styleClass="#{tabelaRow.getStyleClass('OFERTAMIGRADOS')}">
+                            <p:outputLabel value="#{tabelaRow.ofertamigrados}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="NAOCPS_INFOP_USSD" filterBy="#{tabelaRow.naocps_infop_ussd}"  filterFunction="#{genericFilter.filter}" width="550" styleClass="#{tabelaRow.getStyleClass('NAOCPS_INFOP_USSD')}">
+                            <p:outputLabel value="#{tabelaRow.naocps_infop_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </h:panelGroup>
+
+            <!-- ADICIONAR PROMOCAO -->
+            <p:sidebar id="sideBarAddId" widgetVar="sidebarAdd" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Adicionar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesAdd"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formAdd">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="DT_GMUD" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('DT_GMUD')?'background-color: khaki':''}"> 
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar id="addDT_GMUD" placeholder="DT_GMUD" required="#{boCartaoBean.isObrigatorio('DT_GMUD')}" value="#{boCartaoBean.newConfigOfertasPre.dt_gmud}" mask="99/99/9999" mindate="#{boCartaoBean.today}" showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00" >
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                                </p:calendar>    
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="IDBENEFICIO" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('IDBENEFICIO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputMask id="addIDBENEFICIO" placeholder="IDBENEFICIO" required="#{boCartaoBean.isObrigatorio('IDBENEFICIO')}" value="#{boCartaoBean.newConfigOfertasPre.idbeneficio}" mask="99"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="IDPROGRAMA" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('IDPROGRAMA')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputMask id="addIDPROGRAMA" placeholder="IDPROGRAMA" required="#{boCartaoBean.isObrigatorio('IDPROGRAMA')}" value="#{boCartaoBean.newConfigOfertasPre.idprograma}" mask="9?9"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <p:outputLabel value="DDD" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('DDD')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputText id="addDDD" placeholder="DDD" required="#{boCartaoBean.isObrigatorio('DDD')}" value="#{boCartaoBean.newConfigOfertasPre.ddd}"/>
+                            </div>
+                        </div>
+                    </div>
+                    <p:separator />
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="CLIENTE_PROMOPADRAO" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('CPFXC_PROMOPADRAO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addCPFXC_PROMOPADRAO" placeholder="CPFXC_PROMOPADRAO" required="#{boCartaoBean.isObrigatorio('CPFXC_PROMOPADRAO')}" value="#{boCartaoBean.newConfigOfertasPre.cpfxc_promopadrao}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="CLIENTE_SEMRECARGA" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('CPFXC_SEMRECARGA')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addCPFXC_SEMRECARGA" placeholder="CPFXC_SEMRECARGA" required="#{boCartaoBean.isObrigatorio('CPFXC_SEMRECARGA')}" value="#{boCartaoBean.newConfigOfertasPre.cpfxc_semrecarga}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="CLIENTE_CHAMADA" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('CPFXC_CHAMADA')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addCPFXC_CHAMADA" placeholder="CPFXC_CHAMADA" required="#{boCartaoBean.isObrigatorio('CPFXC_CHAMADA')}" value="#{boCartaoBean.newConfigOfertasPre.cpfxc_chamada}"/>      
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="CLIENTE_DETALHES" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('CPFXC_DETALHES')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addCPFXC_DETALHES" placeholder="CPFXC_DETALHES" required="#{boCartaoBean.isObrigatorio('CPFXC_DETALHES')}" value="#{boCartaoBean.newConfigOfertasPre.cpfxc_detalhes}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="CLIENTE_RECARGA" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('CPFXC_RECARGA')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addCPFXC_RECARGA" placeholder="CPFXC_RECARGA" required="#{boCartaoBean.isObrigatorio('CPFXC_RECARGA')}" value="#{boCartaoBean.newConfigOfertasPre.cpfxc_recarga}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="CLIENTE_INFORMAVALIDADE" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('CPFXC_INFORMAVALIDADE')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addCPFXC_INFORMAVALIDADE" placeholder="CPFXC_INFORMAVALIDADE" required="#{boCartaoBean.isObrigatorio('CPFXC_INFORMAVALIDADE')}" value="#{boCartaoBean.newConfigOfertasPre.cpfxc_informavalidade}"/>      
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="CLIENTE_VALIDADE" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('CPFXC_VALIDADE')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addCPFXC_VALIDADE" placeholder="CPFXC_VALIDADE" required="#{boCartaoBean.isObrigatorio('CPFXC_VALIDADE')}" value="#{boCartaoBean.newConfigOfertasPre.cpfxc_validade}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="CLIENTE_CONTINGENCIA" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('CPFXC_CONTINGENCIA')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addCPFXC_CONTINGENCIA" placeholder="CPFXC_CONTINGENCIA" required="#{boCartaoBean.isObrigatorio('CPFXC_CONTINGENCIA')}" value="#{boCartaoBean.newConfigOfertasPre.cpfxc_contingencia}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="NAOCLIENTE_INFORMAPROMO" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('NAOCPFXC_INFORMAPROMO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addNAOCPFXC_INFORMAPROMO" placeholder="NAOCPFXC_INFORMAPROMO" required="#{boCartaoBean.isObrigatorio('NAOCPFXC_INFORMAPROMO')}" value="#{boCartaoBean.newConfigOfertasPre.naocpfxc_informapromo}"/>      
+                            </div>
+                        </div>
+                    </div>    
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="NAOCLIENTE_VALIDADE" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('NAOCPFXC_VALIDADE')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addNAOCPFXC_VALIDADE" placeholder="NAOCPFXC_VALIDADE" required="#{boCartaoBean.isObrigatorio('NAOCPFXC_VALIDADE')}" value="#{boCartaoBean.newConfigOfertasPre.naocpfxc_validade}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="NAOCLIENTE_REGRAS" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('NAOCPFXC_REGRAS')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addNAOCPFXC_REGRAS" placeholder="NAOCPFXC_REGRAS" required="#{boCartaoBean.isObrigatorio('NAOCPFXC_REGRAS')}" value="#{boCartaoBean.newConfigOfertasPre.naocpfxc_regras}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="NAOCLIENTE_RECARGA" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('NAOCPFXC_RECARGA')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addNAOCPFXC_RECARGA" placeholder="NAOCPFXC_RECARGA" required="#{boCartaoBean.isObrigatorio('NAOCPFXC_RECARGA')}" value="#{boCartaoBean.newConfigOfertasPre.naocpfxc_recarga}"/>      
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="INCENTIVO_OFERTA_PRE" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('INCENTIVO_OFERTA_PRE')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addINCENTIVO_OFERTA_PRE" placeholder="INCENTIVO_OFERTA_PRE" required="#{boCartaoBean.isObrigatorio('INCENTIVO_OFERTA_PRE')}" value="#{boCartaoBean.newConfigOfertasPre.incentivo_oferta_pre}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="FALLBACK" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('FALLBACK')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addFALLBACK" placeholder="FALLBACK" required="#{boCartaoBean.isObrigatorio('FALLBACK')}" value="#{boCartaoBean.newConfigOfertasPre.fallback}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="JACLIENTE_SVA" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('JACLIENTE_SVA')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addJACLIENTE_SVA" placeholder="JACLIENTE_SVA" required="#{boCartaoBean.isObrigatorio('JACLIENTE_SVA')}" value="#{boCartaoBean.newConfigOfertasPre.jacliente_sva}"/>      
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="INFORMASALDOPROMO" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('INFORMASALDOPROMO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addINFORMASALDOPROMO" placeholder="INFORMASALDOPROMO" required="#{boCartaoBean.isObrigatorio('INFORMASALDOPROMO')}" value="#{boCartaoBean.newConfigOfertasPre.informasaldopromo}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="OFERTAMIGRADOS" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('OFERTAMIGRADOS')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addOFERTAMIGRADOS" placeholder="OFERTAMIGRADOS" required="#{boCartaoBean.isObrigatorio('OFERTAMIGRADOS')}" value="#{boCartaoBean.newConfigOfertasPre.ofertamigrados}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="NAOCLIENTE_INFOP_USSD" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{boCartaoBean.isObrigatorio('NAOCPS_INFOP_USSD')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addNAOCPS_INFOP_USSD" placeholder="NAOCPS_INFOP_USSD" required="#{boCartaoBean.isObrigatorio('NAOCPS_INFOP_USSD')}" value="#{boCartaoBean.newConfigOfertasPre.naocps_infop_ussd}"/>      
+                            </div>
+                        </div>
+                    </div>
+                
+                
+
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarAdd').hide()"/>
+                        <p:commandButton value="Adicionar" validateClient="true" update="messages,messagesAdd" actionListener="#{boCartaoBean.adicionar()}" onstart="showLoader();" oncomplete="hideLoader();"/>
+                        <p:selectBooleanCheckbox itemLabel="Adicionar outra" value="#{boCartaoBean.adicionarOutra}" style="min-width: 140px"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- EDITAR PROMOCAO -->
+            <p:sidebar id="sideBarEditId" widgetVar="sidebarEdit" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Editar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesEdit"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formEdit">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-12">
+                            <p:scrollPanel style="width:100%;height:100px">
+                                <p:panelGrid columns="6">
+                                    <p:repeat value="#{boCartaoBean.selectedConfigOfertasPreList}" var="selectedConfigOfertasPreItem">
+                                        <p:button value="#{selectedConfigOfertasPreItem.idDdd}" disabled="true" style="margin: 2px;"/>
+                                    </p:repeat>
+                                </p:panelGrid>
+                            </p:scrollPanel>
+                        </div>
+                    </div>
+                    <h:panelGroup rendered="#{boCartaoBean.isEditProd()}">
+                        <p:separator />
+                        <div class="ui-g ui-fluid">
+                            <div class="ui-g-12 ui-md-6 ui-lg-2">
+                                <p:outputLabel value="DT_GMUD" styleClass="field_label"/>
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                    <p:calendar id="editDT_GMUD" placeholder="DT_GMUD" required="true" value="#{boCartaoBean.editConfigOfertasPre.dt_gmud}" mask="99/99/9999" showOn="button">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                    </p:calendar>
+                                    <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox value="true"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                    <p:separator />
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="CLIENTE_PROMOPADRAO" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="CPFXC_PROMOPADRAO" value="#{boCartaoBean.editConfigOfertasPre.cpfxc_promopadrao}">      
+                                    <p:ajax event="change" listener="#{boCartaoBean.editConfigOfertasPre.setEditCpfxc_promopadrao(true)}" update="formEdit:checkeditCpfxc_promopadrao"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditCpfxc_promopadrao" value="#{boCartaoBean.editConfigOfertasPre.editCpfxc_promopadrao}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="CLIENTE_SEMRECARGA" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="CPFXC_SEMRECARGA" value="#{boCartaoBean.editConfigOfertasPre.cpfxc_semrecarga}">      
+                                    <p:ajax event="change" listener="#{boCartaoBean.editConfigOfertasPre.setEditCpfxc_semrecarga(true)}" update="formEdit:checkeditCpfxc_semrecarga"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditCpfxc_semrecarga" value="#{boCartaoBean.editConfigOfertasPre.editCpfxc_semrecarga}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="JACLIENTE_OFERTA" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="CPFXC_CHAMADA" value="#{boCartaoBean.editConfigOfertasPre.cpfxc_chamada}">      
+                                    <p:ajax event="change" listener="#{boCartaoBean.editConfigOfertasPre.setEditCpfxc_chamada(true)}" update="formEdit:checkeditCpfxc_chamada"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditCpfxc_chamada" value="#{boCartaoBean.editConfigOfertasPre.editCpfxc_chamada}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="CLIENTE_DETALHES" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="CPFXC_DETALHES" value="#{boCartaoBean.editConfigOfertasPre.cpfxc_detalhes}">      
+                                    <p:ajax event="change" listener="#{boCartaoBean.editConfigOfertasPre.setEditCpfxc_detalhes(true)}" update="formEdit:checkeditCpfxc_detalhes"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditCpfxc_detalhes" value="#{boCartaoBean.editConfigOfertasPre.editCpfxc_detalhes}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="CLIENTE_RECARGA" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="CPFXC_RECARGA" value="#{boCartaoBean.editConfigOfertasPre.cpfxc_recarga}">      
+                                    <p:ajax event="change" listener="#{boCartaoBean.editConfigOfertasPre.setEditCpfxc_recarga(true)}" update="formEdit:checkeditCpfxc_recarga"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditCpfxc_recarga" value="#{boCartaoBean.editConfigOfertasPre.editCpfxc_recarga}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="CLIENTE_INFORMAVALIDADE" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="CPFXC_INFORMAVALIDADE" value="#{boCartaoBean.editConfigOfertasPre.cpfxc_informavalidade}">      
+                                    <p:ajax event="change" listener="#{boCartaoBean.editConfigOfertasPre.setEditCpfxc_informavalidade(true)}" update="formEdit:checkeditCpfxc_informavalidade"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditCpfxc_informavalidade" value="#{boCartaoBean.editConfigOfertasPre.editCpfxc_informavalidade}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="CLIENTE_VALIDADE" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="CPFXC_VALIDADE" value="#{boCartaoBean.editConfigOfertasPre.cpfxc_validade}">      
+                                    <p:ajax event="change" listener="#{boCartaoBean.editConfigOfertasPre.setEditCpfxc_validade(true)}" update="formEdit:checkeditCpfxc_validade"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditCpfxc_validade" value="#{boCartaoBean.editConfigOfertasPre.editCpfxc_validade}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="CLIENTE_CONTINGENCIA" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="CPFXC_CONTINGENCIA" value="#{boCartaoBean.editConfigOfertasPre.cpfxc_contingencia}">      
+                                    <p:ajax event="change" listener="#{boCartaoBean.editConfigOfertasPre.setEditCpfxc_contingencia(true)}" update="formEdit:checkeditCpfxc_contingencia"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditCpfxc_contingencia" value="#{boCartaoBean.editConfigOfertasPre.editCpfxc_contingencia}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="NAOCLIENTE_INFORMAPROMO" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="NAOCPFXC_INFORMAPROMO" value="#{boCartaoBean.editConfigOfertasPre.naocpfxc_informapromo}">      
+                                    <p:ajax event="change" listener="#{boCartaoBean.editConfigOfertasPre.setEditNaocpfxc_informapromo(true)}" update="formEdit:checkeditNaocpfxc_informapromo"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditNaocpfxc_informapromo" value="#{boCartaoBean.editConfigOfertasPre.editNaocpfxc_informapromo}"/></span>
+                            </div>
+                        </div>
+                    </div>    
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="NAOCLIENTE_VALIDADE" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="NAOCPFXC_VALIDADE" value="#{boCartaoBean.editConfigOfertasPre.naocpfxc_validade}">      
+                                    <p:ajax event="change" listener="#{boCartaoBean.editConfigOfertasPre.setEditNaocpfxc_validade(true)}" update="formEdit:checkeditNaocpfxc_validade"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditNaocpfxc_validade" value="#{boCartaoBean.editConfigOfertasPre.editNaocpfxc_validade}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="NAOCLIENTE_REGRAS" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="NAOCPFXC_REGRAS" value="#{boCartaoBean.editConfigOfertasPre.naocpfxc_regras}">      
+                                    <p:ajax event="change" listener="#{boCartaoBean.editConfigOfertasPre.setEditNaocpfxc_regras(true)}" update="formEdit:checkeditNaocpfxc_regras"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditNaocpfxc_regras" value="#{boCartaoBean.editConfigOfertasPre.editNaocpfxc_regras}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="NAOCLIENTE_RECARGA" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="NAOCPFXC_RECARGA" value="#{boCartaoBean.editConfigOfertasPre.naocpfxc_recarga}">      
+                                    <p:ajax event="change" listener="#{boCartaoBean.editConfigOfertasPre.setEditNaocpfxc_recarga(true)}" update="formEdit:checkeditNaocpfxc_recarga"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditNaocpfxc_recarga" value="#{boCartaoBean.editConfigOfertasPre.editNaocpfxc_recarga}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="INCENTIVO_OFERTA_PRE" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="INCENTIVO_OFERTA_PRE" value="#{boCartaoBean.editConfigOfertasPre.incentivo_oferta_pre}">      
+                                    <p:ajax event="change" listener="#{boCartaoBean.editConfigOfertasPre.setEditIncentivo_oferta_pre(true)}" update="formEdit:checkeditIncentivo_oferta_pre"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditIncentivo_oferta_pre" value="#{boCartaoBean.editConfigOfertasPre.editIncentivo_oferta_pre}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="FALLBACK" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="FALLBACK" value="#{boCartaoBean.editConfigOfertasPre.fallback}">      
+                                    <p:ajax event="change" listener="#{boCartaoBean.editConfigOfertasPre.setEditFallback(true)}" update="formEdit:checkeditFallback"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditFallback" value="#{boCartaoBean.editConfigOfertasPre.editFallback}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="CLIENTE_SVA" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="JACLIENTE_SVA" value="#{boCartaoBean.editConfigOfertasPre.jacliente_sva}">      
+                                    <p:ajax event="change" listener="#{boCartaoBean.editConfigOfertasPre.setEditJacliente_sva(true)}" update="formEdit:checkeditJacliente_sva"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditJacliente_sva" value="#{boCartaoBean.editConfigOfertasPre.editJacliente_sva}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="INFORMASALDOPROMO" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="INFORMASALDOPROMO" value="#{boCartaoBean.editConfigOfertasPre.informasaldopromo}">      
+                                    <p:ajax event="change" listener="#{boCartaoBean.editConfigOfertasPre.setEditInformasaldopromo(true)}" update="formEdit:checkeditInformasaldopromo"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditInformasaldopromo" value="#{boCartaoBean.editConfigOfertasPre.editInformasaldopromo}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="OFERTAMIGRADOS" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="OFERTAMIGRADOS" value="#{boCartaoBean.editConfigOfertasPre.ofertamigrados}">      
+                                    <p:ajax event="change" listener="#{boCartaoBean.editConfigOfertasPre.setEditOfertamigrados(true)}" update="formEdit:checkeditOfertamigrados"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditOfertamigrados" value="#{boCartaoBean.editConfigOfertasPre.editOfertamigrados}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="NAOCLIENTE_INFOP_USSD" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="NAOCPS_INFOP_USSD" value="#{boCartaoBean.editConfigOfertasPre.naocps_infop_ussd}">      
+                                    <p:ajax event="change" listener="#{boCartaoBean.editConfigOfertasPre.setEditNaocps_infop_ussd(true)}" update="formEdit:checkeditNaocps_infop_ussd"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditNaocps_infop_ussd" value="#{boCartaoBean.editConfigOfertasPre.editNaocps_infop_ussd}"/></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarEdit').hide()"/>
+                        <p:commandButton value="Confirmar" validateClient="true" actionListener="#{boCartaoBean.editar()}" update="messages,messagesEdit,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="hideLoader();"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- HISTORICO PROMOCAO -->
+            <p:sidebar id="sideBarHistoryId" widgetVar="sidebarHistory" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Histórico</h1>
+                <p:separator />
+                <h:form id="formHistory">
+                    <p:dataTable
+                        id="tabelaHistoryId"
+                        value="#{boCartaoBean.selectedConfigOfertasPreHistoryList}"
+                        var="tabelaHistory"
+                        widgetVar="tabelaHistoryCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="370"  
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:column headerText="ÚLTIMO STATUS" width="100" groupRow="true">
+                            <p:outputLabel value="#{tabelaHistory.lastStatus}"/>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100">
+                            <p:outputLabel value="#{tabelaHistory.user.login}"/>
+                        </p:column>
+                        <p:column headerText="MODIFICADO" width="150">
+                            <p:outputLabel value="#{tabelaHistory.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00" />
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="CPFXC_PROMOPADRAO" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('CPFXC_PROMOPADRAO',true)?'editedcell':'')}">
+                            <h:outputText value="#{tabelaHistory.cpfxc_promopadrao}" rendered="#{tabelaHistory.editMap.getOrDefault('CPFXC_PROMOPADRAO',true)}"/>
+                        </p:column>
+                        <p:column headerText="CPFXC_SEMRECARGA" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('CPFXC_SEMRECARGA',true)?'editedcell':'')}">
+                            <h:outputText value="#{tabelaHistory.cpfxc_semrecarga}" rendered="#{tabelaHistory.editMap.getOrDefault('CPFXC_SEMRECARGA',true)}"/>
+                        </p:column>
+                        <p:column headerText="CPFXC_CHAMADA" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('CPFXC_CHAMADA',true)?'editedcell':'')}">
+                            <h:outputText value="#{tabelaHistory.cpfxc_chamada}" rendered="#{tabelaHistory.editMap.getOrDefault('CPFXC_CHAMADA',true)}"/>
+                        </p:column>
+                        <p:column headerText="CPFXC_DETALHES" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('CPFXC_DETALHES',true)?'editedcell':'')}">
+                            <h:outputText value="#{tabelaHistory.cpfxc_detalhes}" rendered="#{tabelaHistory.editMap.getOrDefault('CPFXC_DETALHES',true)}"/>
+                        </p:column>
+                        <p:column headerText="CPFXC_RECARGA" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('CPFXC_RECARGA',true)?'editedcell':'')}">
+                            <h:outputText value="#{tabelaHistory.cpfxc_recarga}" rendered="#{tabelaHistory.editMap.getOrDefault('CPFXC_RECARGA',true)}"/>
+                        </p:column>
+                        <p:column headerText="CPFXC_INFORMAVALIDADE" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('CPFXC_INFORMAVALIDADE',true)?'editedcell':'')}">
+                            <h:outputText value="#{tabelaHistory.cpfxc_informavalidade}" rendered="#{tabelaHistory.editMap.getOrDefault('CPFXC_INFORMAVALIDADE',true)}"/>
+                        </p:column>
+                        <p:column headerText="CPFXC_VALIDADE" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('CPFXC_VALIDADE',true)?'editedcell':'')}">
+                            <h:outputText value="#{tabelaHistory.cpfxc_validade}" rendered="#{tabelaHistory.editMap.getOrDefault('CPFXC_VALIDADE',true)}"/>
+                        </p:column>
+                        <p:column headerText="CPFXC_CONTINGENCIA" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('CPFXC_CONTINGENCIA',true)?'editedcell':'')}">
+                            <h:outputText value="#{tabelaHistory.cpfxc_contingencia}" rendered="#{tabelaHistory.editMap.getOrDefault('CPFXC_CONTINGENCIA',true)}"/>
+                        </p:column>
+                        <p:column headerText="NAOCPFXC_INFORMAPROMO" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('NAOCPFXC_INFORMAPROMO',true)?'editedcell':'')}">
+                            <h:outputText value="#{tabelaHistory.naocpfxc_informapromo}" rendered="#{tabelaHistory.editMap.getOrDefault('NAOCPFXC_INFORMAPROMO',true)}"/>
+                        </p:column>
+                        <p:column headerText="NAOCPFXC_VALIDADE" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('NAOCPFXC_VALIDADE',true)?'editedcell':'')}">
+                            <h:outputText value="#{tabelaHistory.naocpfxc_validade}" rendered="#{tabelaHistory.editMap.getOrDefault('NAOCPFXC_VALIDADE',true)}"/>
+                        </p:column>
+                        <p:column headerText="NAOCPFXC_REGRAS" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('NAOCPFXC_REGRAS',true)?'editedcell':'')}">
+                            <h:outputText value="#{tabelaHistory.naocpfxc_regras}" rendered="#{tabelaHistory.editMap.getOrDefault('NAOCPFXC_REGRAS',true)}"/>
+                        </p:column>
+                        <p:column headerText="NAOCPFXC_RECARGA" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('NAOCPFXC_RECARGA',true)?'editedcell':'')}">
+                            <h:outputText value="#{tabelaHistory.naocpfxc_recarga}" rendered="#{tabelaHistory.editMap.getOrDefault('NAOCPFXC_RECARGA',true)}"/>
+                        </p:column>
+                        <p:column headerText="INCENTIVO_OFERTA_PRE" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INCENTIVO_OFERTA_PRE',true)?'editedcell':'')}">
+                            <h:outputText value="#{tabelaHistory.incentivo_oferta_pre}" rendered="#{tabelaHistory.editMap.getOrDefault('INCENTIVO_OFERTA_PRE',true)}"/>
+                        </p:column>
+                        <p:column headerText="FALLBACK" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('FALLBACK',true)?'editedcell':'')}">
+                            <h:outputText value="#{tabelaHistory.fallback}" rendered="#{tabelaHistory.editMap.getOrDefault('FALLBACK',true)}"/>
+                        </p:column>
+                        <p:column headerText="JACLIENTE_SVA" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('JACLIENTE_SVA',true)?'editedcell':'')}">
+                            <h:outputText value="#{tabelaHistory.jacliente_sva}" rendered="#{tabelaHistory.editMap.getOrDefault('JACLIENTE_SVA',true)}"/>
+                        </p:column>
+                        <p:column headerText="INFORMASALDOPROMO" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INFORMASALDOPROMO',true)?'editedcell':'')}">
+                            <h:outputText value="#{tabelaHistory.informasaldopromo}" rendered="#{tabelaHistory.editMap.getOrDefault('INFORMASALDOPROMO',true)}"/>
+                        </p:column>
+                        <p:column headerText="OFERTAMIGRADOS" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('OFERTAMIGRADOS',true)?'editedcell':'')}">
+                            <h:outputText value="#{tabelaHistory.ofertamigrados}" rendered="#{tabelaHistory.editMap.getOrDefault('OFERTAMIGRADOS',true)}"/>
+                        </p:column>
+                        <p:column headerText="NAOCPS_INFOP_USSD" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('NAOCPS_INFOP_USSD',true)?'editedcell':'')}">
+                            <h:outputText value="#{tabelaHistory.naocps_infop_ussd}" rendered="#{tabelaHistory.editMap.getOrDefault('NAOCPS_INFOP_USSD',true)}"/>
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </p:sidebar>
+
+            <!-- DELETAR PROMOCAO -->
+            <p:sidebar id="sideBarDeleteId" widgetVar="sidebarDelete" position="top" baseZIndex="10000" style="overflow: auto;min-height: 160px;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Tem certeza?</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesDel"></p:messages>
+                    </div>
+                </div>
+                <p:separator />
+                <h:form id="formDel">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-3 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar id="delDT_GMUD" placeholder="DT_GMUD" required="true" value="#{boCartaoBean.gmudToDelete}" disabled="#{boCartaoBean.gmudToDelete != null}" mask="99/99/9999" pattern="dd/MM/yyyy" showOn="button">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                </p:calendar>
+                            </div>
+                        </div>
+                        <p:commandButton value="Sim" validateClient="true" actionListener="#{boCartaoBean.deletar()}" onstart="showLoader();" oncomplete="hideLoader();" update="messages,messagesDel,formTable:tabelaId" icon="fa fa-check" />
+                        <p:commandButton value="Não" oncomplete="PF('sidebarDelete').hide()" icon="fa fa-times" />
+                    </div>
+                </h:form>
+            </p:sidebar>
+
+            <!-- SCRIPT PROMOCAO -->
+            <p:sidebar id="sideBarScriptId" widgetVar="sidebarScript" position="top" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Gerar Script</h1>
+                <h:form id="formScript">
+                    <p:separator />
+                    <p:commandButton value="USSD" ajax="false" actionListener="#{boCartaoBean.generateScriptFile('USSD')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{boCartaoBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                    <p:commandButton value="*880" ajax="false" actionListener="#{boCartaoBean.generateScriptFile('880')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{boCartaoBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                    <p:commandButton value="*144" ajax="false" actionListener="#{boCartaoBean.generateScriptFile('144')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{boCartaoBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                </h:form>
+            </p:sidebar>
+
+            <p:dialog id="expiredGmudDlgId" header="GMUD Expirada: #{boCartaoBean.expiredGmud}" widgetVar="expiredGmudDlg" rendered="#{boCartaoBean.expiredGmud != null and controleBean.canEdit()}" closable="false">
+                <h:form id="formExpired">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Essa GMUD expirou e suas alterações precisam ir para produção ou apenas adiada, antes de prosseguir com novas alterações.<br/>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-8">
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Adiar" onclick="PF('newDtGmudDlg').show();"/>
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Implantar" onclick="PF('confirmDlg').show();" style="float: right; display: #{controleBean.visibilityDeploy(boCartaoBean.aprovacaoFiltered)}"/>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="newDtGmudDlg" showHeader="false" width="min-content" closable="false">
+                <h:form id="formNewDate">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            <p:datePicker id="inline" value="#{boCartaoBean.newDtGmud}" locale="br" inline="true">
+                                <p:ajax event="dateSelect" listener="#{boCartaoBean.adiar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist,expiredGmudDlgId" onstart="showLoader();" oncomplete="location.reload();"/>
+                            </p:datePicker>
+                            <div class="ui-g-6">
+                                <p:commandButton value="Cancelar" onclick="PF('newDtGmudDlg').hide();" icon="fa fa-times" />
+                            </div>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlg" header="Implantar GMUD" closable="false">
+                <h:form id="formConfirm">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Todas as alterações serão inseridas nos registros de produção!<br/>
+                            Confirmar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{boCartaoBean.aprovar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlg').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgValidar" header="Validar GMUD" closable="false">
+                <h:form id="formConfirmValidar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma a validação da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{boCartaoBean.aprovarGmud()}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgValidar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgValidar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgImplantacao" header="Enviar GMUD para Implantacao" closable="false">
+                <h:form id="formConfirmImplantacao">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para Implantacao?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{boCartaoBean.implantarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgImplantacao').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgImplantacao').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+        </div>
+
+        <script  type="text/javascript" target="body">
+            $j = jQuery;
+            $j(document).ready(function () {
+                PF('tabelaCell').filter();
+                hideLoader();
+                try {
+                    PF('expiredGmudDlg').show();
+                } catch (e) {
+                }
+
+            });
+        </script>
+        <h:outputStylesheet name="css/template.css" library="pages" />
+    </ui:define>
+</ui:composition>

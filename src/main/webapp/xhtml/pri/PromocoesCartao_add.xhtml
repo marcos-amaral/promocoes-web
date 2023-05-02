@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+<!--Adicionar Promoção -->
+
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="INCENTIVO1" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('INCENTIVO1')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText id="addINCENTIVO1" placeholder="INCENTIVO1" required="#{promocoesCartaoBean.isObrigatorio('INCENTIVO1')}" value="#{promocoesCartaoBean.newConfigOfertasPre.incentivo1}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                             <p:outputLabel value="INCENTIVO2" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('INCENTIVO2')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText id="addINCENTIVO2" placeholder="INCENTIVO2" required="#{promocoesCartaoBean.isObrigatorio('INCENTIVO2')}" value="#{promocoesCartaoBean.newConfigOfertasPre.incentivo2}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="OUTROSPLANOS" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('OUTROSPLANOS')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText id="addOUTROSPLANOS" placeholder="OUTROSPLANOS" required="#{promocoesCartaoBean.isObrigatorio('OUTROSPLANOS')}" value="#{promocoesCartaoBean.newConfigOfertasPre.outrosplanos}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                             <p:outputLabel value="OFERTAPROMO1" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('OFERTAPROMO1')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText id="addOFERTAPROMO1" placeholder="OFERTAPROMO1" required="#{promocoesCartaoBean.isObrigatorio('OFERTAPROMO1')}" value="#{promocoesCartaoBean.newConfigOfertasPre.ofertapromo1}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="OFERTAPROMO2" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('OFERTAPROMO2')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText  id="addOFERTAPROMO2" placeholder="OFERTAPROMO2" required="#{promocoesCartaoBean.isObrigatorio('OFERTAPROMO2')}" value="#{promocoesCartaoBean.newConfigOfertasPre.ofertapromo2}"/>      
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="TB_NOME_PROMOCAO" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_NOME_PROMOCAO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addTB_NOME_PROMOCAO" placeholder="TB_NOME_PROMOCAO" required="#{promocoesCartaoBean.isObrigatorio('TB_NOME_PROMOCAO')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_nome_promocao}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                              <p:outputLabel value="TB_TIPO_PROMO" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_TIPO_PROMO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addTB_TIPO_PROMO" placeholder="TB_TIPO_PROMO" required="#{promocoesCartaoBean.isObrigatorio('TB_TIPO_PROMO')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_tipo_promo}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="TB_TIPO_BONUS" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_TIPO_BONUS')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addTB_TIPO_BONUS" placeholder="TB_TIPO_BONUS" required="#{promocoesCartaoBean.isObrigatorio('TB_TIPO_BONUS')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_tipo_bonus}"/>      
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                             <p:outputLabel value="TB_DT_INICIO_PROMO" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_DT_INICIO_PROMO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar id="addTB_DT_INICIO_PROMO" placeholder="TB_DT_INICIO_PROMO" required="#{promocoesCartaoBean.isObrigatorio('TB_DT_INICIO_PROMO')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_dt_inicio_promo}"  showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                                </p:calendar>    
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_DT_FIM_PROMO" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_DT_FIM_PROMO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar id="addTB_DT_FIM_PROMO" placeholder="TB_DT_FIM_PROMO" required="#{promocoesCartaoBean.isObrigatorio('TB_DT_FIM_PROMO')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_dt_fim_promo}"  showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                                </p:calendar>    
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                             <p:outputLabel value="TB_RECARGA_MIN" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_RECARGA_MIN')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber id="addTB_RECARGA_MIN" placeholder="TB_RECARGA_MIN" required="#{promocoesCartaoBean.isObrigatorio('TB_RECARGA_MIN')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_recarga_min}" decimalPlaces="2" thousandSeparator=""/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_RECARGA_MAX" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_RECARGA_MAX')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber id="addTB_RECARGA_MAX" placeholder="TB_RECARGA_MAX" required="#{promocoesCartaoBean.isObrigatorio('TB_RECARGA_MAX')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_recarga_max}" decimalPlaces="2" thousandSeparator=""/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                             <p:outputLabel value="TB_BONUS_MIN" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_BONUS_MIN')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber id="addTB_BONUS_MIN" placeholder="TB_BONUS_MIN" required="#{promocoesCartaoBean.isObrigatorio('TB_BONUS_MIN')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_bonus_min}" decimalPlaces="2" thousandSeparator=""/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_BONUS_MAX" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_BONUS_MAX')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber id="addTB_BONUS_MAX" placeholder="TB_BONUS_MAX" required="#{promocoesCartaoBean.isObrigatorio('TB_BONUS_MAX')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_bonus_max}" decimalPlaces="2" thousandSeparator=""/>      
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                             <p:outputLabel value="TB_TAXAADESAO" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_TAXAADESAO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber id="addTB_TAXAADESAO" placeholder="TB_TAXAADESAO" required="#{promocoesCartaoBean.isObrigatorio('TB_TAXAADESAO')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_taxaadesao}" decimalPlaces="2" thousandSeparator=""/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                             <p:outputLabel value="TB_MULTIPLICADOR" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_MULTIPLICADOR')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputNumber id="addTB_MULTIPLICADOR" placeholder="TB_MULTIPLICADOR" required="#{promocoesCartaoBean.isObrigatorio('TB_MULTIPLICADOR')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_multiplicador}" decimalPlaces="0" thousandSeparator=""/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                                 <p:outputLabel value="TB_QTD_TORP" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_QTD_TORP')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputNumber id="addTB_QTD_TORP" placeholder="TB_QTD_TORP" required="#{promocoesCartaoBean.isObrigatorio('TB_QTD_TORP')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_qtd_torp}" decimalPlaces="0" thousandSeparator=""/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_BONUS_TORP" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_BONUS_TORP')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputNumber id="addTB_BONUS_TORP" placeholder="TB_BONUS_TORP" required="#{promocoesCartaoBean.isObrigatorio('TB_BONUS_TORP')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_bonus_torp}" decimalPlaces="0" thousandSeparator=""/>      
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_VALORTAXA_6_MESES" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_VALORTAXA_6_MESES')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber id="addTB_VALORTAXA_6_MESES" placeholder="TB_VALORTAXA_6_MESES" required="#{promocoesCartaoBean.isObrigatorio('TB_VALORTAXA_6_MESES')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_valortaxa_6_meses}" decimalPlaces="2" thousandSeparator=""/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_VALORTAXA_12_MESES" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_VALORTAXA_12_MESES')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber id="addTB_VALORTAXA_12_MESES" placeholder="TB_VALORTAXA_12_MESES" required="#{promocoesCartaoBean.isObrigatorio('TB_VALORTAXA_12_MESES')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_valortaxa_6_meses}" decimalPlaces="2" thousandSeparator=""/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_ID_BENEFICIO_6_MESES" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_ID_BENEFICIO_6_MESES')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputMask id="addTB_ID_BENEFICIO_6_MESES" placeholder="TB_ID_BENEFICIO_6_MESES" required="#{promocoesCartaoBean.isObrigatorio('TB_ID_BENEFICIO_6_MESES')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_id_beneficio_6_meses}" mask="9?9"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                             <p:outputLabel value="TB_ID_PROGRAMA_6_MESES" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_ID_PROGRAMA_6_MESES')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputMask id="addTB_ID_PROGRAMA_6_MESES" placeholder="TB_ID_PROGRAMA_6_MESES" required="#{promocoesCartaoBean.isObrigatorio('TB_ID_PROGRAMA_6_MESES')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_id_programa_6_meses}" mask="9?9"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_ID_BENEFICIO_12_MESES" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_ID_BENEFICIO_12_MESES')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputMask id="addTB_ID_BENEFICIO_12_MESES" placeholder="TB_ID_BENEFICIO_12_MESES" required="#{promocoesCartaoBean.isObrigatorio('TB_ID_BENEFICIO_12_MESES')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_id_beneficio_12_meses}" mask="9?9"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_ID_PROGRAMA_12_MESES" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_ID_PROGRAMA_12_MESES')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputMask id="addTB_ID_PROGRAMA_12_MESES" placeholder="TB_ID_PROGRAMA_12_MESES" required="#{promocoesCartaoBean.isObrigatorio('TB_ID_PROGRAMA_12_MESES')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_id_programa_12_meses}" mask="9?9"/>      
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_RECARGABOLSODEGRAU2" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_RECARGABOLSODEGRAU2')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber id="addTB_RECARGABOLSODEGRAU2" placeholder="TB_RECARGABOLSODEGRAU2" required="#{promocoesCartaoBean.isObrigatorio('TB_RECARGABOLSODEGRAU2')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_recargabolsodegrau2}" decimalPlaces="2" thousandSeparator=""/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_BOLSOBONUSDEGRAU2" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_BOLSOBONUSDEGRAU2')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber id="addTB_BOLSOBONUSDEGRAU2" placeholder="TB_BOLSOBONUSDEGRAU2" required="#{promocoesCartaoBean.isObrigatorio('TB_BOLSOBONUSDEGRAU2')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_bolsobonusdegrau2}" decimalPlaces="2" thousandSeparator=""/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                             <p:outputLabel value="TB_RECARGABOLSODEGRAU3" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_RECARGABOLSODEGRAU3')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber id="addTB_RECARGABOLSODEGRAU3" placeholder="TB_RECARGABOLSODEGRAU3" required="#{promocoesCartaoBean.isObrigatorio('TB_RECARGABOLSODEGRAU3')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_recargabolsodegrau3}" decimalPlaces="2" thousandSeparator=""/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                             <p:outputLabel value="TB_BOLSOBONUSDEGRAU3" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_BOLSOBONUSDEGRAU3')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputNumber id="addTB_BOLSOBONUSDEGRAU3" placeholder="TB_BOLSOBONUSDEGRAU3" required="#{promocoesCartaoBean.isObrigatorio('TB_BOLSOBONUSDEGRAU3')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_bolsobonusdegrau3}" decimalPlaces="2" thousandSeparator=""/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="PRIORIDADE" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('PRIORIDADE')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText id="addPRIORIDADE" placeholder="PRIORIDADE" required="#{promocoesCartaoBean.isObrigatorio('PRIORIDADE')}" value="#{promocoesCartaoBean.newConfigOfertasPre.prioridade}"/>      
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="OFERTAR_SEMPROMO" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('OFERTAR_SEMPROMO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText id="addOFERTAR_SEMPROMO" placeholder="OFERTAR_SEMPROMO" required="#{promocoesCartaoBean.isObrigatorio('OFERTAR_SEMPROMO')}" value="#{promocoesCartaoBean.newConfigOfertasPre.ofertar_sempromo}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="COBRARTAXA" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('COBRARTAXA')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText id="addCOBRARTAXA" placeholder="COBRARTAXA" required="#{promocoesCartaoBean.isObrigatorio('COBRARTAXA')}" value="#{promocoesCartaoBean.newConfigOfertasPre.cobrartaxa}"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                             <p:outputLabel value="TB_CATEGORIA" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_CATEGORIA')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText id="addTB_CATEGORIA" placeholder="TB_CATEGORIA" required="#{promocoesCartaoBean.isObrigatorio('TB_CATEGORIA')}" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_categoria}"/>      
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_SN_ELEGIVEL_NOVA_PROMO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton id="addTB_SN_ELEGIVEL_NOVA_PROMO" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_sn_elegivel_nova_promo}" required="#{promocoesCartao.isObrigatorio('TB_SN_ELEGIVEL_NOVA_PROMO')}" onLabel="TB_SN_ELEGIVEL_NOVA_PROMO" offLabel="TB_SN_ELEGIVEL_NOVA_PROMO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_SN_ELEGIVEL_ESTENDIDA')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton id="addTB_SN_ELEGIVEL_ESTENDIDA" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_sn_elegivel_estendida}" required="#{promocoesCartao.isObrigatorio('TB_SN_ELEGIVEL_ESTENDIDA')}" onLabel="TB_SN_ELEGIVEL_ESTENDIDA" offLabel="TB_SN_ELEGIVEL_ESTENDIDA" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_SN_BONUS_TORPEDO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton id="addTB_SN_BONUS_TORPEDO" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_sn_bonus_torpedo}" required="#{promocoesCartao.isObrigatorio('TB_SN_BONUS_TORPEDO')}" onLabel="TB_SN_BONUS_TORPEDO" offLabel="TB_SN_BONUS_TORPEDO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_BONUSBOLSODIFERENCIADO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton id="addTB_BONUSBOLSODIFERENCIADO" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_bonusbolsodiferenciado}" required="#{promocoesCartao.isObrigatorio('TB_BONUSBOLSODIFERENCIADO')}" onLabel="TB_BONUSBOLSODIFERENCIADO" offLabel="TB_BONUSBOLSODIFERENCIADO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_PRORROGACAO_6_MESES')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton id="addTB_PRORROGACAO_6_MESES" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_prorrogacao_6_meses}" required="#{promocoesCartao.isObrigatorio('TB_PRORROGACAO_6_MESES')}" onLabel="TB_PRORROGACAO_6_MESES" offLabel="TB_PRORROGACAO_6_MESES" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_PRORROGACAO_12_MESES')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton id="addTB_PRORROGACAO_12_MESES" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_prorrogacao_12_meses}" required="#{promocoesCartao.isObrigatorio('TB_PRORROGACAO_12_MESES')}" onLabel="TB_PRORROGACAO_12_MESES" offLabel="TB_PRORROGACAO_12_MESES" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_BONUSLIGACAOOIMOVEL')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton id="addTB_BONUSLIGACAOOIMOVEL" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_bonusligacaooimovel}" required="#{promocoesCartao.isObrigatorio('TB_BONUSLIGACAOOIMOVEL')}" onLabel="TB_BONUSLIGACAOOIMOVEL" offLabel="TB_BONUSLIGACAOOIMOVEL" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_BONUSLIGACAOOIMOVELFIXO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton id="addTB_BONUSLIGACAOOIMOVELFIXO" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_bonusligacaooimovelfixo}" required="#{promocoesCartao.isObrigatorio('TB_BONUSLIGACAOOIMOVELFIXO')}" onLabel="TB_BONUSLIGACAOOIMOVELFIXO" offLabel="TB_BONUSLIGACAOOIMOVELFIXO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_BONUSLIGACAOMIX')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton id="addTB_BONUSLIGACAOMIX" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_bonusligacaomix}" required="#{promocoesCartao.isObrigatorio('TB_BONUSLIGACAOMIX')}" onLabel="TB_BONUSLIGACAOMIX" offLabel="TB_BONUSLIGACAOMIX" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_LIGACAOOIMOVELFIXO_DADOS')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton id="addTB_LIGACAOOIMOVELFIXO_DADOS" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_ligacaooimovelfixo_dados}" required="#{promocoesCartao.isObrigatorio('TB_LIGACAOOIMOVELFIXO_DADOS')}" onLabel="TB_LIGACAOOIMOVELFIXO_DADOS" offLabel="TB_LIGACAOOIMOVELFIXO_DADOS" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_BONUSLIGACAOMIX_DADOS')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton id="addTB_BONUSLIGACAOMIX_DADOS" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_bonusligacaomix_dados}" required="#{promocoesCartao.isObrigatorio('TB_BONUSLIGACAOMIX_DADOS')}" onLabel="TB_BONUSLIGACAOMIX_DADOS" offLabel="TB_BONUSLIGACAOMIX_DADOS" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_SEMCARENCIA')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton id="addTB_SEMCARENCIA" value="#{promocoesCartaoBean.newConfigOfertasPre.tb_semcarencia}" required="#{promocoesCartao.isObrigatorio('TB_SEMCARENCIA')}" onLabel="TB_SEMCARENCIA" offLabel="TB_SEMCARENCIA" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">    
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TEM_BCE')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton id="addTEM_BCE" value="#{promocoesCartaoBean.newConfigOfertasPre.tem_bce}" required="#{promocoesCartao.isObrigatorio('TEM_BCE')}" onLabel="TEM_BCE" offLabel="TEM_BCE" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('ELEGIVEL_PROMO_SECUNDARIA')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton id="addELEGIVEL_PROMO_SECUNDARIA" value="#{promocoesCartaoBean.newConfigOfertasPre.elegivel_promo_secundaria}" required="#{promocoesCartao.isObrigatorio('ELEGIVEL_PROMO_SECUNDARIA')}" onLabel="ELEGIVEL_PROMO_SECUNDARIA" offLabel="ELEGIVEL_PROMO_SECUNDARIA" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('PRE_CONTRATACAO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton id="addPRE_CONTRATACAO" value="#{promocoesCartaoBean.newConfigOfertasPre.pre_contratacao}" required="#{promocoesCartao.isObrigatorio('PRE_CONTRATACAO')}" onLabel="PRE_CONTRATACAO" offLabel="PRE_CONTRATACAO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{promocoesCartaoBean.isObrigatorio('TB_USSD_CONVERTIDO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton  id="addTB_USSD_CONVERTIDO"  value="#{promocoesCartaoBean.newConfigOfertasPre.tb_ussd_convertido}" onLabel="TB_USSD_CONVERTIDO" offLabel="TB_USSD_CONVERTIDO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+                            </div>
+                        </div>
+                    </div>
+
+</ui:composition>

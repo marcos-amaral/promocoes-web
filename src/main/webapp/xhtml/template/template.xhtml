@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      lang="en">
+
+    <h:head>
+        <f:facet name="first">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+            <meta name="apple-mobile-web-app-capable" content="yes" />
+        </f:facet>
+        <title>Promocoes Web</title>
+
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"/>
+        <link rel="manifest" href="#{request.contextPath}/resources/verona-layout/images/favIcon/site.webmanifest" />
+        <meta name="msapplication-TileImage" content="#{request.contextPath}/resources/verona-layout/images/favIcon/apple-touch-icon.png"></meta>
+        <meta name="msapplication-TileColor" content="#9f00a7"/>
+        <meta name="theme-color" content="#ffffff"/>
+
+        <h:outputScript name="js/prime/nanoscroller.js" library="verona-layout" />
+        <h:outputScript name="js/prime/layout.js" library="verona-layout" />
+        <ui:insert name="head"/>
+
+    </h:head>
+
+    <h:body styleClass="main-body">
+
+        <p:importEnum type="com.contax.templateweb.util.NavigationPages" var="NavigationPages" allSuffix="ALL_ENUM_VALUES" />
+        <div class="layout-wrapper layout-menu-overlay">
+            <ui:include src="./topbar.xhtml" />
+            <h:form>
+                <p:idleMonitor timeout="1800000" onidle="PF('dlgIdleSession').show();">
+                    <p:ajax event="idle" listener="#{controleBean.logout()}"/>
+                </p:idleMonitor>
+            </h:form>
+
+            <div class="layout-content" style="min-height: calc(100% - 80px);">
+                <ui:insert name="conteudo"/>
+            </div>
+
+        </div>
+
+        <p:dialog header="Sessão expirada!" widgetVar="dlgIdleSession" modal="true" width="300" closable="false">
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12 ui-md-12 ui-lg-12">
+                    <p:outputLabel value="A sessão foi encerrada por inatividade."/>
+                </div>
+            </div>
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12 ui-md-12 ui-lg-6"></div>
+                <div class="ui-g-12 ui-md-12 ui-lg-6">
+                    <p:button outcome="/xhtml/login.xhtml?faces-redirect=true" value="Login"/>
+                </div>
+            </div>
+        </p:dialog>   
+
+        <p:ajaxStatus 
+            style="width:32px;height:32px;position:fixed;right:7px;bottom:7px">
+            <f:facet name="start">
+                <i class="fa fa-circle-o-notch fa-spin ajax-loader" aria-hidden="true"></i>
+            </f:facet>
+
+            <f:facet name="complete">
+                <h:outputText value="" />
+            </f:facet>
+        </p:ajaxStatus>
+
+        <h:outputStylesheet name="css/prime/nanoscroller.css" library="verona-layout" />
+        <h:outputStylesheet name="css/prime/layout/layout-cosmic.css" library="verona-layout" />
+        <h:outputStylesheet name="css/core/styles.css" library="verona-layout" />
+        <h:outputStylesheet name="css/pages/template.css" library="verona-layout" />
+    </h:body>
+
+</html>

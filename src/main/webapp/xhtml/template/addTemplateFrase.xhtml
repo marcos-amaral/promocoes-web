@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+    <p:tabView>
+        <p:tab title="USSD">
+            <div class="ui-g ui-fluid">
+                <p:repeat varStatus="addVarStatus" value="#{mBean.colunasTemplateFrasesUSSD}" var="field">
+                    <h:panelGroup rendered="#{field.inputType.toString() eq 'FRASE' and field.type eq 'class java.lang.String'}">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="#{field.label}" for="@parent:addFrase" indicateRequired="false" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio(field.key)?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputTextarea id="addFrase" placeholder="#{field.key}" required="#{mBean.isObrigatorio(field.key)}" requiredMessage="#{field.label}: Erro de validação: o valor é necessário." value="#{mBeanNew[field.property]}" cols="120" rows="4" maxlength="#{field.maxLength}" counterTemplate="{0} caracteres restantes." autoResize="false" counter="@parent:caracAddFrase"/>
+                            </div>
+                            <h:outputText id="caracAddFrase" />
+                        </div>
+                    </h:panelGroup>
+                </p:repeat>
+            </div>
+        </p:tab>
+        <p:tab title="144/880">
+            <div class="ui-g ui-fluid">
+                <p:repeat varStatus="addVarStatus" value="#{mBean.colunasTemplateFrases144}" var="field">
+                    <h:panelGroup rendered="#{field.inputType.toString() eq 'FRASE' and field.type eq 'class java.lang.String'}">
+                        <div class="ui-g-12 ui-md-6 ui-lg-6">
+                            <p:outputLabel value="#{field.label}" for="@parent:addFrase" indicateRequired="false" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio(field.key)?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputTextarea id="addFrase" placeholder="#{field.key}" required="#{mBean.isObrigatorio(field.key)}" requiredMessage="#{field.label}: Erro de validação: o valor é necessário." value="#{mBeanNew[field.property]}" cols="180" rows="8" maxlength="#{field.maxLength}" counterTemplate="{0} caracteres restantes." autoResize="false" counter="@parent:caracAddFrase"/>
+                            </div>
+                            <h:outputText id="caracAddFrase" />
+                        </div>
+                    </h:panelGroup>
+                </p:repeat>
+            </div>
+        </p:tab>
+    </p:tabView>
+</ui:composition>

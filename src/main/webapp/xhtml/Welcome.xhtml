@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+
+<ui:composition 
+    xmlns="http://www.w3.org/1999/xhtml" 
+    xmlns:ui="http://java.sun.com/jsf/facelets" 
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:p="http://primefaces.org/ui"
+    template="/xhtml/template/template.xhtml">
+
+    <ui:define name="conteudo">
+        <h:form rendered="false">
+            <div class="container">
+                <p:growl id="growl" life="4000" showDetail="true" />
+                <p:growl sticky="true"/>    
+
+                <div class="ui-g dashboard">
+                    <div class="ui-g-12">
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-g card overview-box overview-box-1">
+                                <div class="ui-g-4 overview-box-icon">
+                                    <p:graphicImage name="images/icon-location.png" library="verona-layout" />
+                                </div>
+                                <div class="ui-g-8">
+                                    <p:outputPanel deferred="true">
+                                        <p:commandButton ajax="false" icon="fa fa-arrow-down" actionListener="#{welcomeBean.generateScriptFile('cell-ddd-warn')}" style="border-radius: 15px; width: 27px;">
+                                            <p:fileDownload value="#{wrongDddBean.scriptFile}" />
+                                        </p:commandButton>
+                                        <span class="overview-box-count">#{wrongDddBean.map.get('cell-ddd-warn').size()}</span>
+                                        <span class="overview-box-name">DDDs fora do padrão</span>
+                                        <span class="overview-box-rate overview-box-fail-rate" ><h:outputText id="tabelasDddId" value="#{wrongDddBean.tabelasDdd.size()} tabela(s)" /></span>
+                                        <p:tooltip id="toolTipDdd" for="tabelasDddId" value="#{wrongDddBean.tabelasDdd}" position="right"/>
+                                    </p:outputPanel>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-g card overview-box overview-box-1">
+                                <div class="ui-g-4 overview-box-icon">
+                                    <p:graphicImage name="images/icon-location.png" library="verona-layout" />
+                                </div>
+                                <div class="ui-g-8">
+                                    <p:outputPanel deferred="true">
+                                        <p:commandButton ajax="false" icon="fa fa-arrow-down" actionListener="#{doubleDddBean.generateScriptFile('cell-ddd2x-warn')}" style="border-radius: 15px; width: 27px;">
+                                            <p:fileDownload value="#{doubleDddBean.scriptFile}" />
+                                        </p:commandButton>
+                                        <span class="overview-box-count">#{doubleDddBean.map.get('cell-ddd2x-warn').size()}</span>
+                                        <span class="overview-box-name">DDDs repetidos</span>
+                                        <span class="overview-box-rate overview-box-fail-rate" ><h:outputText id="tabelasDdd2xId" value="#{doubleDddBean.tabelasDdd2x.size()} tabela(s)" /></span>
+                                        <p:tooltip id="toolTipDdd2x" for="tabelasDdd2xId" value="#{doubleDddBean.tabelasDdd2x}" position="right"/>
+                                    </p:outputPanel>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-g card overview-box overview-box-1">
+                                <div class="ui-g-4 overview-box-icon">
+                                    <p:graphicImage name="images/speaker.png" library="verona-layout" style="width: 85%; height: 74%"/>
+                                </div>
+                                <div class="ui-g-8">
+                                    <p:outputPanel deferred="true">
+                                        <p:commandButton ajax="false" icon="fa fa-arrow-down" actionListener="#{wrongWavBean.generateScriptFile('cell-wav-warn')}" style="border-radius: 15px; width: 27px;">
+                                            <p:fileDownload value="#{wrongWavBean.scriptFile}" />
+                                        </p:commandButton>
+                                        <span class="overview-box-count">#{wrongWavBean.map.get('cell-wav-warn').size()}</span>
+                                        <span class="overview-box-name">WAVs fora do padrão</span>
+                                        <span class="overview-box-rate overview-box-fail-rate" ><h:outputText id="tabelasWavId" value="#{wrongWavBean.tabelasWav.size()} tabela(s)" /></span>
+                                        <p:tooltip id="toolTipWav" for="tabelasWavId" value="#{wrongWavBean.tabelasWav}" position="right"/>
+                                    </p:outputPanel>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-g card overview-box overview-box-1">
+                                <div class="ui-g-4 overview-box-icon">
+                                    <p:graphicImage name="images/key.png" library="verona-layout" style="width: 70%; height: 70%"/>
+                                </div>
+                                <div class="ui-g-8">
+                                    <p:outputPanel deferred="true">
+                                        <p:commandButton ajax="false" icon="fa fa-arrow-down" actionListener="#{wrongIdBean.generateScriptFile('cell-key-warn')}" style="border-radius: 15px; width: 27px;">
+                                            <p:fileDownload value="#{wrongIdBean.scriptFile}" />
+                                        </p:commandButton>
+                                        <span class="overview-box-count">#{wrongIdBean.map.get('cell-key-warn').size()}</span>
+                                        <span class="overview-box-name">IDs inválidos</span>
+                                        <span class="overview-box-rate overview-box-fail-rate" ><h:outputText id="tabelasKeyId" value="#{wrongIdBean.tabelasKey.size()} tabela(s)" /></span>
+                                        <p:tooltip id="toolTipKey" for="tabelasKeyId" value="#{wrongIdBean.tabelasKey}" position="right"/>
+                                    </p:outputPanel>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g-12">
+                        
+                    </div>
+                </div>
+            </div>
+        </h:form>
+    </ui:define>
+</ui:composition>

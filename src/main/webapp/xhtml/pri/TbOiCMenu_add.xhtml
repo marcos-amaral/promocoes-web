@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+
+<!--Adicionar Promoções -->
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-2 ui-lg-2">
+                            <p:outputLabel value="TB_REGIAO" styleClass="field_label"/>
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCMenuBean.isObrigatorio('TB_REGIAO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon">
+                                    <i class="fa fa-quote-left"></i>
+                                </span><p:inputText id="addTB_REGIAO" placeholder="TB_REGIAO" required="#{tbOiCMenuBean.isObrigatorio('TB_REGIAO')}" value="#{tbOiCMenuBean.newTemplate.tb_regiao}" maxlength="2"/>
+                            </div>
+                        </div>
+                    <div class="ui-g-12 ui-md-2 ui-lg-2">
+                        <p:outputLabel value="UPR1_OICPP_MENSAGEMINICIAL" styleClass="field_label"/>
+                        <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCMenuBean.isObrigatorio('UPR1_OICPP_MENSAGEMINICIAL')?'background-color: khaki':''}">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-quote-left"></i>
+                            </span><p:inputText id="addUPR1_OICPP_MENSAGEMINICIAL" placeholder="UPR1_OICPP_MENSAGEMINICIAL" required="#{tbOiCMenuBean.isObrigatorio('UPR1_OICPP_MENSAGEMINICIAL')}" value="#{tbOiCMenuBean.newTemplate.upr1_oicpp_mensageminicial}" />
+                        </div>
+                    </div>
+                    <div class="ui-g-12 ui-md-2 ui-lg-2">
+                         <p:outputLabel value="UPR1_OICPP_REGTORPEDO" styleClass="field_label"/> 
+                         <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCMenuBean.isObrigatorio('UPR1_OICPP_REGTORPEDO')?'background-color: khaki':''}">
+                            <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText id="addUPR1_OICPP_REGTORPEDO" placeholder="UPR1_OICPP_REGTORPEDO" required="#{tbOiCMenuBean.isObrigatorio('UPR1_OICPP_REGTORPEDO')}" value="#{tbOiCMenuBean.newTemplate.upr1_oicpp_regtorpedo}" /></div></div>
+                    <div class="ui-g-12 ui-md-2 ui-lg-2">
+                        <p:outputLabel value="UPR1_OICPP_REGLIGACAO" styleClass="field_label"/><div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCMenuBean.isObrigatorio('UPR1_OICPP_REGLIGACAO')?'background-color: khaki':''}">
+                            <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText id="addUPR1_OICPP_REGLIGACAO" placeholder="UPR1_OICPP_REGLIGACAO" required="#{tbOiCMenuBean.isObrigatorio('UPR1_OICPP_REGLIGACAO')}" value="#{tbOiCMenuBean.newTemplate.upr1_oicpp_regligacao}" /></div></div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-2 ui-lg-2">
+                         <p:outputLabel value="UPR1_OICPP_COMOUSAR" styleClass="field_label"/>
+                         <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCMenuBean.isObrigatorio('UPR1_OICPP_COMOUSAR')?'background-color: khaki':''}">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-quote-left"></i></span>
+                                <p:inputText id="addUPR1_OICPP_COMOUSAR" placeholder="UPR1_OICPP_COMOUSAR" required="#{tbOiCMenuBean.isObrigatorio('UPR1_OICPP_COMOUSAR')}" value="#{tbOiCMenuBean.newTemplate.upr1_oicpp_comousar}" /></div></div>
+                    <div class="ui-g-12 ui-md-2 ui-lg-2">
+                        <p:outputLabel value="UPR1_OICINFP_MENSAGEMINICIAL" styleClass="field_label"/>
+                        <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCMenuBean.isObrigatorio('UPR1_OICINFP_MENSAGEMINICIAL')?'background-color: khaki':''}">
+                            <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                            <p:inputText id="addUPR1_OICINFP_MENSAGEMINICIAL" placeholder="UPR1_OICINFP_MENSAGEMINICIAL" required="#{tbOiCMenuBean.isObrigatorio('UPR1_OICINFP_MENSAGEMINICIAL')}" value="#{tbOiCMenuBean.newTemplate.upr1_oicinfp_mensageminicial}" /></div></div>
+                    <div class="ui-g-12 ui-md-2 ui-lg-2">
+                        <p:outputLabel value="UPR1_OICINFP_REGTORPEDO" styleClass="field_label"/>
+                        <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCMenuBean.isObrigatorio('UPR1_OICINFP_REGTORPEDO')?'background-color: khaki':''}">
+                            <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText id="addUPR1_OICINFP_REGTORPEDO" placeholder="UPR1_OICINFP_REGTORPEDO" required="#{tbOiCMenuBean.isObrigatorio('UPR1_OICINFP_REGTORPEDO')}" value="#{tbOiCMenuBean.newTemplate.upr1_oicinfp_regtorpedo}" /></div></div>
+                    <div class="ui-g-12 ui-md-2 ui-lg-2">
+                        <p:outputLabel value="UPR1_OICINFOP_REGLIGACAO" styleClass="field_label"/>
+                        <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCMenuBean.isObrigatorio('UPR1_OICINFOP_REGLIGACAO')?'background-color: khaki':''}">
+                            <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText id="addUPR1_OICINFOP_REGLIGACAO" placeholder="UPR1_OICINFOP_REGLIGACAO" required="#{tbOiCMenuBean.isObrigatorio('UPR1_OICINFOP_REGLIGACAO')}" value="#{tbOiCMenuBean.newTemplate.upr1_oicinfop_regligacao}" /></div></div>
+                    </div>
+                    
+                    <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-2 ui-lg-2">
+                        <p:outputLabel value="UPR1_OICINFP_COMOUSAR" styleClass="field_label"/>
+                        <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCMenuBean.isObrigatorio('UPR1_OICINFP_COMOUSAR')?'background-color: khaki':''}">
+                            <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText id="addUPR1_OICINFP_COMOUSAR" placeholder="UPR1_OICINFP_COMOUSAR" required="#{tbOiCMenuBean.isObrigatorio('UPR1_OICINFP_COMOUSAR')}" value="#{tbOiCMenuBean.newTemplate.upr1_oicinfp_comousar}" /></div></div>
+                    <div class="ui-g-12 ui-md-2 ui-lg-2">
+                        <p:outputLabel value="UPR1_OICINFP_VALIDADEPROMO" styleClass="field_label"/>
+                        <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCMenuBean.isObrigatorio('UPR1_OICINFP_VALIDADEPROMO')?'background-color: khaki':''}">
+                            <span class="ui-inputgroup-addon"><i class="fa fa-check-circle-o"></i></span><p:inputText id="addUPR1_OICINFP_VALIDADEPROMO" placeholder="UPR1_OICINFP_VALIDADEPROMO" required="#{tbOiCMenuBean.isObrigatorio('UPR1_OICINFP_VALIDADEPROMO')}" value="#{tbOiCMenuBean.newTemplate.upr1_oicinfp_validadepromo}" /></div></div>
+                    <div class="ui-g-12 ui-md-2 ui-lg-2">
+                        <p:outputLabel value="UPR1_OICCPOPLANOS_PROMOOICONTROLE" styleClass="field_label"/>
+                        
+                        <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCMenuBean.isObrigatorio('UPR1_OICCPOPLANOS_PROMOOICONTROLE')?'background-color: khaki':''}">
+                            <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span><p:inputText id="addUPR1_OICCPOPLANOS_PROMOOICONTROLE" placeholder="UPR1_OICCPOPLANOS_PROMOOICONTROLE" required="#{tbOiCMenuBean.isObrigatorio('UPR1_OICCPOPLANOS_PROMOOICONTROLE')}" value="#{tbOiCMenuBean.newTemplate.upr1_oiccpoplanos_promooicontrole}" /></div></div>
+                    <div class="ui-g-12 ui-md-2 ui-lg-2">
+                        <p:outputLabel value="UPR1_OICINFP_REGDADOS" styleClass="field_label"/>
+                        <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCMenuBean.isObrigatorio('UPR1_OICINFP_REGDADOS')?'background-color: khaki':''}">
+                            <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText id="addUPR1_OICINFP_REGDADOS" placeholder="UPR1_OICINFP_REGDADOS" required="#{tbOiCMenuBean.isObrigatorio('UPR1_OICINFP_REGDADOS')}" value="#{tbOiCMenuBean.newTemplate.upr1_oicinfp_regdados}" /></div></div>
+                    
+                    </div>
+                    <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-2 ui-lg-2">
+                         <p:outputLabel value="UPR1_OICPP_REGDADOS" styleClass="field_label"/>
+                        <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCMenuBean.isObrigatorio('UPR1_OICPP_REGDADOS')?'background-color: khaki':''}">
+                            <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText id="addUPR1_OICPP_REGDADOS" placeholder="UPR1_OICPP_REGDADOS" required="#{tbOiCMenuBean.isObrigatorio('UPR1_OICPP_REGDADOS')}" value="#{tbOiCMenuBean.newTemplate.upr1_oicpp_regdados}" /></div></div>
+                    <div class="ui-g-12 ui-md-2 ui-lg-2">
+                         <p:outputLabel value="JACLIENTE_SVA" styleClass="field_label"/>
+                        <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCMenuBean.isObrigatorio('JACLIENTE_SVA')?'background-color: khaki':''}">
+                            <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText id="addJACLIENTE_SVA" placeholder="JACLIENTE_SVA" required="#{tbOiCMenuBean.isObrigatorio('JACLIENTE_SVA')}" value="#{tbOiCMenuBean.newTemplate.jacliente_sva}" /></div></div>
+                    </div>
+  
+</ui:composition>

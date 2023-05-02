@@ -1,0 +1,32 @@
+<ui:composition 
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:pa="http://primefaces.org/verona">
+
+    <div class="topbar">
+        <div class="topbar-main">
+            <a href="#" id="menu-button">
+                <span class="fa fa-bars"></span>
+            </a>
+            <h:link outcome="#{NavigationPages.WELCOME.pageName}">
+                <p:graphicImage name="images/mca/logo.png" library="verona-layout" styleClass="logo" style="width: 59px;"/>
+            </h:link>
+            <div class="app-name"><ui:insert name="header"></ui:insert></div>
+
+            <div id="user-display">
+                <div class="logo-spacer">
+                    <span class="username"><h:outputText value="#{controleBean.user.name}"/></span>
+                    <span class="userrole"><h:outputText value="#{controleBean.user.perfil.label}"/></span>
+                </div>
+                <p:graphicImage name="images/oi/controle-logo.svg" library="verona-layout" />
+            </div>
+            
+        </div>
+
+        <ui:include src="./menu.xhtml" />
+    </div>
+
+</ui:composition>

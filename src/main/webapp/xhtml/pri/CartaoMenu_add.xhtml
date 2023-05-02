@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+
+<!--Adicionar Promoção ids -->
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CPP_MINICIAL')? 'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="UPR1_OI_CPP_MINICIAL" required="#{mBean.isObrigatorio('UPR1_OI_CPP_MINICIAL')}" value="#{mBeanNew.upr1_oi_cpp_minicial}" />
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CPP_REGTORPEDO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CPP_REGTORPEDO" required="#{mBean.isObrigatorio('UPR1_OI_CPP_REGTORPEDO')}" value="#{mBeanNew.upr1_oi_cpp_regtorpedo}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CPP_REGLIGACAO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CPP_REGLIGACAO" required="#{mBean.isObrigatorio('UPR1_OI_CPP_REGLIGACAO')}" value="#{mBeanNew.upr1_oi_cpp_regligacao}" /></div></div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CPPCONT_REGLIGACAOOIMOVEL')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CPPCONT_REGLIGACAOOIMOVEL" required="#{mBean.isObrigatorio('UPR1_OI_CPPCONT_REGLIGACAOOIMOVEL')}" value="#{mBeanNew.upr1_oi_cppcont_regligacaooimovel}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CPPCONT_REGLIGACAOOIMOVELFIXO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CPPCONT_REGLIGACAOOIMOVELFIXO" required="#{mBean.isObrigatorio('UPR1_OI_CPPCONT_REGLIGACAOOIMOVELFIXO')}" value="#{mBeanNew.upr1_oi_cppcont_regligacaooimovelfixo}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CPPCONT_REGLIGACAOMIX')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CPPCONT_REGLIGACAOMIX" required="#{mBean.isObrigatorio('UPR1_OI_CPPCONT_REGLIGACAOMIX')}" value="#{mBeanNew.upr1_oi_cppcont_regligacaomix}" /></div></div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CPP_COMOUSAR')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CPP_COMOUSAR" required="#{mBean.isObrigatorio('UPR1_OI_CPP_COMOUSAR')}" value="#{mBeanNew.upr1_oi_cpp_comousar}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CRBDAD5ARBI_PROMODEGRAU_INIT2')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CRBDAD5ARBI_PROMODEGRAU_INIT2" required="#{mBean.isObrigatorio('UPR1_OI_CRBDAD5ARBI_PROMODEGRAU_INIT2')}" value="#{mBeanNew.upr1_oi_crbdad5arbi_promodegrau_init2}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CRBDAD5D_RECBONUSMAX_INIT2')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CRBDAD5D_RECBONUSMAX_INIT2" required="#{mBean.isObrigatorio('UPR1_OI_CRBDAD5D_RECBONUSMAX_INIT2')}" value="#{mBeanNew.upr1_oi_crbdad5d_recbonusmax_init2}" /></div></div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CRBDAD5D_RECBONUSMINDEGRAU2_INIT2')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CRBDAD5D_RECBONUSMINDEGRAU2_INIT2" required="#{mBean.isObrigatorio('UPR1_OI_CRBDAD5D_RECBONUSMINDEGRAU2_INIT2')}" value="#{mBeanNew.upr1_oi_crbdad5d_recbonusmindegrau2_init2}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CRBDAD5D_RECEBONUSMINDEGRAU3_INIT2')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CRBDAD5D_RECEBONUSMINDEGRAU3_INIT2" required="#{mBean.isObrigatorio('UPR1_OI_CRBDAD5D_RECEBONUSMINDEGRAU3_INIT2')}" value="#{mBeanNew.upr1_oi_crbdad5d_recebonusmindegrau3_init2}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CRBDAD5D_RECEBEBONUSMINDEGRAU2E3_INIT2')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CRBDAD5D_RECEBEBONUSMINDEGRAU2E3_INIT2" required="#{mBean.isObrigatorio('UPR1_OI_CRBDAD5D_RECEBEBONUSMINDEGRAU2E3_INIT2')}" value="#{mBeanNew.upr1_oi_crbdad5d_recebebonusmindegrau2e3_init2}" /></div></div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CRBDAD5D_RECEBEBONUSMAX3_INIT2')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CRBDAD5D_RECEBEBONUSMAX3_INIT2" required="#{mBean.isObrigatorio('UPR1_OI_CRBDAD5D_RECEBEBONUSMAX3_INIT2')}" value="#{mBeanNew.upr1_oi_crbdad5d_recebebonusmax3_init2}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CINFPROMO_MENSAGEMINICIAL')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CINFPROMO_MENSAGEMINICIAL" required="#{mBean.isObrigatorio('UPR1_OI_CINFPROMO_MENSAGEMINICIAL')}" value="#{mBeanNew.upr1_oi_cinfpromo_mensageminicial}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CINFPROMO_REGTORPEDO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CINFPROMO_REGTORPEDO" required="#{mBean.isObrigatorio('UPR1_OI_CINFPROMO_REGTORPEDO')}" value="#{mBeanNew.upr1_oi_cinfpromo_regtorpedo}" /></div></div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CINFPROMO_REGLIGACAO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CINFPROMO_REGLIGACAO" required="#{mBean.isObrigatorio('UPR1_OI_CINFPROMO_REGLIGACAO')}" value="#{mBeanNew.upr1_oi_cinfpromo_regligacao}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CINFPROMO_COMOUSAR')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CINFPROMO_COMOUSAR" required="#{mBean.isObrigatorio('UPR1_OI_CINFPROMO_COMOUSAR')}" value="#{mBeanNew.upr1_oi_cinfpromo_comousar}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CINFPROMO_VALIDADEPROMO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CINFPROMO_VALIDADEPROMO" required="#{mBean.isObrigatorio('UPR1_OI_CINFPROMO_VALIDADEPROMO')}" value="#{mBeanNew.upr1_oi_cinfpromo_validadepromo}" /></div></div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CCPOP_PROMOOICARTAO')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CCPOP_PROMOOICARTAO" required="#{mBean.isObrigatorio('UPR1_OI_CCPOP_PROMOOICARTAO')}" value="#{mBeanNew.upr1_oi_ccpop_promooicartao}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CINFP_REGDADOS')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CINFP_REGDADOS" required="#{mBean.isObrigatorio('UPR1_OI_CINFP_REGDADOS')}" value="#{mBeanNew.upr1_oi_cinfp_regdados}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('UPR1_OI_CPP_REGDADOS')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CPP_REGDADOS" required="#{mBean.isObrigatorio('UPR1_OI_CPP_REGDADOS')}" value="#{mBeanNew.upr1_oi_cpp_regdados}" /></div></div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('INCENTIVO_OFERTA_PRE')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="INCENTIVO_OFERTA_PRE" required="#{mBean.isObrigatorio('INCENTIVO_OFERTA_PRE')}" value="#{mBeanNew.incentivo_oferta_pre}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('JACLIENTE_SVA')?'background-color: khaki':''}">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="JACLIENTE_SVA" required="#{mBean.isObrigatorio('JACLIENTE_SVA')}" value="#{mBeanNew.jacliente_sva}" /></div></div>
+                    </div>
+
+                    
+</ui:composition>

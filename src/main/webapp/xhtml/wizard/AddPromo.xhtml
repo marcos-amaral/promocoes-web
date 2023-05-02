@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/xhtml/template/template.xhtml">
+    <ui:define name="conteudo">
+        <p:growl id="messages" showDetail="true" life="10000"/>
+
+        <h:form id="form">
+            <p:remoteCommand name="rc" update="form:btnFinalizarOCSPre,form:btnFinalizarINPre,form:btnFinalizarINControle" action="#{addPromoBean.setFinalizado(true)}" />
+
+            <div class="container">
+                <h:panelGroup>
+                    <p:wizard id="wizardId" 
+                              flowListener="#{addPromoBean.onFlowProcess}" 
+                              nextLabel="Próximo" 
+                              backLabel="Anterior"
+                              widgetVar="wiz">
+                        <p:ajax event="next" update="messages,form:tableConfirm,form:tableConfirmFrases"/>
+
+                        <!-- ID -->
+                        <p:tab title="IDs" id="tabIds">
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel for="calendar_dt_gmud" value="Data GMUD:" indicateRequired="false"/>
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-2">
+                                    <p:calendar id="calendar_dt_gmud" required="true" value="#{addPromoBean.dt_gmud}" showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00" mindate="#{addPromoBean.today}"/>
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel for="radio_plano" value="Tipo Plano:" indicateRequired="false"/>
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-3">
+                                    <p:selectOneRadio id="radio_plano" required="true" value="#{addPromoBean.tipoPlano}" unselectable="true">
+                                        <p:ajax event="change" process="@this" update="form:radio_tarifador,form:labelAddID_CAMPANHASIEBEL,form:addID_CAMPANHASIEBEL,form:labelAddID_OFERTASIEBEL,form:addID_OFERTASIEBEL,form:labelAddID_OFERTAOCS,form:addID_OFERTAOCS"/>
+                                        <f:selectItem itemLabel="Pré-pago" itemValue="PRE" />
+                                        <f:selectItem itemLabel="Oi Controle" itemValue="CONTROLE" />
+                                    </p:selectOneRadio>
+                                </div>
+                                <div class="ui-g-1 ui-md-3 ui-lg-8">
+                                    <p:message for="radio_plano" display="icon" />
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel for="radio_tarifador" value="Tarifador:" indicateRequired="false"/>
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-3">
+                                    <p:selectOneRadio id="radio_tarifador" required="true" value="#{addPromoBean.tarifador}" unselectable="true">
+                                        <p:ajax event="change" process="@this" update="form:labelAddID_CAMPANHASIEBEL,form:addID_CAMPANHASIEBEL,form:labelAddID_OFERTASIEBEL,form:addID_OFERTASIEBEL,form:labelAddID_OFERTAOCS,form:addID_OFERTAOCS"/>
+                                        <f:selectItem itemLabel="IN" itemValue="IN" />
+                                        <f:selectItem itemLabel="OCS" itemValue="OCS" itemDisabled="#{addPromoBean.tipoPlano eq 'CONTROLE'}" />
+                                    </p:selectOneRadio>
+                                </div>
+                                <div class="ui-g-1 ui-md-3 ui-lg-8">
+                                    <p:message for="radio_tarifador" display="icon" />
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel for="addID_BENEFICIO" value="ID Beneficio:" indicateRequired="false"/>
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-1">
+                                    <p:inputMask id="addID_BENEFICIO" required="true" value="#{addPromoBean.id_beneficio}" mask="99"/>      
+                                </div>
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel for="addID_PROGRAMA" value="ID Programa:" indicateRequired="false"/>
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-1">
+                                    <p:inputMask id="addID_PROGRAMA" required="true" value="#{addPromoBean.id_programa}" mask="99"/>      
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel id="labelAddID_CAMPANHASIEBEL" for="addID_CAMPANHASIEBEL" value="ID Campanha Siebel:" style="visibility: #{addPromoBean.tarifador eq 'OCS'?'visible':'hidden'}" indicateRequired="false"/>
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-1">
+                                    <p:inputMask id="addID_CAMPANHASIEBEL" required="#{addPromoBean.tarifador eq 'OCS'}" value="#{addPromoBean.id_campanhasiebel}" mask="9-99999999999" style="visibility: #{addPromoBean.tarifador eq 'OCS'?'visible':'hidden'}"/>
+                                </div>
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel id="labelAddID_OFERTASIEBEL" for="addID_OFERTASIEBEL" value="ID Oferta Siebel:" style="visibility: #{addPromoBean.tarifador eq 'OCS'?'visible':'hidden'}" indicateRequired="false"/>
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-1">
+                                    <p:inputMask id="addID_OFERTASIEBEL" required="#{addPromoBean.tarifador eq 'OCS'}" value="#{addPromoBean.id_ofertasiebel}" mask="9-99999999999" style="visibility: #{addPromoBean.tarifador eq 'OCS'?'visible':'hidden'}"/>
+                                </div>
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel id="labelAddID_OFERTAOCS" for="addID_OFERTAOCS" value="ID OCS:" style="visibility: #{addPromoBean.tarifador eq 'OCS'?'visible':'hidden'}" indicateRequired="false"/>
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-1">
+                                    <p:inputMask id="addID_OFERTAOCS" required="#{addPromoBean.tarifador eq 'OCS'}" value="#{addPromoBean.id_ofertaocs}" mask="9999999" style="visibility: #{addPromoBean.tarifador eq 'OCS'?'visible':'hidden'}"/>      
+                                </div>
+                            </div>
+
+                        </p:tab>
+                        <!-- DDD -->
+                        <p:tab title="Grupos de DDD" id="tabDDDs">
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-12 ui-md-12 ui-lg-3">
+                                    <p:pickList id="pickList" value="#{addPromoBean.allDdds}" var="ddd" itemLabel="#{ddd}" itemValue="#{ddd}" />
+                                </div>
+                                <div class="ui-g-3 ui-md-3 ui-lg-1">
+                                    <p:commandButton value="Adicionar" 
+                                                     update="form:pickList,form:tableDdds"
+                                                     actionListener="#{addPromoBean.addGrupoDdd()}" 
+                                                     styleClass="ui-priority-primary"/>
+                                </div>
+                                <div class="ui-g-12 ui-md-12 ui-lg-7">
+                                    <p:dataTable id="tableDdds"
+                                                 value="#{addPromoBean.ddds}"
+                                                 var="dddGrupo"
+                                                 rowIndexVar="rowIndex"
+                                                 emptyMessage=""
+                                                 reflow="true">
+
+                                        <p:column width="10%">
+                                            <p:outputLabel value="Grupo #{rowIndex+1}"/>
+                                        </p:column>
+                                        <p:column  width="75%">
+                                            <p:chips id="chipsDdd" value="#{dddGrupo}" valueChangeListener="#{addPromoBean.setCurrentDddGroupIndex(rowIndex)}">
+                                                <p:ajax event="itemUnselect" listener="#{addPromoBean.removeDdd}" update="form:pickList, form:tableDdds" />
+                                                <p:ajax event="itemSelect" listener="#{addPromoBean.addDdd}" update="form:pickList, form:tableDdds" />
+                                            </p:chips>
+                                        </p:column>
+                                        <p:column  width="15%">
+                                            <p:commandButton value="Remover" 
+                                                             update="form:pickList,form:tableDdds"
+                                                             actionListener="#{addPromoBean.removeGrupoDdd(rowIndex)}" 
+                                                             styleClass="ui-priority-primary"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </div>
+                            </div>
+
+                        </p:tab>
+                        <!-- Dados -->
+                        <p:tab title="Dados" id="tabDados">
+                            <p:tabView id="tabViewDdds"
+                                       value="#{addPromoBean.ddds}" 
+                                       var="dddGrupoTab">
+
+                                <p:tab title="Grupo #{addPromoBean.ddds.indexOf(dddGrupoTab)+1}">
+                                    <p:chips id="chipsDddGroup" value="#{dddGrupoTab}" readonly="true" disabled="true" styleClass="chipsView"/>
+                                    <h:panelGroup id="mainInsertDiv" style="" layout="block">
+                                        <h:panelGroup layout="block" rendered="#{'OCS' eq addPromoBean.tarifador and 'PRE' eq addPromoBean.tipoPlano}">
+                                            <ui:include id="includeId" src="/xhtml/template/addTemplate.xhtml">
+                                                <ui:param name="mBean" value="#{configOfertasPreBean}" />
+                                                <ui:param name="mBeanNew" 
+                                                          value="#{configOfertasPreBean.getNewTemplate(
+                                                                   addPromoBean.ddds.size(),
+                                                                   addPromoBean.ddds.indexOf(dddGrupoTab),
+                                                                   addPromoBean.getDddsString(addPromoBean.ddds.indexOf(dddGrupoTab)),
+                                                                   addPromoBean.id_ofertaocs,
+                                                                   addPromoBean.id_beneficio,
+                                                                   addPromoBean.id_programa,
+                                                                   addPromoBean.id_campanhasiebel,
+                                                                   addPromoBean.id_ofertasiebel,
+                                                                   addPromoBean.dt_gmud)}" />
+                                            </ui:include>
+                                        </h:panelGroup>
+                                        <h:panelGroup layout="block" rendered="#{'IN' eq addPromoBean.tarifador and 'PRE' eq addPromoBean.tipoPlano}">
+                                            <ui:include id="includeId" src="/xhtml/template/addTemplate.xhtml">
+                                                <ui:param name="mBean" value="#{voCartaoBean}" />
+                                                <ui:param name="mBeanNew" 
+                                                          value="#{voCartaoBean.getNewTemplate(
+                                                                   addPromoBean.ddds.size(),
+                                                                   addPromoBean.ddds.indexOf(dddGrupoTab),
+                                                                   addPromoBean.getDddsString(addPromoBean.ddds.indexOf(dddGrupoTab)),
+                                                                   addPromoBean.id_beneficio,
+                                                                   addPromoBean.id_programa,
+                                                                   addPromoBean.dt_gmud)}" />
+                                            </ui:include>
+                                        </h:panelGroup>
+                                        <h:panelGroup layout="block" rendered="#{'IN' eq addPromoBean.tarifador and 'CONTROLE' eq addPromoBean.tipoPlano}">
+                                            <ui:include id="includeId" src="/xhtml/template/addTemplate.xhtml">
+                                                <ui:param name="mBean" value="#{voControleBean}" />
+                                                <ui:param name="mBeanNew" 
+                                                          value="#{voControleBean.getNewTemplate(
+                                                                   addPromoBean.ddds.size(),
+                                                                   addPromoBean.ddds.indexOf(dddGrupoTab),
+                                                                   addPromoBean.getDddsString(addPromoBean.ddds.indexOf(dddGrupoTab)),
+                                                                   addPromoBean.id_beneficio,
+                                                                   addPromoBean.id_programa,
+                                                                   addPromoBean.dt_gmud)}" />
+                                            </ui:include>
+                                        </h:panelGroup>
+                                    </h:panelGroup>
+                                </p:tab>
+                            </p:tabView>
+                        </p:tab>
+                        <!-- Frases -->
+                        <p:tab title="Frases" id="tabFrases">
+                            <p:tabView id="tabViewDddsFrases"
+                                       value="#{addPromoBean.dddsFrases}" 
+                                       var="dddFrasesGrupoTab">
+                                <p:ajax event="tabClose" listener="#{addPromoBean.onTabClose}"/>
+
+                                <p:tab title="Grupo #{addPromoBean.dddsFrases.indexOf(dddFrasesGrupoTab)+1}">
+                                    <f:facet name="actions">
+                                        <p:menuButton value="Opções">
+                                            <p:menuitem value="Editar" icon="fa fa-edit" actionListener="#{addPromoBean.loadPickListDddFrases(dddFrasesGrupoTab)}" update="formDDDsFrases:pickList" onclick="PF('dlgDddEditFrases').show();"/>
+                                            <p:menuitem value="Adicionar" icon="fa fa-plus" actionListener="#{addPromoBean.loadPickListDddFrases(null)}" update="formDDDsFrases:pickList" onclick="PF('dlgDddEditFrases').show();"/>
+                                            <p:menuitem value="Remover" icon="fa fa-close" disabled="#{addPromoBean.dddsFrases.size() eq 1}" actionListener="#{addPromoBean.deleteDddsFrases(dddFrasesGrupoTab)}" update="form:tabViewDddsFrases"/>
+                                        </p:menuButton>
+                                    </f:facet>
+
+                                    <p:chips id="chipsDddFrasesGroup" value="#{dddFrasesGrupoTab}" readonly="true" disabled="true" styleClass="chipsView"/>
+                                    <h:panelGroup id="mainFrasesDiv" style="" layout="block">
+                                        <h:panelGroup layout="block" rendered="#{'OCS' eq addPromoBean.tarifador and 'PRE' eq addPromoBean.tipoPlano}">
+                                            <ui:include id="includeFrasesId" src="/xhtml/template/addTemplateFrase.xhtml">
+                                                <ui:param name="mBean" value="#{fraseologiasOfertasPreBean}" />
+                                                <ui:param name="mBeanNew" 
+                                                          value="#{fraseologiasOfertasPreBean.getNewTemplate(
+                                                                   addPromoBean.dddsFrases.size(),
+                                                                   addPromoBean.dddsFrases.indexOf(dddFrasesGrupoTab),
+                                                                   addPromoBean.getDddsFrasesString(addPromoBean.dddsFrases.indexOf(dddFrasesGrupoTab)),
+                                                                   addPromoBean.id_ofertaocs,
+                                                                   addPromoBean.id_beneficio,
+                                                                   addPromoBean.id_programa,
+                                                                   addPromoBean.dt_gmud)}" />
+                                            </ui:include>
+                                        </h:panelGroup>
+                                        <h:panelGroup layout="block" rendered="#{'IN' eq addPromoBean.tarifador and 'PRE' eq addPromoBean.tipoPlano}">
+                                            <ui:include id="includeFrasesId" src="/xhtml/template/addTemplateFrase.xhtml">
+                                                <ui:param name="mBean" value="#{frasesCartaoBean}" />
+                                                <ui:param name="mBeanNew" 
+                                                          value="#{frasesCartaoBean.getNewTemplate(
+                                                                   addPromoBean.dddsFrases.size(),
+                                                                   addPromoBean.dddsFrases.indexOf(dddFrasesGrupoTab),
+                                                                   addPromoBean.getDddsFrasesString(addPromoBean.dddsFrases.indexOf(dddFrasesGrupoTab)),
+                                                                   addPromoBean.id_beneficio,
+                                                                   addPromoBean.id_programa,
+                                                                   addPromoBean.dt_gmud)}" />
+                                            </ui:include>
+                                        </h:panelGroup>
+                                        <h:panelGroup layout="block" rendered="#{'IN' eq addPromoBean.tarifador and 'CONTROLE' eq addPromoBean.tipoPlano}">
+                                            <ui:include id="includeFrasesId" src="/xhtml/template/addTemplateFrase.xhtml">
+                                                <ui:param name="mBean" value="#{frasesControleBean}" />
+                                                <ui:param name="mBeanNew" 
+                                                          value="#{frasesControleBean.getNewTemplate(
+                                                                   addPromoBean.dddsFrases.size(),
+                                                                   addPromoBean.dddsFrases.indexOf(dddFrasesGrupoTab),
+                                                                   addPromoBean.getDddsFrasesString(addPromoBean.dddsFrases.indexOf(dddFrasesGrupoTab)),
+                                                                   addPromoBean.id_beneficio,
+                                                                   addPromoBean.id_programa,
+                                                                   addPromoBean.dt_gmud)}" />
+                                            </ui:include>
+                                        </h:panelGroup>
+                                    </h:panelGroup>
+                                </p:tab>
+                            </p:tabView>
+                        </p:tab>
+                        <!-- View -->
+                        <p:tab title="Confirmação" id="tabConfirm">
+                            <br/><br/>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-6 ui-md-3 ui-lg-2">
+                                    <p:commandButton id="btnFinalizarOCSPre"
+                                                     rendered="#{'OCS' eq addPromoBean.tarifador and 'PRE' eq addPromoBean.tipoPlano}"
+                                                     value="Finalizar" 
+                                                     actionListener="#{addPromoBean.adicionar(configOfertasPreBean.tabelasEnum,configOfertasPreBean.newTemplateList,fraseologiasOfertasPreBean.tabelasEnum,fraseologiasOfertasPreBean.newTemplateList)}" 
+                                                     oncomplete="rc()"
+                                                     immediate="true"
+                                                     update="messages"
+                                                     disabled="#{addPromoBean.finalizado}"
+                                                     styleClass="pink-btn"/>
+                                    <p:commandButton id="btnFinalizarINPre"
+                                                     rendered="#{'IN' eq addPromoBean.tarifador and 'PRE' eq addPromoBean.tipoPlano}"
+                                                     value="Finalizar" 
+                                                     actionListener="#{addPromoBean.adicionar(voCartaoBean.tabelasEnum,voCartaoBean.newTemplateList,frasesCartaoBean.tabelasEnum,frasesCartaoBean.newTemplateList)}" 
+                                                     oncomplete="rc()"
+                                                     immediate="true"
+                                                     update="messages"
+                                                     disabled="#{addPromoBean.finalizado}"
+                                                     styleClass="pink-btn"/>
+                                    <p:commandButton id="btnFinalizarINControle"
+                                                     rendered="#{'IN' eq addPromoBean.tarifador and 'CONTROLE' eq addPromoBean.tipoPlano}"
+                                                     value="Finalizar" 
+                                                     actionListener="#{addPromoBean.adicionar(voControleBean.tabelasEnum,voControleBean.newTemplateList,frasesControleBean.tabelasEnum,frasesControleBean.newTemplateList)}" 
+                                                     oncomplete="rc()"
+                                                     immediate="true"
+                                                     update="messages"
+                                                     disabled="#{addPromoBean.finalizado}"
+                                                     styleClass="pink-btn"/>
+                                </div>
+                                <div class="ui-g-6 ui-md-3 ui-lg-2">
+                                    <p:commandButton value="Começar de novo" 
+                                                     actionListener="#{addPromoBean.reset()}" 
+                                                     oncomplete="PF('wiz').loadStep('tabIds', false)"
+                                                     immediate="true"
+                                                     update="form:wizardId"
+                                                     styleClass="black-btn"/>
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <p:dataTable
+                                    id="tableConfirm"
+                                    value="#{addPromoBean.listaNewTemplateDados}"
+                                    var="newTemplateDados"
+                                    reflow="true"
+                                    expandedRow="true">
+                                    <f:facet name="header">
+                                        Dados
+                                    </f:facet>
+
+                                    <p:column style="width:2rem">
+                                        <f:facet name="header">
+                                        </f:facet>
+                                        <p:rowToggler/>
+                                    </p:column>
+                                    <p:column headerText="ID Ofertas OCS" width="10%" visible="#{'OCS' eq addPromoBean.tarifador}">
+                                        <p:outputLabel value="#{addPromoBean.id_ofertaocs}"/>
+                                    </p:column>
+                                    <p:column headerText="ID Benefício" width="10%">
+                                        <p:outputLabel value="#{addPromoBean.id_beneficio}"/>
+                                    </p:column>
+                                    <p:column headerText="ID Programa" width="10%">
+                                        <p:outputLabel value="#{addPromoBean.id_programa}"/>
+                                    </p:column>
+                                    <p:column headerText="DDDs">
+                                        <p:outputLabel value="#{newTemplateDados.ddd}"/>
+                                    </p:column>
+
+                                    <p:column style="width:3rem;text-align: center">
+                                        <p:commandButton update=":formDetail:productDetail" 
+                                                         oncomplete="PF('detailDialog').show()"
+                                                         icon="fa fa-search" title="View">
+                                            <f:setPropertyActionListener value="#{addPromoBean.getFields(newTemplateDados)}"
+                                                                         target="#{addPromoBean.camposTamplate}"/>
+                                        </p:commandButton>
+                                    </p:column>
+
+                                    <p:rowExpansion>
+                                        <div class="ui-g ui-fluid">
+                                            <h:panelGroup rendered="#{addPromoBean.getEmptyFields(newTemplateDados).size() &gt; 0}">
+                                                <i class="fa fa-exclamation-triangle" style="color: orange; font-size: 2em;"></i>
+                                                <p:outputLabel style="color: orange" value=" Esses campos não foram preenchidos, está correto?"/>
+                                                <p:repeat value="#{addPromoBean.getEmptyFields(newTemplateDados)}" var="emptyField">
+                                                    <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                                        <p:outputLabel value="#{emptyField}"/>
+                                                    </div>
+                                                </p:repeat>
+                                            </h:panelGroup>
+                                        </div>
+                                    </p:rowExpansion>
+
+                                </p:dataTable>
+                            </div>
+                            <br/><br/>
+                            <div class="ui-g ui-fluid">
+                                <p:dataTable
+                                    id="tableConfirmFrases"
+                                    value="#{addPromoBean.listaNewTemplateFrases}"
+                                    var="newTemplateFrases"
+                                    reflow="true"
+                                    expandedRow="true">
+                                    <f:facet name="header">
+                                        Frases
+                                    </f:facet>
+
+                                    <p:column style="width:2rem">
+                                        <f:facet name="header">
+                                        </f:facet>
+                                        <p:rowToggler/>
+                                    </p:column>
+                                    <p:column headerText="ID Ofertas OCS" width="10%" visible="#{'OCS' eq addPromoBean.tarifador}">
+                                        <p:outputLabel value="#{addPromoBean.id_ofertaocs}"/>
+                                    </p:column>
+                                    <p:column headerText="ID Benefício" width="10%">
+                                        <p:outputLabel value="#{addPromoBean.id_beneficio}"/>
+                                    </p:column>
+                                    <p:column headerText="ID Programa" width="10%">
+                                        <p:outputLabel value="#{addPromoBean.id_programa}"/>
+                                    </p:column>
+                                    <p:column headerText="DDDs">
+                                        <p:outputLabel value="#{newTemplateFrases.ddd}"/>
+                                    </p:column>
+
+                                    <p:column style="width:3rem;text-align: center">
+                                        <p:commandButton update=":formDetail:productDetail" 
+                                                         oncomplete="PF('detailDialog').show()"
+                                                         icon="fa fa-search" title="View">
+                                            <f:setPropertyActionListener value="#{addPromoBean.getFields(newTemplateFrases)}"
+                                                                         target="#{addPromoBean.camposTamplate}"/>
+                                        </p:commandButton>
+                                    </p:column>
+
+                                    <p:rowExpansion>
+                                        <div class="ui-g ui-fluid">
+                                            <h:panelGroup rendered="#{addPromoBean.getEmptyFields(newTemplateFrases).size() &gt; 0}">
+                                                <i class="fa fa-exclamation-triangle" style="color: orange; font-size: 2em;"></i>
+                                                <p:outputLabel style="color: orange" value=" Esses campos não foram preenchidos, está correto?"/>
+                                                <p:repeat value="#{addPromoBean.getEmptyFields(newTemplateFrases)}" var="emptyField">
+                                                    <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                                        <p:outputLabel value="#{emptyField}"/>
+                                                    </div>
+                                                </p:repeat>
+                                            </h:panelGroup>
+                                        </div>
+                                    </p:rowExpansion>
+                                </p:dataTable>
+                            </div>
+                        </p:tab>
+                    </p:wizard>
+                </h:panelGroup>
+            </div>
+        </h:form>
+
+        <p:dialog widgetVar="dlgDddEditFrases" id="dialogFrasesId" closable="true" modal="true">
+            <h:form id="formDDDsFrases">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12">
+                        <p:pickList id="pickList" 
+                                    value="#{addPromoBean.allDddsFrases}" 
+                                    var="dddFrase" 
+                                    itemLabel="#{dddFrase}" 
+                                    itemValue="#{dddFrase}" >
+                            <f:facet name="sourceCaption">DDDs disponíveis</f:facet>
+                            <f:facet name="targetCaption">DDDs escolhidos</f:facet>
+                        </p:pickList>
+                    </div>
+                </div>
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12">
+                        <p:commandButton value="Confirmar" 
+                                         update="form:tabViewDddsFrases"
+                                         oncomplete="PF('dlgDddEditFrases').hide();"
+                                         actionListener="#{addPromoBean.confirmDddsFrases()}"/>
+                    </div>
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <p:dialog widgetVar="detailDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+            <h:form id="formDetail">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-12">
+                        <h:panelGroup>
+                            <p:dataTable id="productDetail" 
+                                         value="#{addPromoBean.camposTamplate}" 
+                                         var="campo"
+                                         scrollable="true" 
+                                         scrollWidth="99%"
+                                         scrollHeight="350">
+                                <p:column headerText="Coluna" width="30%">
+                                    <p:outputLabel value="#{campo.key}"/>
+                                </p:column>
+                                <p:column headerText="Valor" width="60%" style="word-break: break-all">
+                                    <p:outputLabel value="#{campo.value}"/>
+                                </p:column>
+                            </p:dataTable>
+                        </h:panelGroup>
+                    </div>
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <h:outputStylesheet name="css/template.css" library="pages" />
+
+        <style type="text/css">
+            .chipsView .ui-icon-close {
+                visibility: hidden !important;
+            }
+        </style>
+    </ui:define>
+</ui:composition>

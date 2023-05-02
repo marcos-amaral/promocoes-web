@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/xhtml/template/template.xhtml">
+
+
+    <ui:define name="conteudo">
+        <h:outputScript name="js/template.js" library="pages" />
+        <div id="loading"></div>
+        <p:growl id="messages" showDetail="true" />
+
+        <div class="container">
+            
+            <h:form>
+                <ui:include src="/xhtml/template/ModalDialog.xhtml" />
+            </h:form>
+            
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12">
+                    <h:panelGroup id="panelAprovacao" style="visibility: #{frasesControleBean.aprovacaoFiltered != null?'unset':'hidden'}">
+                        <i class="fa fa-check-circle-o" style="color: yellowgreen; font-size: 2em;"></i>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value=" GMUD status #{frasesControleBean.aprovacaoFiltered.status.tipo} por #{frasesControleBean.aprovacaoFiltered.user.name} em "/>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value="#{frasesControleBean.aprovacaoFiltered.dt_aprovacao}">
+                            <f:convertDateTime timeStyle="short" type="both" dateStyle="full" locale="pt-BR" timeZone="GMT-03:00"/>
+                        </p:outputLabel>
+                    </h:panelGroup>
+                </div>
+            </div>
+
+            <h:form id="formButtons">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Adicionar" id="buttonAdd" oncomplete="PF('sidebarAdd').show()" actionListener="#{frasesControleBean.preLoadEditBean()}" update="sideBarAddId" disabled="#{!controleBean.canEdit() or frasesControleBean.expiredGmud != null}" styleClass="ui-priority-primary" icon="fa fa-plus"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Editar" id="buttonEdit" oncomplete="PF('sidebarEdit').show()" actionListener="#{frasesControleBean.preLoadEditBean()}" update="sideBarEditId" disabled="#{frasesControleBean.selectedTemplateList.size() eq 0 or !controleBean.canEdit() or frasesControleBean.expiredGmud != null or !frasesControleBean.canEdit()}" styleClass="ui-priority-primary" icon="fa fa-edit"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Excluir" id="buttonDel" oncomplete="PF('sidebarDelete').show()" actionListener="#{frasesControleBean.preLoadEditBean()}" update="sideBarDeleteId" styleClass="ui-priority-primary" disabled="#{frasesControleBean.selectedTemplateList.size() eq 0 or !controleBean.canEdit() or frasesControleBean.expiredGmud != null}" icon="fa fa-eraser"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Histórico" id="buttonHist" oncomplete="hideLoader();PF('sidebarHistory').show()" update="formHistory:tabelaHistoryId" styleClass="ui-priority-primary" disabled="#{frasesControleBean.selectedTemplateList.size() eq 0 or frasesControleBean.selectedTemplateList.size() gt 1}" icon="fa fa-history"/>
+                    </div>
+                    <!--
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Script" id="buttonScript" oncomplete="PF('sidebarScript').show()" styleClass="ui-priority-primary" icon="fa fa-file-code-o"/>
+                    </div>
+                    -->
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:splitButton  value="Adiar" id="buttonAdm" onclick="PF('newDtGmudDlg').show();" icon="fa fa-clock-o" disabled="#{frasesControleBean.defaultFilterValue eq 'PRODUCAO' or controleBean.isMarketing()}">
+                            <p:menuitem value="Iniciar" onclick="PF('confirmDlgIniciar').show();" disabled="#{frasesControleBean.defaultFilterValue eq 'PRODUCAO' or !(frasesControleBean.expiredGmud == null and controleBean.canStart(frasesControleBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Validar" onclick="PF('confirmDlgValidar').show();" disabled="#{frasesControleBean.defaultFilterValue eq 'PRODUCAO' or !(frasesControleBean.expiredGmud == null and controleBean.canValidate(frasesControleBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Aprovar" onclick="PF('confirmDlgAprovar').show();" disabled="#{frasesControleBean.defaultFilterValue eq 'PRODUCAO' or !(frasesControleBean.expiredGmud == null and controleBean.canAprove(frasesControleBean.aprovacaoFiltered, false))}"/>
+                            <p:menuitem value="Liberar UAT" onclick="PF('confirmDlgUAT').show();" disabled="#{frasesControleBean.defaultFilterValue eq 'PRODUCAO' or !(frasesControleBean.expiredGmud == null and controleBean.canUAT(frasesControleBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Liberar Implantação" onclick="PF('confirmDlgImplantacao').show();" disabled="#{frasesControleBean.defaultFilterValue eq 'PRODUCAO' or !(frasesControleBean.expiredGmud == null and controleBean.canReleaseDeployment(frasesControleBean.aprovacaoFiltered, false))}"/>
+                            <p:menuitem value="Implantar" onclick="PF('confirmDlg').show();" disabled="#{frasesControleBean.defaultFilterValue eq 'PRODUCAO' or !controleBean.canDeploy(frasesControleBean.aprovacaoFiltered)}"/>
+                        </p:splitButton>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4">
+                        <h:outputLabel value="#{frasesControleBean.aprovacaoFiltered.status.tipo}" style="float: right; font-style: oblique; color: #fa392f"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-3" style="float: right; padding-right: 50px;">
+                        <h:outputLabel value="FRASES_CONTROLE" style="float: right;"/>
+                    </div>
+                </div>
+            </h:form>
+
+            <!-- TABELA PRINCIPAL -->
+            <div class="ui-g">
+                <div class="ui-g-12">
+                    <h:panelGroup style="float: right; padding-right: 50px;">
+                        <h:form>
+                            <p:selectOneButton value="#{frasesControleBean.currentApplication}">
+                                <p:ajax event="change" update="formTable:tabelaId,formButtons" oncomplete="hideLoader();PF('tabelaCell').filter();" onstart="showLoader();"/>
+                                <f:selectItem itemLabel="USSD" itemValue="USSD"/>
+                                <f:selectItem itemLabel="144/880" itemValue="144"/>
+                            </p:selectOneButton>
+                        </h:form>
+                    </h:panelGroup>
+                </div>
+            </div>
+            <h:panelGroup>
+                <h:form id="formTable">
+                    <p:dataTable
+                        id="tabelaId"
+                        value="#{frasesControleBean.dataModel}"
+                        lazy="true"
+                        paginator="true"
+                        rows="50"
+                        paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        paginatorPosition="bottom"
+                        rowsPerPageTemplate="10,50,100"
+                        var="tabelaRow"
+                        widgetVar="tabelaCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="300"  
+                        editable="true" 
+                        editMode="cell" 
+                        selection="#{frasesControleBean.selectedTemplateList}"
+                        rowKey="#{tabelaRow.id}"
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:ajax event="rowSelect" update="formButtons" />
+                        <p:ajax event="rowUnselect" update="formButtons" />
+                        <p:ajax event="toggleSelect" update="formButtons" />
+                        <p:ajax event="rowSelectCheckbox" update="formButtons" />
+                        <p:ajax event="rowUnselectCheckbox" update="formButtons" />
+
+                        <p:ajax event="filter" listener="#{frasesControleBean.cleanSelected()}" update="panelAprovacao,formButtons"/>
+
+                        <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+
+                        <p:column headerText="GMUD" filterBy="#{tabelaRow.dtGmudStr}" filterMatchMode="exact" filterValue="#{frasesControleBean.defaultFilterValue}" width="120" styleClass="#{tabelaRow.getStyleClass('GMUD')}">
+                            <f:facet name="filter">
+                                <p:selectOneMenu onchange="PF('tabelaCell').filter()" value="#{frasesControleBean.defaultFilterValue}" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="PRODUÇÃO" itemValue="PRODUCAO"/>
+                                    <f:selectItems value="#{frasesControleBean.gmudList}"/>
+                                </p:selectOneMenu>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.dtGmudStr}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="MODIFICADA" width="100" styleClass="#{tabelaRow.getStyleClass('MODIFICADA')}">
+                            <p:outputLabel value="#{tabelaRow.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy  HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100" styleClass="#{tabelaRow.getStyleClass('LOGIN')}">
+                            <p:outputLabel value="#{tabelaRow.user.login}"/>
+                        </p:column>
+                        <p:column headerText="DDD" filterBy="#{tabelaRow.ddd}"  filterFunction="#{genericFilter.filter}" width="280" styleClass="#{tabelaRow.getStyleClass('DDD')}">
+                            <p:outputLabel id="dddId" value="#{tabelaRow.dddSub}" ondblclick="copyToClip($(this));"/>
+                            <p:tooltip id="toolTipDDD" for="dddId" value="#{tabelaRow.ddd}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+                        </p:column>
+                        
+                        <p:column headerText="IDBENEFICIO" filterBy="#{tabelaRow.idbeneficio}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('IDBENEFICIO')}"><p:outputLabel value="#{tabelaRow.idbeneficio}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="IDPROGRAMA" filterBy="#{tabelaRow.idprograma}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('IDPROGRAMA')}"><p:outputLabel value="#{tabelaRow.idprograma}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="JACLIENTE_PROMOPADRAO" filterBy="#{tabelaRow.jacliente_promopadrao}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('JACLIENTE_PROMOPADRAO')}" visible="#{frasesControleBean.currentApplication == 'USSD'}"><p:outputLabel value="#{tabelaRow.jacliente_promopadrao}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="JACLIENTE_REGRAS" filterBy="#{tabelaRow.jacliente_regras}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('JACLIENTE_REGRAS')}" visible="#{frasesControleBean.currentApplication == 'USSD'}"><p:outputLabel value="#{tabelaRow.jacliente_regras}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="JACLIENTE_VALIDADE" filterBy="#{tabelaRow.jacliente_validade}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('JACLIENTE_VALIDADE')}" visible="#{frasesControleBean.currentApplication == 'USSD'}"><p:outputLabel value="#{tabelaRow.jacliente_validade}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="JACLIENTE_SALDO" filterBy="#{tabelaRow.jacliente_saldo}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('JACLIENTE_SALDO')}" visible="#{frasesControleBean.currentApplication == 'USSD'}"><p:outputLabel value="#{tabelaRow.jacliente_saldo}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="JACLIENTE_CONTING" filterBy="#{tabelaRow.jacliente_conting}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('JACLIENTE_CONTING')}" visible="#{frasesControleBean.currentApplication == 'USSD'}"><p:outputLabel value="#{tabelaRow.jacliente_conting}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="NAOCLIENTE_INFORMAPROMO" filterBy="#{tabelaRow.naocliente_informapromo}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('NAOCLIENTE_INFORMAPROMO')}" visible="#{frasesControleBean.currentApplication == 'USSD'}"><p:outputLabel value="#{tabelaRow.naocliente_informapromo}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="NAOCLIENTE_REGRAS" filterBy="#{tabelaRow.naocliente_regras}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('NAOCLIENTE_REGRAS')}" visible="#{frasesControleBean.currentApplication == 'USSD'}"><p:outputLabel value="#{tabelaRow.naocliente_regras}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="NAOCLIENTE_VALIDADE" filterBy="#{tabelaRow.naocliente_validade}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('NAOCLIENTE_VALIDADE')}" visible="#{frasesControleBean.currentApplication == 'USSD'}"><p:outputLabel value="#{tabelaRow.naocliente_validade}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="CONECTADO_INCENTIVO" filterBy="#{tabelaRow.conectado_incentivo}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('CONECTADO_INCENTIVO')}" visible="#{frasesControleBean.currentApplication == 'USSD'}"><p:outputLabel value="#{tabelaRow.conectado_incentivo}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="CONECTADO_INCENTIVOPROMOCAO" filterBy="#{tabelaRow.conectado_incentivopromocao}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('CONECTADO_INCENTIVOPROMOCAO')}" visible="#{frasesControleBean.currentApplication == 'USSD'}"><p:outputLabel value="#{tabelaRow.conectado_incentivopromocao}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="JACLIENTE_SVA" filterBy="#{tabelaRow.jacliente_sva}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('JACLIENTE_SVA')}" visible="#{frasesControleBean.currentApplication == 'USSD'}"><p:outputLabel value="#{tabelaRow.jacliente_sva}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="INCENTIVO_COMBOLETO" filterBy="#{tabelaRow.incentivo_comboleto}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('INCENTIVO_COMBOLETO')}" visible="#{frasesControleBean.currentApplication == 'USSD'}"><p:outputLabel value="#{tabelaRow.incentivo_comboleto}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="DETALHES_OFERTARETENCAO" filterBy="#{tabelaRow.detalhes_ofertaretencao}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('DETALHES_OFERTARETENCAO')}" visible="#{frasesControleBean.currentApplication == 'USSD'}"><p:outputLabel value="#{tabelaRow.detalhes_ofertaretencao}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="INTERNETEMDOBRO_JACLIENTE" filterBy="#{tabelaRow.internetemdobro_jacliente}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('INTERNETEMDOBRO_JACLIENTE')}" visible="#{frasesControleBean.currentApplication == 'USSD'}"><p:outputLabel value="#{tabelaRow.internetemdobro_jacliente}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="INTERNETEMDOBRO_NAOCLIENTE" filterBy="#{tabelaRow.internetemdobro_naocliente}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('INTERNETEMDOBRO_NAOCLIENTE')}" visible="#{frasesControleBean.currentApplication == 'USSD'}"><p:outputLabel value="#{tabelaRow.internetemdobro_naocliente}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="BENEFICIOINTERNET_ANTERIORDTVENDAURA" filterBy="#{tabelaRow.beneficiointernet_anteriordtvendaura}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('BENEFICIOINTERNET_ANTERIORDTVENDAURA')}" visible="#{frasesControleBean.currentApplication == 'USSD'}"><p:outputLabel value="#{tabelaRow.beneficiointernet_anteriordtvendaura}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="BENEFICIOINTERNET_APOSDTVENDAURA" filterBy="#{tabelaRow.beneficiointernet_aposdtvendaura}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('BENEFICIOINTERNET_APOSDTVENDAURA')}" visible="#{frasesControleBean.currentApplication == 'USSD'}"><p:outputLabel value="#{tabelaRow.beneficiointernet_aposdtvendaura}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="FALLBACK" filterBy="#{tabelaRow.fallback}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('FALLBACK')}" visible="#{frasesControleBean.currentApplication == 'USSD'}"><p:outputLabel value="#{tabelaRow.fallback}" ondblclick="copyToClip($(this));"/></p:column>
+                        
+                        
+                        
+                        <p:column headerText="JACLIENTE_PROMOPADRAO" filterBy="#{tabelaRow.jacliente_promopadrao_144}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('JACLIENTE_PROMOPADRAO_144')}" visible="#{frasesControleBean.currentApplication == '144'}"><p:outputLabel value="#{tabelaRow.jacliente_promopadrao_144}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="JACLIENTE_REGRAS" filterBy="#{tabelaRow.jacliente_regras_144}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('JACLIENTE_REGRAS_144')}" visible="#{frasesControleBean.currentApplication == '144'}"><p:outputLabel value="#{tabelaRow.jacliente_regras_144}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="JACLIENTE_VALIDADE" filterBy="#{tabelaRow.jacliente_validade_144}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('JACLIENTE_VALIDADE_144')}" visible="#{frasesControleBean.currentApplication == '144'}"><p:outputLabel value="#{tabelaRow.jacliente_validade_144}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="JACLIENTE_SALDO" filterBy="#{tabelaRow.jacliente_saldo_144}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('JACLIENTE_SALDO_144')}" visible="#{frasesControleBean.currentApplication == '144'}"><p:outputLabel value="#{tabelaRow.jacliente_saldo_144}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="JACLIENTE_CONTING" filterBy="#{tabelaRow.jacliente_conting_144}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('JACLIENTE_CONTING_144')}" visible="#{frasesControleBean.currentApplication == '144'}"><p:outputLabel value="#{tabelaRow.jacliente_conting_144}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="NAOCLIENTE_INFORMAPROMO" filterBy="#{tabelaRow.naocliente_informapromo_144}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('NAOCLIENTE_INFORMAPROMO_144')}" visible="#{frasesControleBean.currentApplication == '144'}"><p:outputLabel value="#{tabelaRow.naocliente_informapromo_144}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="NAOCLIENTE_REGRAS" filterBy="#{tabelaRow.naocliente_regras_144}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('NAOCLIENTE_REGRAS_144')}" visible="#{frasesControleBean.currentApplication == '144'}"><p:outputLabel value="#{tabelaRow.naocliente_regras_144}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="NAOCLIENTE_VALIDADE" filterBy="#{tabelaRow.naocliente_validade_144}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('NAOCLIENTE_VALIDADE_144')}" visible="#{frasesControleBean.currentApplication == '144'}"><p:outputLabel value="#{tabelaRow.naocliente_validade_144}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="CONECTADO_INCENTIVO" filterBy="#{tabelaRow.conectado_incentivo_144}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('CONECTADO_INCENTIVO_144')}" visible="#{frasesControleBean.currentApplication == '144'}"><p:outputLabel value="#{tabelaRow.conectado_incentivo_144}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="CONECTADO_INCENTIVOPROMOCAO" filterBy="#{tabelaRow.conectado_incentivopromocao_144}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('CONECTADO_INCENTIVOPROMOCAO_144')}" visible="#{frasesControleBean.currentApplication == '144'}"><p:outputLabel value="#{tabelaRow.conectado_incentivopromocao_144}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="JACLIENTE_SVA" filterBy="#{tabelaRow.jacliente_sva_144}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('JACLIENTE_SVA_144')}" visible="#{frasesControleBean.currentApplication == '144'}"><p:outputLabel value="#{tabelaRow.jacliente_sva_144}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="INCENTIVO_COMBOLETO" filterBy="#{tabelaRow.incentivo_comboleto_144}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('INCENTIVO_COMBOLETO_144')}" visible="#{frasesControleBean.currentApplication == '144'}"><p:outputLabel value="#{tabelaRow.incentivo_comboleto_144}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="DETALHES_OFERTARETENCAO" filterBy="#{tabelaRow.detalhes_ofertaretencao_144}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('DETALHES_OFERTARETENCAO_144')}" visible="#{frasesControleBean.currentApplication == '144'}"><p:outputLabel value="#{tabelaRow.detalhes_ofertaretencao_144}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="INTERNETEMDOBRO_JACLIENTE" filterBy="#{tabelaRow.internetemdobro_jacliente_144}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('INTERNETEMDOBRO_JACLIENTE_144')}" visible="#{frasesControleBean.currentApplication == '144'}"><p:outputLabel value="#{tabelaRow.internetemdobro_jacliente_144}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="INTERNETEMDOBRO_NAOCLIENTE" filterBy="#{tabelaRow.internetemdobro_naocliente_144}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('INTERNETEMDOBRO_NAOCLIENTE_144')}" visible="#{frasesControleBean.currentApplication == '144'}"><p:outputLabel value="#{tabelaRow.internetemdobro_naocliente_144}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="BENEFICIOINTERNET_ANTERIORDTVENDAURA" filterBy="#{tabelaRow.beneficiointernet_anteriordtvendaura_144}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('BENEFICIOINTERNET_ANTERIORDTVENDAURA_144')}" visible="#{frasesControleBean.currentApplication == '144'}"><p:outputLabel value="#{tabelaRow.beneficiointernet_anteriordtvendaura_144}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="BENEFICIOINTERNET_APOSDTVENDAURA" filterBy="#{tabelaRow.beneficiointernet_aposdtvendaura_144}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('BENEFICIOINTERNET_APOSDTVENDAURA_144')}" visible="#{frasesControleBean.currentApplication == '144'}"><p:outputLabel value="#{tabelaRow.beneficiointernet_aposdtvendaura_144}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="FALLBACK" filterBy="#{tabelaRow.fallback_144}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('FALLBACK_144')}" visible="#{frasesControleBean.currentApplication == '144'}"><p:outputLabel value="#{tabelaRow.fallback_144}" ondblclick="copyToClip($(this));"/></p:column>
+                        
+                   </p:dataTable>
+                </h:form>
+            </h:panelGroup>
+
+            <!-- ADICIONAR PROMOCAO -->
+            <p:sidebar id="sideBarAddId" widgetVar="sidebarAdd" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Adicionar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesAdd"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formAdd">
+                    <ui:include src="/xhtml/sec/FrasesControle_addIds.xhtml" />
+                    <ui:include src="/xhtml/sec/FrasesControle_add.xhtml" >
+                        <ui:param name="mBean" value="#{frasesControleBean}" />
+                        <ui:param name="mBeanNew" value="#{frasesControleBean.newTemplate}" />
+                    </ui:include>
+                    
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarAdd').hide()"/>
+                        <p:commandButton value="Adicionar" validateClient="true" update="messages,messagesAdd" actionListener="#{frasesControleBean.adicionar()}" onstart="showLoader();" oncomplete="hideLoader();"/>
+                        <p:selectBooleanCheckbox itemLabel="Adicionar outra" value="#{frasesControleBean.adicionarOutra}" style="min-width: 140px"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- EDITAR PROMOCAO -->
+            <p:sidebar id="sideBarEditId" widgetVar="sidebarEdit" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Editar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesEdit"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formEdit">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-12">
+                            <p:scrollPanel style="width:100%;height:100px">
+                                <p:panelGrid columns="6">
+                                    <p:repeat value="#{frasesControleBean.selectedTemplateList}" var="selectedConfigOfertasPreItem">
+                                        <p:button value="#{selectedConfigOfertasPreItem.idDdd}" disabled="true" style="margin: 2px;"/>
+                                    </p:repeat>
+                                </p:panelGrid>
+                            </p:scrollPanel>
+                        </div>
+                    </div>
+                    <h:panelGroup rendered="#{frasesControleBean.isEditProd()}">
+                        <p:separator />
+                        <div class="ui-g ui-fluid">
+                            <div class="ui-g-12 ui-md-6 ui-lg-2">
+                                <p:outputLabel value="DT_GMUD" styleClass="field_label"/>
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                    <p:calendar id="editDT_GMUD" placeholder="DT_GMUD" required="true" value="#{frasesControleBean.editTemplate.dt_gmud}" mask="99/99/9999" showOn="button">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                    </p:calendar>
+                                    <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox value="true"/></span>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </h:panelGroup>
+                    <p:separator />
+            <p:tabView id="formEdit">
+              <p:tab title="USSD"  >   
+                    <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="NAOCLIENTE_INFORMAPROMO" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="NAOCLIENTE_INFORMAPROMO" value="#{frasesControleBean.editTemplate.naocliente_informapromo}" cols="120" rows="4" maxlength="125" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditNAOCLIENTE_INFORMAPROMO"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditNaocliente_informapromo(true)}" update="formEdit:checkeditNaocliente_informapromo"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditNaocliente_informapromo" value="#{frasesControleBean.editTemplate.editNaocliente_informapromo}"/></span></div><h:outputText id="caracEditNAOCLIENTE_INFORMAPROMO" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="NAOCLIENTE_REGRAS" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="NAOCLIENTE_REGRAS" value="#{frasesControleBean.editTemplate.naocliente_regras}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditNAOCLIENTE_REGRAS"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditNaocliente_regras(true)}" update="formEdit:checkeditNaocliente_regras"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditNaocliente_regras" value="#{frasesControleBean.editTemplate.editNaocliente_regras}"/></span></div><h:outputText id="caracEditNAOCLIENTE_REGRAS" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="CONECTADO_INCENTIVO" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="CONECTADO_INCENTIVO" value="#{frasesControleBean.editTemplate.conectado_incentivo}" cols="120" rows="4" maxlength="45" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditCONECTADO_INCENTIVO"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditConectado_incentivo(true)}" update="formEdit:checkeditConectado_incentivo"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditConectado_incentivo" value="#{frasesControleBean.editTemplate.editConectado_incentivo}"/></span></div><h:outputText id="caracEditCONECTADO_INCENTIVO" /></div>
+
+                    </div>
+                    <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="CONECTADO_INCENTIVOPROMOCAO" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="CONECTADO_INCENTIVOPROMOCAO" value="#{frasesControleBean.editTemplate.conectado_incentivopromocao}" cols="120" rows="4" maxlength="120" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditCONECTADO_INCENTIVOPROMOCAO"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditConectado_incentivopromocao(true)}" update="formEdit:checkeditConectado_incentivopromocao"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditConectado_incentivopromocao" value="#{frasesControleBean.editTemplate.editConectado_incentivopromocao}"/></span></div><h:outputText id="caracEditCONECTADO_INCENTIVOPROMOCAO" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="CLIENTE_SVA" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="JACLIENTE_SVA" value="#{frasesControleBean.editTemplate.jacliente_sva}" cols="120" rows="4" maxlength="118" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditJACLIENTE_SVA"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditJacliente_sva(true)}" update="formEdit:checkeditJacliente_sva"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditJacliente_sva" value="#{frasesControleBean.editTemplate.editJacliente_sva}"/></span></div><h:outputText id="caracEditJACLIENTE_SVA" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="INCENTIVO_COMBOLETO" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="INCENTIVO_COMBOLETO" value="#{frasesControleBean.editTemplate.incentivo_comboleto}" cols="120" rows="4" maxlength="45" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditINCENTIVO_COMBOLETO"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditIncentivo_comboleto(true)}" update="formEdit:checkeditIncentivo_comboleto"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditIncentivo_comboleto" value="#{frasesControleBean.editTemplate.editIncentivo_comboleto}"/></span></div><h:outputText id="caracEditINCENTIVO_COMBOLETO" /></div>
+
+                    </div>
+                    <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="BENEFICIOINTERNET_ANTERIOR" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="BENEFICIOINTERNET_ANTERIORDTVENDAURA" value="#{frasesControleBean.editTemplate.beneficiointernet_anteriordtvendaura}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditBENEFICIOINTERNET_ANTERIORDTVENDAURA"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditBeneficiointernet_anteriordtvendaura(true)}" update="formEdit:checkeditBeneficiointernet_anteriordtvendaura"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditBeneficiointernet_anteriordtvendaura" value="#{frasesControleBean.editTemplate.editBeneficiointernet_anteriordtvendaura}"/></span></div><h:outputText id="caracEditBENEFICIOINTERNET_ANTERIORDTVENDAURA" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="BENEFICIOINTERNET_APOS" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="BENEFICIOINTERNET_APOSDTVENDAURA" value="#{frasesControleBean.editTemplate.beneficiointernet_aposdtvendaura}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditBENEFICIOINTERNET_APOSDTVENDAURA"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditBeneficiointernet_aposdtvendaura(true)}" update="formEdit:checkeditBeneficiointernet_aposdtvendaura"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditBeneficiointernet_aposdtvendaura" value="#{frasesControleBean.editTemplate.editBeneficiointernet_aposdtvendaura}"/></span></div><h:outputText id="caracEditBENEFICIOINTERNET_APOSDTVENDAURA" /></div>                  
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="FALLBACK" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="FALLBACK" value="#{frasesControleBean.editTemplate.fallback}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditFALLBACK"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditFallback(true)}" update="formEdit:checkeditFallback"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditFallback" value="#{frasesControleBean.editTemplate.editFallback}"/></span></div><h:outputText id="caracEditFALLBACK" /></div>
+
+                    </div>
+                    <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="CLIENTE_PROMOPADRAO" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="JACLIENTE_PROMOPADRAO" value="#{frasesControleBean.editTemplate.jacliente_promopadrao}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditJACLIENTE_PROMOPADRAO"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditJacliente_promopadrao(true)}" update="formEdit:checkeditJacliente_promopadrao"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditJacliente_promopadrao" value="#{frasesControleBean.editTemplate.editJacliente_promopadrao}"/></span></div><h:outputText id="caracEditJACLIENTE_PROMOPADRAO" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="CLIENTE_REGRAS" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="JACLIENTE_REGRAS" value="#{frasesControleBean.editTemplate.jacliente_regras}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditJACLIENTE_REGRAS"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditJacliente_regras(true)}" update="formEdit:checkeditJacliente_regras"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditJacliente_regras" value="#{frasesControleBean.editTemplate.editJacliente_regras}"/></span></div><h:outputText id="caracEditJACLIENTE_REGRAS" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="CLIENTE_VALIDADE" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="JACLIENTE_VALIDADE" value="#{frasesControleBean.editTemplate.jacliente_validade}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditJACLIENTE_VALIDADE"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditJacliente_validade(true)}" update="formEdit:checkeditJacliente_validade"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditJacliente_validade" value="#{frasesControleBean.editTemplate.editJacliente_validade}"/></span></div><h:outputText id="caracEditJACLIENTE_VALIDADE" /></div>
+                    </div>
+                  <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="CLIENTE_SALDO" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="JACLIENTE_SALDO" value="#{frasesControleBean.editTemplate.jacliente_saldo}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditJACLIENTE_SALDO"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditJacliente_saldo(true)}" update="formEdit:checkeditJacliente_saldo"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditJacliente_saldo" value="#{frasesControleBean.editTemplate.editJacliente_saldo}"/></span></div><h:outputText id="caracEditJACLIENTE_SALDO" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="CLIENTE_CONTINGENCIA" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="JACLIENTE_CONTING" value="#{frasesControleBean.editTemplate.jacliente_conting}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditJACLIENTE_CONTING"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditJacliente_conting(true)}" update="formEdit:checkeditJacliente_conting"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditJacliente_conting" value="#{frasesControleBean.editTemplate.editJacliente_conting}"/></span></div><h:outputText id="caracEditJACLIENTE_CONTING" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="NAOCLIENTE_VALIDADE" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="NAOCLIENTE_VALIDADE" value="#{frasesControleBean.editTemplate.naocliente_validade}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditNAOCLIENTE_VALIDADE"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditNaocliente_validade(true)}" update="formEdit:checkeditNaocliente_validade"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditNaocliente_validade" value="#{frasesControleBean.editTemplate.editNaocliente_validade}"/></span></div><h:outputText id="caracEditNAOCLIENTE_VALIDADE" /></div>
+                    </div>
+                  <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="DETALHES_OFERTARETENCAO" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="DETALHES_OFERTARETENCAO" value="#{frasesControleBean.editTemplate.detalhes_ofertaretencao}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditDETALHES_OFERTARETENCAO"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditDetalhes_ofertaretencao(true)}" update="formEdit:checkeditDetalhes_ofertaretencao"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditDetalhes_ofertaretencao" value="#{frasesControleBean.editTemplate.editDetalhes_ofertaretencao}"/></span></div><h:outputText id="caracEditDETALHES_OFERTARETENCAO" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="CLIENTE_INTERNETEMDOBRO" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="INTERNETEMDOBRO_JACLIENTE" value="#{frasesControleBean.editTemplate.internetemdobro_jacliente}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditINTERNETEMDOBRO_JACLIENTE"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditInternetemdobro_jacliente(true)}" update="formEdit:checkeditInternetemdobro_jacliente"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditInternetemdobro_jacliente" value="#{frasesControleBean.editTemplate.editInternetemdobro_jacliente}"/></span></div><h:outputText id="caracEditINTERNETEMDOBRO_JACLIENTE" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="NAOCLIENTE_INTERNETEMDOBRO" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="INTERNETEMDOBRO_NAOCLIENTE" value="#{frasesControleBean.editTemplate.internetemdobro_naocliente}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditINTERNETEMDOBRO_NAOCLIENTE"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditInternetemdobro_naocliente(true)}" update="formEdit:checkeditInternetemdobro_naocliente"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditInternetemdobro_naocliente" value="#{frasesControleBean.editTemplate.editInternetemdobro_naocliente}"/></span></div><h:outputText id="caracEditINTERNETEMDOBRO_NAOCLIENTE" /></div>
+                    </div>
+             </p:tab>
+             <p:tab title="144/880"  >   
+                    <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="NAOCLIENTE_INFORMAPROMO" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="NAOCLIENTE_INFORMAPROMO" value="#{frasesControleBean.editTemplate.naocliente_informapromo_144}" cols="120" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditNAOCLIENTE_INFORMAPROMO_144"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditNaocliente_informapromo_144(true)}" update="formEdit:checkeditNaocliente_informapromo_144"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditNaocliente_informapromo_144" value="#{frasesControleBean.editTemplate.editNaocliente_informapromo_144}"/></span></div><h:outputText id="caracEditNAOCLIENTE_INFORMAPROMO_144" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="NAOCLIENTE_REGRAS" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="NAOCLIENTE_REGRAS" value="#{frasesControleBean.editTemplate.naocliente_regras_144}" cols="120" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditNAOCLIENTE_REGRAS_144"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditNaocliente_regras_144(true)}" update="formEdit:checkeditNaocliente_regras_144"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditNaocliente_regras_144" value="#{frasesControleBean.editTemplate.editNaocliente_regras_144}"/></span></div><h:outputText id="caracEditNAOCLIENTE_REGRAS_144" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="CONECTADO_INCENTIVO" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="CONECTADO_INCENTIVO" value="#{frasesControleBean.editTemplate.conectado_incentivo_144}" cols="120" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditCONECTADO_INCENTIVO_144"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditConectado_incentivo_144(true)}" update="formEdit:checkeditConectado_incentivo_144"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditConectado_incentivo_144" value="#{frasesControleBean.editTemplate.editConectado_incentivo_144}"/></span></div><h:outputText id="caracEditCONECTADO_INCENTIVO_144" /></div>
+
+                    </div>
+                    <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="CONECTADO_INCENTIVOPROMOCAO" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="CONECTADO_INCENTIVOPROMOCAO" value="#{frasesControleBean.editTemplate.conectado_incentivopromocao_144}" cols="120" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditCONECTADO_INCENTIVOPROMOCAO_144"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditConectado_incentivopromocao_144(true)}" update="formEdit:checkeditConectado_incentivopromocao_144"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditConectado_incentivopromocao_144" value="#{frasesControleBean.editTemplate.editConectado_incentivopromocao_144}"/></span></div><h:outputText id="caracEditCONECTADO_INCENTIVOPROMOCAO_144" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="CLIENTE_SVA" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="JACLIENTE_SVA" value="#{frasesControleBean.editTemplate.jacliente_sva_144}" cols="120" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditJACLIENTE_SVA_144"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditJacliente_sva_144(true)}" update="formEdit:checkeditJacliente_sva_144"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditJacliente_sva_144" value="#{frasesControleBean.editTemplate.editJacliente_sva_144}"/></span></div><h:outputText id="caracEditJACLIENTE_SVA_144" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="INCENTIVO_COMBOLETO" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="INCENTIVO_COMBOLETO" value="#{frasesControleBean.editTemplate.incentivo_comboleto_144}" cols="120" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditINCENTIVO_COMBOLETO_144"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditIncentivo_comboleto_144(true)}" update="formEdit:checkeditIncentivo_comboleto_144"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditIncentivo_comboleto_144" value="#{frasesControleBean.editTemplate.editIncentivo_comboleto_144}"/></span></div><h:outputText id="caracEditINCENTIVO_COMBOLETO_144" /></div>
+
+                    </div>
+                    <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="BENEFICIOINTERNET_ANTERIOR" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="BENEFICIOINTERNET_ANTERIORDTVENDAURA" value="#{frasesControleBean.editTemplate.beneficiointernet_anteriordtvendaura_144}" cols="120" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditBENEFICIOINTERNET_ANTERIORDTVENDAURA_144"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditBeneficiointernet_anteriordtvendaura_144(true)}" update="formEdit:checkeditBeneficiointernet_anteriordtvendaura_144"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditBeneficiointernet_anteriordtvendaura_144" value="#{frasesControleBean.editTemplate.editBeneficiointernet_anteriordtvendaura_144}"/></span></div><h:outputText id="caracEditBENEFICIOINTERNET_ANTERIORDTVENDAURA_144" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="BENEFICIOINTERNET_APOS" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="BENEFICIOINTERNET_APOSDTVENDAURA" value="#{frasesControleBean.editTemplate.beneficiointernet_aposdtvendaura_144}" cols="120" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditBENEFICIOINTERNET_APOSDTVENDAURA_144"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditBeneficiointernet_aposdtvendaura_144(true)}" update="formEdit:checkeditBeneficiointernet_aposdtvendaura_144"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditBeneficiointernet_aposdtvendaura_144" value="#{frasesControleBean.editTemplate.editBeneficiointernet_aposdtvendaura_144}"/></span></div><h:outputText id="caracEditBENEFICIOINTERNET_APOSDTVENDAURA_144" /></div>                  
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="FALLBACK" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="FALLBACK" value="#{frasesControleBean.editTemplate.fallback_144}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditFALLBACK_144"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditFallback_144(true)}" update="formEdit:checkeditFallback_144"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditFallback_144" value="#{frasesControleBean.editTemplate.editFallback_144}"/></span></div><h:outputText id="caracEditFALLBACK_144" /></div>
+
+                    </div>
+                    <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="CLIENTE_PROMOPADRAO" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="JACLIENTE_PROMOPADRAO" value="#{frasesControleBean.editTemplate.jacliente_promopadrao_144}" cols="120" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditJACLIENTE_PROMOPADRAO_144"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditJacliente_promopadrao_144(true)}" update="formEdit:checkeditJacliente_promopadrao_144"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditJacliente_promopadrao_144" value="#{frasesControleBean.editTemplate.editJacliente_promopadrao_144}"/></span></div><h:outputText id="caracEditJACLIENTE_PROMOPADRAO_144" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="CLIENTE_REGRAS" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="JACLIENTE_REGRAS" value="#{frasesControleBean.editTemplate.jacliente_regras_144}" cols="120" rows="4" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditJACLIENTE_REGRAS_144"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditJacliente_regras_144(true)}" update="formEdit:checkeditJacliente_regras_144"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditJacliente_regras_144" value="#{frasesControleBean.editTemplate.editJacliente_regras_144}"/></span></div><h:outputText id="caracEditJACLIENTE_REGRAS_144" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="CLIENTE_VALIDADE" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="JACLIENTE_VALIDADE" value="#{frasesControleBean.editTemplate.jacliente_validade_144}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditJACLIENTE_VALIDADE_144"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditJacliente_validade_144(true)}" update="formEdit:checkeditJacliente_validade_144"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditJacliente_validade_144" value="#{frasesControleBean.editTemplate.editJacliente_validade_144}"/></span></div><h:outputText id="caracEditJACLIENTE_VALIDADE_144" /></div>
+                    </div>
+                  <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="CLIENTE_SALDO" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="JACLIENTE_SALDO" value="#{frasesControleBean.editTemplate.jacliente_saldo_144}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditJACLIENTE_SALDO_144"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditJacliente_saldo_144(true)}" update="formEdit:checkeditJacliente_saldo_144"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditJacliente_saldo_144" value="#{frasesControleBean.editTemplate.editJacliente_saldo_144}"/></span></div><h:outputText id="caracEditJACLIENTE_SALDO_144" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="CLIENTE_CONTINGENCIA" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="JACLIENTE_CONTING" value="#{frasesControleBean.editTemplate.jacliente_conting_144}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditJACLIENTE_CONTING_144"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditJacliente_conting_144(true)}" update="formEdit:checkeditJacliente_conting_144"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditJacliente_conting_144" value="#{frasesControleBean.editTemplate.editJacliente_conting_144}"/></span></div><h:outputText id="caracEditJACLIENTE_CONTING_144" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="NAOCLIENTE_VALIDADE" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="NAOCLIENTE_VALIDADE" value="#{frasesControleBean.editTemplate.naocliente_validade_144}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditNAOCLIENTE_VALIDADE_144"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditNaocliente_validade_144(true)}" update="formEdit:checkeditNaocliente_validade_144"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditNaocliente_validade_144" value="#{frasesControleBean.editTemplate.editNaocliente_validade_144}"/></span></div><h:outputText id="caracEditNAOCLIENTE_VALIDADE_144" /></div>
+                    </div>
+                  <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="DETALHES_OFERTARETENCAO" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="DETALHES_OFERTARETENCAO" value="#{frasesControleBean.editTemplate.detalhes_ofertaretencao_144}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditDETALHES_OFERTARETENCAO_144"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditDetalhes_ofertaretencao_144(true)}" update="formEdit:checkeditDetalhes_ofertaretencao_144"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditDetalhes_ofertaretencao_144" value="#{frasesControleBean.editTemplate.editDetalhes_ofertaretencao_144}"/></span></div><h:outputText id="caracEditDETALHES_OFERTARETENCAO_144" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="CLIENTE_INTERNETEMDOBRO" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="INTERNETEMDOBRO_JACLIENTE" value="#{frasesControleBean.editTemplate.internetemdobro_jacliente_144}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditINTERNETEMDOBRO_JACLIENTE_144"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditInternetemdobro_jacliente_144(true)}" update="formEdit:checkeditInternetemdobro_jacliente_144"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditInternetemdobro_jacliente_144" value="#{frasesControleBean.editTemplate.editInternetemdobro_jacliente_144}"/></span></div><h:outputText id="caracEditINTERNETEMDOBRO_JACLIENTE_144" /></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><p:outputLabel value="NAOCLIENTE_INTERNETEMDOBRO" styleClass="field_label"/><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputTextarea placeholder="INTERNETEMDOBRO_NAOCLIENTE" value="#{frasesControleBean.editTemplate.internetemdobro_naocliente_144}" cols="120" rows="4" maxlength="130" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditINTERNETEMDOBRO_NAOCLIENTE_144"><p:ajax event="change" listener="#{frasesControleBean.editTemplate.setEditInternetemdobro_naocliente_144(true)}" update="formEdit:checkeditInternetemdobro_naocliente_144"/></p:inputTextarea><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditInternetemdobro_naocliente_144" value="#{frasesControleBean.editTemplate.editInternetemdobro_naocliente_144}"/></span></div><h:outputText id="caracEditINTERNETEMDOBRO_NAOCLIENTE_144" /></div>
+                    </div>
+                    
+             </p:tab>
+            </p:tabView>
+                        
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarEdit').hide()"/>
+                        <p:commandButton value="Confirmar" validateClient="true" actionListener="#{frasesControleBean.editar()}" update="messages,messagesEdit,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="hideLoader();"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- HISTORICO PROMOCAO -->
+            <p:sidebar id="sideBarHistoryId" widgetVar="sidebarHistory" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Histórico</h1>
+                <p:separator />
+                
+                <h:form id="formHistory">
+                    <p:dataTable
+                        id="tabelaHistoryId"
+                        value="#{frasesControleBean.selectedTemplateHistoryList}"
+                        var="tabelaHistory"
+                        widgetVar="tabelaHistoryCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="370"  
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:column headerText="ÚLTIMO STATUS" width="100" groupRow="true">
+                            <p:outputLabel value="#{tabelaHistory.lastStatus}"/>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100">
+                            <p:outputLabel value="#{tabelaHistory.user.login}"/>
+                        </p:column>
+                        <p:column headerText="MODIFICADO" width="150">
+                            <p:outputLabel value="#{tabelaHistory.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00" />
+                            </p:outputLabel>
+                        </p:column>
+                        
+                        <p:column headerText="JACLIENTE_PROMOPADRAO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('JACLIENTE_PROMOPADRAO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.jacliente_promopadrao}" rendered="#{tabelaHistory.editMap.getOrDefault('JACLIENTE_PROMOPADRAO',true)}"/></p:column>
+                        <p:column headerText="JACLIENTE_REGRAS" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('JACLIENTE_REGRAS',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.jacliente_regras}" rendered="#{tabelaHistory.editMap.getOrDefault('JACLIENTE_REGRAS',true)}"/></p:column>
+                        <p:column headerText="JACLIENTE_VALIDADE" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('JACLIENTE_VALIDADE',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.jacliente_validade}" rendered="#{tabelaHistory.editMap.getOrDefault('JACLIENTE_VALIDADE',true)}"/></p:column>
+                        <p:column headerText="JACLIENTE_SALDO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('JACLIENTE_SALDO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.jacliente_saldo}" rendered="#{tabelaHistory.editMap.getOrDefault('JACLIENTE_SALDO',true)}"/></p:column>
+                        <p:column headerText="JACLIENTE_CONTING" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('JACLIENTE_CONTING',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.jacliente_conting}" rendered="#{tabelaHistory.editMap.getOrDefault('JACLIENTE_CONTING',true)}"/></p:column>
+                        <p:column headerText="NAOCLIENTE_INFORMAPROMO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('NAOCLIENTE_INFORMAPROMO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.naocliente_informapromo}" rendered="#{tabelaHistory.editMap.getOrDefault('NAOCLIENTE_INFORMAPROMO',true)}"/></p:column>
+                        <p:column headerText="NAOCLIENTE_REGRAS" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('NAOCLIENTE_REGRAS',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.naocliente_regras}" rendered="#{tabelaHistory.editMap.getOrDefault('NAOCLIENTE_REGRAS',true)}"/></p:column>
+                        <p:column headerText="NAOCLIENTE_VALIDADE" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('NAOCLIENTE_VALIDADE',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.naocliente_validade}" rendered="#{tabelaHistory.editMap.getOrDefault('NAOCLIENTE_VALIDADE',true)}"/></p:column>
+                        <p:column headerText="CONECTADO_INCENTIVO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('CONECTADO_INCENTIVO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.conectado_incentivo}" rendered="#{tabelaHistory.editMap.getOrDefault('CONECTADO_INCENTIVO',true)}"/></p:column>
+                        <p:column headerText="CONECTADO_INCENTIVOPROMOCAO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('CONECTADO_INCENTIVOPROMOCAO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.conectado_incentivopromocao}" rendered="#{tabelaHistory.editMap.getOrDefault('CONECTADO_INCENTIVOPROMOCAO',true)}"/></p:column>
+                        <p:column headerText="JACLIENTE_SVA" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('JACLIENTE_SVA',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.jacliente_sva}" rendered="#{tabelaHistory.editMap.getOrDefault('JACLIENTE_SVA',true)}"/></p:column>
+                        <p:column headerText="INCENTIVO_COMBOLETO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INCENTIVO_COMBOLETO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.incentivo_comboleto}" rendered="#{tabelaHistory.editMap.getOrDefault('INCENTIVO_COMBOLETO',true)}"/></p:column>
+                        <p:column headerText="DETALHES_OFERTARETENCAO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('DETALHES_OFERTARETENCAO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.detalhes_ofertaretencao}" rendered="#{tabelaHistory.editMap.getOrDefault('DETALHES_OFERTARETENCAO',true)}"/></p:column>
+                        <p:column headerText="INTERNETEMDOBRO_JACLIENTE" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INTERNETEMDOBRO_JACLIENTE',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.internetemdobro_jacliente}" rendered="#{tabelaHistory.editMap.getOrDefault('INTERNETEMDOBRO_JACLIENTE',true)}"/></p:column>
+                        <p:column headerText="INTERNETEMDOBRO_NAOCLIENTE" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INTERNETEMDOBRO_NAOCLIENTE',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.internetemdobro_naocliente}" rendered="#{tabelaHistory.editMap.getOrDefault('INTERNETEMDOBRO_NAOCLIENTE',true)}"/></p:column>
+                        <p:column headerText="BENEFICIOINTERNET_ANTERIORDTVENDAURA" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('BENEFICIOINTERNET_ANTERIORDTVENDAURA',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.beneficiointernet_anteriordtvendaura}" rendered="#{tabelaHistory.editMap.getOrDefault('BENEFICIOINTERNET_ANTERIORDTVENDAURA',true)}"/></p:column>
+                        <p:column headerText="BENEFICIOINTERNET_APOSDTVENDAURA" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('BENEFICIOINTERNET_APOSDTVENDAURA',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.beneficiointernet_aposdtvendaura}" rendered="#{tabelaHistory.editMap.getOrDefault('BENEFICIOINTERNET_APOSDTVENDAURA',true)}"/></p:column>
+                        <p:column headerText="FALLBACK" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('FALLBACK',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.fallback}" rendered="#{tabelaHistory.editMap.getOrDefault('FALLBACK',true)}"/></p:column>
+                        
+                        <p:column headerText="JACLIENTE_PROMOPADRAO_144" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('JACLIENTE_PROMOPADRAO_144',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.jacliente_promopadrao_144}" rendered="#{tabelaHistory.editMap.getOrDefault('JACLIENTE_PROMOPADRAO_144',true)}"/></p:column>
+                        <p:column headerText="JACLIENTE_REGRAS_144" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('JACLIENTE_REGRAS_144',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.jacliente_regras_144}" rendered="#{tabelaHistory.editMap.getOrDefault('JACLIENTE_REGRAS_144',true)}"/></p:column>
+                        <p:column headerText="JACLIENTE_VALIDADE_144" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('JACLIENTE_VALIDADE_144',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.jacliente_validade_144}" rendered="#{tabelaHistory.editMap.getOrDefault('JACLIENTE_VALIDADE_144',true)}"/></p:column>
+                        <p:column headerText="JACLIENTE_SALDO_144" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('JACLIENTE_SALDO_144',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.jacliente_saldo_144}" rendered="#{tabelaHistory.editMap.getOrDefault('JACLIENTE_SALDO_144',true)}"/></p:column>
+                        <p:column headerText="JACLIENTE_CONTING_144" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('JACLIENTE_CONTING_144',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.jacliente_conting_144}" rendered="#{tabelaHistory.editMap.getOrDefault('JACLIENTE_CONTING_144',true)}"/></p:column>
+                        <p:column headerText="NAOCLIENTE_INFORMAPROMO_144" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('NAOCLIENTE_INFORMAPROMO_144',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.naocliente_informapromo_144}" rendered="#{tabelaHistory.editMap.getOrDefault('NAOCLIENTE_INFORMAPROMO_144',true)}"/></p:column>
+                        <p:column headerText="NAOCLIENTE_REGRAS_144" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('NAOCLIENTE_REGRAS_144',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.naocliente_regras_144}" rendered="#{tabelaHistory.editMap.getOrDefault('NAOCLIENTE_REGRAS_144',true)}"/></p:column>
+                        <p:column headerText="NAOCLIENTE_VALIDADE_144" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('NAOCLIENTE_VALIDADE_144',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.naocliente_validade_144}" rendered="#{tabelaHistory.editMap.getOrDefault('NAOCLIENTE_VALIDADE_144',true)}"/></p:column>
+                        <p:column headerText="CONECTADO_INCENTIVO_144" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('CONECTADO_INCENTIVO_144',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.conectado_incentivo_144}" rendered="#{tabelaHistory.editMap.getOrDefault('CONECTADO_INCENTIVO_144',true)}"/></p:column>
+                        <p:column headerText="CONECTADO_INCENTIVOPROMOCAO_144" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('CONECTADO_INCENTIVOPROMOCAO_144',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.conectado_incentivopromocao_144}" rendered="#{tabelaHistory.editMap.getOrDefault('CONECTADO_INCENTIVOPROMOCAO_144',true)}"/></p:column>
+                        <p:column headerText="JACLIENTE_SVA_144" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('JACLIENTE_SVA_144',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.jacliente_sva_144}" rendered="#{tabelaHistory.editMap.getOrDefault('JACLIENTE_SVA_144',true)}"/></p:column>
+                        <p:column headerText="INCENTIVO_COMBOLETO_144" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INCENTIVO_COMBOLETO_144',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.incentivo_comboleto_144}" rendered="#{tabelaHistory.editMap.getOrDefault('INCENTIVO_COMBOLETO_144',true)}"/></p:column>
+                        <p:column headerText="DETALHES_OFERTARETENCAO_144" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('DETALHES_OFERTARETENCAO_144',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.detalhes_ofertaretencao_144}" rendered="#{tabelaHistory.editMap.getOrDefault('DETALHES_OFERTARETENCAO_144',true)}"/></p:column>
+                        <p:column headerText="INTERNETEMDOBRO_JACLIENTE_144" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INTERNETEMDOBRO_JACLIENTE_144',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.internetemdobro_jacliente_144}" rendered="#{tabelaHistory.editMap.getOrDefault('INTERNETEMDOBRO_JACLIENTE_144',true)}"/></p:column>
+                        <p:column headerText="INTERNETEMDOBRO_NAOCLIENTE_144" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INTERNETEMDOBRO_NAOCLIENTE_144',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.internetemdobro_naocliente_144}" rendered="#{tabelaHistory.editMap.getOrDefault('INTERNETEMDOBRO_NAOCLIENTE_144',true)}"/></p:column>
+                        <p:column headerText="BENEFICIOINTERNET_ANTERIORDTVENDAURA_144" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('BENEFICIOINTERNET_ANTERIORDTVENDAURA_144',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.beneficiointernet_anteriordtvendaura_144}" rendered="#{tabelaHistory.editMap.getOrDefault('BENEFICIOINTERNET_ANTERIORDTVENDAURA_144',true)}"/></p:column>
+                        <p:column headerText="BENEFICIOINTERNET_APOSDTVENDAURA_144" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('BENEFICIOINTERNET_APOSDTVENDAURA_144',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.beneficiointernet_aposdtvendaura_144}" rendered="#{tabelaHistory.editMap.getOrDefault('BENEFICIOINTERNET_APOSDTVENDAURA_144',true)}"/></p:column>
+                        <p:column headerText="FALLBACK_144" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('FALLBACK_144',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.fallback_144}" rendered="#{tabelaHistory.editMap.getOrDefault('FALLBACK_144',true)}"/></p:column>
+
+                    </p:dataTable>
+                </h:form>
+                    
+            </p:sidebar>
+
+            <!-- DELETAR PROMOCAO -->
+            <p:sidebar id="sideBarDeleteId" widgetVar="sidebarDelete" position="top" baseZIndex="10000" style="overflow: auto;min-height: 160px;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Tem certeza?</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesDel"></p:messages>
+                    </div>
+                </div>
+                <p:separator />
+                <h:form id="formDel">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-3 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar id="delDT_GMUD" placeholder="DT_GMUD" required="true" value="#{frasesControleBean.gmudToDelete}" disabled="#{frasesControleBean.gmudToDelete != null}" mask="99/99/9999" pattern="dd/MM/yyyy" showOn="button">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                </p:calendar>
+                            </div>
+                        </div>
+                        <p:commandButton value="Sim" validateClient="true" actionListener="#{frasesControleBean.deletar()}" onstart="showLoader();" oncomplete="hideLoader();" update="messages,messagesDel,formTable:tabelaId" icon="fa fa-check" />
+                        <p:commandButton value="Não" oncomplete="PF('sidebarDelete').hide()" icon="fa fa-times" />
+                    </div>
+                </h:form>
+            </p:sidebar>
+
+            <!-- SCRIPT PROMOCAO -->
+            <p:sidebar id="sideBarScriptId" widgetVar="sidebarScript" position="top" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Gerar Script</h1>
+                <h:form id="formScript">
+                    <p:separator />
+                    <p:commandButton value="USSD" ajax="false" actionListener="#{frasesControleBean.generateScriptFile('USSD')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{frasesControleBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                </h:form>
+            </p:sidebar>
+
+            <p:dialog id="expiredGmudDlgId" header="GMUD Expirada: #{frasesControleBean.expiredGmud}" widgetVar="expiredGmudDlg" rendered="#{frasesControleBean.expiredGmud != null and controleBean.canEdit()}" closable="false">
+                <h:form id="formExpired">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Essa GMUD expirou e suas alterações precisam ir para produção ou apenas adiada, antes de prosseguir com novas alterações.<br/>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-8">
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Adiar" onclick="PF('newDtGmudDlg').show();"/>
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Implantar" onclick="PF('confirmDlg').show();" style="float: right; display: #{controleBean.visibilityDeploy(frasesControleBean.aprovacaoFiltered)}"/>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="newDtGmudDlg" showHeader="false" width="min-content" closable="false">
+                <h:form id="formNewDate">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            <p:datePicker id="inline" value="#{frasesControleBean.newDtGmud}" locale="br" inline="true">
+                                <p:ajax event="dateSelect" listener="#{frasesControleBean.adiar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist,expiredGmudDlgId" onstart="showLoader();" oncomplete="location.reload();"/>
+                            </p:datePicker>
+                            <div class="ui-g-6">
+                                <p:commandButton value="Cancelar" onclick="PF('newDtGmudDlg').hide();" icon="fa fa-times" />
+                            </div>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlg" header="Implantar GMUD" closable="false">
+                <h:form id="formConfirm">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Todas as alterações serão inseridas nos registros de produção!<br/>
+                            Confirmar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{frasesControleBean.aprovar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlg').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgAprovar" header="Aprovar GMUD" closable="false">
+                <h:form id="formConfirmAprovar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Aprovar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{frasesControleBean.aprovarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgAprovar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgIniciar" header="Iniciar GMUD" closable="false">
+                <h:form id="formConfirmIniciar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma o inicio da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{frasesControleBean.iniciarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgIniciar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgIniciar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgValidar" header="Validar GMUD" closable="false">
+                <h:form id="formConfirmValidar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma a validação da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{frasesControleBean.validarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgValidar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgValidar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgUAT" header="Enviar GMUD para UAT" closable="false">
+                <h:form id="formConfirmUAT">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para UAT?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{frasesControleBean.uatGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgUAT').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgUAT').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgImplantacao" header="Enviar GMUD para Implantacao" closable="false">
+                <h:form id="formConfirmImplantacao">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para Implantacao?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{frasesControleBean.implantarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgImplantacao').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgImplantacao').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+        </div>
+
+        <script  type="text/javascript" target="body">
+            $j = jQuery;
+            $j(document).ready(function () {
+                PF('tabelaCell').filter();
+                hideLoader();
+                try {
+                    PF('expiredGmudDlg').show();
+                } catch (e) {
+                }
+
+            });
+        </script>
+        <h:outputStylesheet name="css/template.css" library="pages" />
+    </ui:define>
+</ui:composition>

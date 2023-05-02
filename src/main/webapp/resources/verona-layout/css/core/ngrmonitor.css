@@ -1,0 +1,208 @@
+/************************************************************
+* NGR TIMER DIV
+************************************************************/
+body.main-body{
+    background-image: url("#{resource['verona-layout:images/core/back.svg']}");
+    background-size:cover;
+}
+
+/************************************************************
+* DISABLED MENU ITEM
+************************************************************/
+.disabled-link{
+    cursor: not-allowed !important;
+    opacity: 0.5 !important;
+}
+
+/************************************************************
+* NGR TIMER DIV
+************************************************************/
+div.ngr-timer-div{
+    margin-top: 18px;
+    margin-bottom: 28px;
+}
+
+div.ngr-timer-inner{
+    margin-right: 0px; 
+    right: 0px;
+    float: right;
+}
+
+div.ngr-filter-button{
+    padding-bottom: 5px;
+}
+
+button.ngr-filter-button{
+    margin-left: 0px; 
+    left: 0px;
+    float: left;
+}
+
+span.ngr-timer{
+    border: 0px rgba(255, 255, 255, 0.1);
+    opacity: 1 !important;
+    box-shadow: none !important;
+}
+
+span.ngr-timer span.ui-timer.ui-widget.ui-widget-header.ui-corner-all {
+    font-size: 13px;
+    color: #ffffff;
+    background-color: #546E7A;
+    border: 1px solid transparent;
+    font-weight: normal;
+}
+
+@media (max-width: 430px){
+    div.ngr-timer-div div.ngr-filter-button button {
+        min-width: 100%;
+    }
+
+    button.ngr-filter-button{
+        margin-left: auto;
+        left: auto;
+        float: none;
+    }
+
+    div.ngr-timer-div div.ngr-timer-inner span.ngr-timer span.ui-timer.ui-widget.ui-widget-header.ui-corner-all  {
+        display: block;
+    }
+
+    div.ngr-timer-inner{
+        margin-right: auto; 
+        right: auto;
+        float: none;
+    }
+
+    div.ngr-timer-inner{
+        padding-top: 10px;
+        text-align: center;
+    }
+
+}
+
+/************************************************************
+* DIALOG FORM THEME - ngr-modal-dialog 
+************************************************************/
+.modal-dialog-vlarge {
+    width: 94% !important;
+    max-width: 97%;
+    max-height: 98%;
+    margin: 2% !important;
+    /*margin-bottom: 2px !important;*/
+}
+
+ngr-modal-dialog-xsmall {
+    min-width: 320px;
+    /*width: 320px;*/
+    /*max-width: 320px;*/
+}
+.ngr-modal-dialog.ui-dialog.ui-widget.ui-widget-content.ui-corner-all.ui-shadow.ui-hidden-container{
+    border-radius: 8px;
+}
+.ngr-modal-dialog.ui-dialog .ui-dialog-titlebar .ui-dialog-title {
+    float: left;
+    margin: .1em 16px .1em 0;
+    color: #353536;
+    font-size: 20px!important;
+    align-items: center;
+}
+.ngr-modal-dialog .ui-panelgrid-content.ui-widget-content.ui-grid.ui-grid-responsive {
+    border: none;
+}
+.ngr-modal-dialog .ui-outputlabel.ui-widget{
+    display: inline-block;
+    margin-top: 10px;
+    margin-bottom: 2px;
+    font-weight: 700;
+    text-align: center !important;
+    font-size: 14px;
+}
+.ngr-modal-dialog  div.ui-panelgrid-cell{
+    text-align: center;
+}
+.ngr-modal-dialog .ui-selectonemenu.ui-widget.ui-state-default.ui-corner-all{
+    min-width: 92%;
+    width: 92%;
+    font-size: 14px !important;
+    border: 1px solid #ccc;
+}
+.ngr-modal-dialog .ui-dialog-titlebar.ui-widget-header.ui-helper-clearfix.ui-corner-top{
+    padding-top: 10px;
+    padding-bottom: 4px;
+}
+.ngr-modal-dialog .ui-dialog-footer.ui-widget-content{
+    padding: .8em 1em;
+    text-align: left;
+    border-top: 1px #989898;
+    border-style: solid;
+}
+.ngr-modal-dialog  .ui-chkbox {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
+    width: auto;
+    height: auto;
+}
+/* Padding Para Checkbox */
+.ngr-modal-dialog .ui-selectbooleancheckbox.ui-chkbox.ui-widget{
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+.ngr-modal-dialog .ui-dialog-titlebar.ui-widget-header.ui-helper-clearfix.ui-corner-top{
+    border-bottom: 1px #989898;
+    border-style: solid;
+}
+
+/*modal-footer*/
+
+/************************************************************
+* LABEL ERRORS
+************************************************************/
+.label{
+    border:0px solid #000;
+    display:inline;
+    padding:.2em .6em .3em;
+    /*font-size:75%;*/
+    font-weight:700;
+    line-height:1;
+    color:#fff;
+    text-align:center;
+    white-space:nowrap;
+    vertical-align:baseline;
+    border-radius:.25em;
+}
+.label[href]:hover,.label[href]:focus{
+    color:#fff;
+    text-decoration:none;
+    cursor:pointer;
+}
+.label-danger{
+    background-color:#d9534f;
+}
+.label-danger[href]:hover,.label-danger[href]:focus{
+    background-color:#c9302c;
+}
+.label-warning{
+    background-color:#f0ad4e
+}
+.label-warning[href]:hover,.label-warning[href]:focus{
+    background-color:#ec971f
+}
+
+/************************************************************
+* TAB BACK BUTTON
+************************************************************/
+.ui-tabs-nav.ui-helper-reset.ui-widget-header.ui-corner-all .ui-tabs-header.ui-state-default.ui-corner-top.back-tab {
+    margin-right: 0px;
+    position: absolute;
+    text-align: center;
+    padding-top: 6px;
+    padding-bottom: 7px;
+    padding-right: 10px;
+    padding-left: 10px;
+    right: 0;
+}
+
+.ui-tabs-nav.ui-helper-reset.ui-widget-header.ui-corner-all .ui-tabs-header.ui-state-default.ui-corner-top.back-tab a{
+    padding: 0px 0px;
+} 

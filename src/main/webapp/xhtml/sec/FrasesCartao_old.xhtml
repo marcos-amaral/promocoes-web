@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/xhtml/template/template.xhtml">
+
+
+    <ui:define name="conteudo">
+        <h:outputScript name="js/template.js" library="pages" />
+        <div id="loading"></div>
+        <p:growl id="messages" showDetail="true" />
+
+        <div class="container">           
+            <h:form>
+                <ui:include src="/xhtml/template/ModalDialog.xhtml" />
+            </h:form> 
+
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12">
+                    <h:panelGroup id="panelAprovacao" style="visibility: #{frasesCartaoBean.aprovacaoFiltered != null?'unset':'hidden'}">
+                        <i class="fa fa-check-circle-o" style="color: yellowgreen; font-size: 2em;"></i>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value=" GMUD status #{frasesCartaoBean.aprovacaoFiltered.status.tipo} por #{frasesCartaoBean.aprovacaoFiltered.user.name} em "/>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value="#{frasesCartaoBean.aprovacaoFiltered.dt_aprovacao}">
+                            <f:convertDateTime timeStyle="short" type="both" dateStyle="full" locale="pt-BR" timeZone="GMT-03:00"/>
+                        </p:outputLabel>
+                    </h:panelGroup>
+                </div>
+            </div>
+
+            <h:form id="formButtons">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Adicionar" id="buttonAdd" oncomplete="PF('sidebarAdd').show()" actionListener="#{frasesCartaoBean.preLoadEditBean()}" update="sideBarAddId" disabled="#{!controleBean.canEdit() or frasesCartaoBean.expiredGmud != null}" styleClass="ui-priority-primary" icon="fa fa-plus"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Editar" id="buttonEdit" oncomplete="PF('sidebarEdit').show()" actionListener="#{frasesCartaoBean.preLoadEditBean()}" update="sideBarEditId" disabled="#{frasesCartaoBean.selectedConfigOfertasPreList.size() eq 0 or !controleBean.canEdit() or frasesCartaoBean.expiredGmud != null or !frasesCartaoBean.canEdit()}" styleClass="ui-priority-primary" icon="fa fa-edit"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Excluir" id="buttonDel" oncomplete="PF('sidebarDelete').show()" actionListener="#{frasesCartaoBean.preLoadEditBean()}" update="sideBarDeleteId" styleClass="ui-priority-primary" disabled="#{frasesCartaoBean.selectedConfigOfertasPreList.size() eq 0 or !controleBean.canEdit() or frasesCartaoBean.expiredGmud != null}" icon="fa fa-eraser"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Histórico" id="buttonHist" oncomplete="hideLoader();PF('sidebarHistory').show()" update="formHistory:tabelaHistoryId" styleClass="ui-priority-primary" disabled="#{frasesCartaoBean.selectedConfigOfertasPreList.size() eq 0 or frasesCartaoBean.selectedConfigOfertasPreList.size() gt 1 }" icon="fa fa-history"/>
+                    </div>
+                    <!--
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Script" id="buttonScript" oncomplete="PF('sidebarScript').show()" styleClass="ui-priority-primary"  icon="fa fa-file-code-o"/>
+                    </div>
+                    -->
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:splitButton  value="Adiar" id="buttonAdm" onclick="PF('newDtGmudDlg').show();" icon="fa fa-clock-o" disabled="#{frasesCartaoBean.defaultFilterValue eq 'PRODUCAO' or controleBean.isMarketing()}">
+                            <p:menuitem value="Iniciar" onclick="PF('confirmDlgIniciar').show();" disabled="#{frasesCartaoBean.defaultFilterValue eq 'PRODUCAO' or !(frasesCartaoBean.expiredGmud == null and controleBean.canStart(frasesCartaoBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Validar" onclick="PF('confirmDlgValidar').show();" disabled="#{frasesCartaoBean.defaultFilterValue eq 'PRODUCAO' or !(frasesCartaoBean.expiredGmud == null and controleBean.canValidate(frasesCartaoBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Aprovar" onclick="PF('confirmDlgAprovar').show();" disabled="#{frasesCartaoBean.defaultFilterValue eq 'PRODUCAO' or !(frasesCartaoBean.expiredGmud == null and controleBean.canAprove(frasesCartaoBean.aprovacaoFiltered, false))}"/>
+                            <p:menuitem value="Liberar UAT" onclick="PF('confirmDlgUAT').show();" disabled="#{frasesCartaoBean.defaultFilterValue eq 'PRODUCAO' or !(frasesCartaoBean.expiredGmud == null and controleBean.canUAT(frasesCartaoBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Liberar Implantação" onclick="PF('confirmDlgImplantacao').show();" disabled="#{frasesCartaoBean.defaultFilterValue eq 'PRODUCAO' or !(frasesCartaoBean.expiredGmud == null and controleBean.canReleaseDeployment(frasesCartaoBean.aprovacaoFiltered, false))}"/>
+                            <p:menuitem value="Implantar" onclick="PF('confirmDlg').show();" disabled="#{frasesCartaoBean.defaultFilterValue eq 'PRODUCAO' or !controleBean.canDeploy(frasesCartaoBean.aprovacaoFiltered)}"/>
+                        </p:splitButton>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4">
+                        <h:outputLabel value="#{frasesCartaoBean.aprovacaoFiltered.status.tipo}" style="float: right; font-style: oblique; color: #fa392f"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-3" style="float: right; padding-right: 50px;">
+                        <h:outputLabel value="FRASES_CARTAO" style="float: right;"/>
+                    </div>
+                </div>
+            </h:form>
+
+            <!-- TABELA PRINCIPAL -->
+            <div class="ui-g">
+                <div class="ui-g-12">
+                    <h:panelGroup style="float: right; padding-right: 50px;">
+                        <h:form>
+                            <p:selectOneButton value="#{frasesCartaoBean.currentApplication}">
+                                <p:ajax event="change" update="formTable:tabelaId,formButtons" oncomplete="hideLoader();PF('tabelaCell').filter();" onstart="showLoader();"/>
+                                <f:selectItem itemLabel="USSD" itemValue="USSD"/>
+                                <f:selectItem itemLabel="144/880" itemValue="144"/>
+                            </p:selectOneButton>
+                        </h:form>
+                    </h:panelGroup>
+                </div>
+            </div>
+            <h:panelGroup>
+                <h:form id="formTable">
+                    <p:dataTable
+                        id="tabelaId"
+                        value="#{frasesCartaoBean.dataModel}"
+                        lazy="true"
+                        paginator="true"
+                        rows="50"
+                        paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        paginatorPosition="bottom"
+                        rowsPerPageTemplate="10,50,100"
+                        var="tabelaRow"
+                        widgetVar="tabelaCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="350"  
+                        editable="true" 
+                        editMode="cell" 
+                        selection="#{frasesCartaoBean.selectedConfigOfertasPreList}"
+                        rowKey="#{tabelaRow.id}"
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:ajax event="rowSelect" update="formButtons" />
+                        <p:ajax event="rowUnselect" update="formButtons" />
+                        <p:ajax event="toggleSelect" update="formButtons" />
+                        <p:ajax event="rowSelectCheckbox" update="formButtons" />
+                        <p:ajax event="rowUnselectCheckbox" update="formButtons" />
+
+                        <p:ajax event="filter" listener="#{frasesCartaoBean.cleanSelected()}" update="panelAprovacao,formButtons"/>
+
+
+                        <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+
+                        <p:column headerText="GMUD" filterBy="#{tabelaRow.dtGmudStr}" filterMatchMode="exact" filterValue="#{frasesCartaoBean.defaultFilterValue}" width="120" styleClass="#{tabelaRow.getStyleClass('GMUD')}">
+                            <f:facet name="filter">
+                                <p:selectOneMenu onchange="PF('tabelaCell').filter()" value="#{frasesCartaoBean.defaultFilterValue}" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="PRODUÇÃO" itemValue="PRODUCAO"/>
+                                    <f:selectItems value="#{frasesCartaoBean.gmudList}"/>
+                                </p:selectOneMenu>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.dtGmudStr}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="MODIFICADA" width="100" styleClass="#{tabelaRow.getStyleClass('MODIFICADA')}">
+                            <p:outputLabel value="#{tabelaRow.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy  HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100" styleClass="#{tabelaRow.getStyleClass('LOGIN')}">
+                            <p:outputLabel value="#{tabelaRow.user.login}"/>
+                        </p:column>
+                        <p:column headerText="IDBENEFICIO" filterBy="#{tabelaRow.idbeneficio}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('IDBENEFICIO')}">
+                            <p:outputLabel value="#{tabelaRow.idbeneficio}"/>
+                        </p:column>
+                        <p:column headerText="IDPROGRAMA" filterBy="#{tabelaRow.idprograma}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('IDPROGRAMA')}">
+                            <p:outputLabel value="#{tabelaRow.idprograma}"/>
+                        </p:column>
+                        <p:column headerText="DDD" filterBy="#{tabelaRow.ddd}"  filterFunction="#{genericFilter.filter}" width="280" styleClass="#{tabelaRow.getStyleClass('DDD')}">
+                            <p:outputLabel id="dddId" value="#{tabelaRow.dddSub}"/>
+                            <p:tooltip id="toolTipDDD" for="dddId" value="#{tabelaRow.ddd}" rendered="#{tabelaRow.ddd.length() gt 59}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+                        </p:column>
+
+
+
+                        <p:column headerText="PROMOPADRAO" filterBy="#{tabelaRow.promopadrao_ussd}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('PROMOPADRAO_USSD')}" visible="#{frasesCartaoBean.currentApplication == 'USSD'}">
+                            <p:outputLabel value="#{tabelaRow.promopadrao_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="SEMRECARGA" filterBy="#{tabelaRow.semrecarga_ussd}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('SEMRECARGA_USSD')}" visible="#{frasesCartaoBean.currentApplication == 'USSD'}">
+                            <p:outputLabel value="#{tabelaRow.semrecarga_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="CHAMADA" filterBy="#{tabelaRow.chamada_ussd}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('CHAMADA_USSD')}" visible="#{frasesCartaoBean.currentApplication == 'USSD'}">
+                            <p:outputLabel value="#{tabelaRow.chamada_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="DETALHES" filterBy="#{tabelaRow.detalhes_ussd}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('DETALHES_USSD')}" visible="#{frasesCartaoBean.currentApplication == 'USSD'}">
+                            <p:outputLabel value="#{tabelaRow.detalhes_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="RECARGA" filterBy="#{tabelaRow.recarga_ussd}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('RECARGA_USSD')}" visible="#{frasesCartaoBean.currentApplication == 'USSD'}">
+                            <p:outputLabel value="#{tabelaRow.recarga_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="INFORMAVALIDADE" filterBy="#{tabelaRow.informavalidade_ussd}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('INFORMAVALIDADE_USSD')}" visible="#{frasesCartaoBean.currentApplication == 'USSD'}">
+                            <p:outputLabel value="#{tabelaRow.informavalidade_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="VALIDADE" filterBy="#{tabelaRow.validade_ussd}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('VALIDADE_USSD')}" visible="#{frasesCartaoBean.currentApplication == 'USSD'}">
+                            <p:outputLabel value="#{tabelaRow.validade_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="CONTINGENCIA" filterBy="#{tabelaRow.contingencia_ussd}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('CONTINGENCIA_USSD')}" visible="#{frasesCartaoBean.currentApplication == 'USSD'}">
+                            <p:outputLabel value="#{tabelaRow.contingencia_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="NAOCLIENTE_INFORMAPROMO" filterBy="#{tabelaRow.naocliente_informapromo_ussd}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('NAOCLIENTE_INFORMAPROMO_USSD')}" visible="#{frasesCartaoBean.currentApplication == 'USSD'}">
+                            <p:outputLabel value="#{tabelaRow.naocliente_informapromo_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="NAOCLIENTE_VALIDADE" filterBy="#{tabelaRow.naocliente_validade_ussd}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('NAOCLIENTE_VALIDADE_USSD')}" visible="#{frasesCartaoBean.currentApplication == 'USSD'}">
+                            <p:outputLabel value="#{tabelaRow.naocliente_validade_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="REGRAS" filterBy="#{tabelaRow.regras_ussd}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('REGRAS_USSD')}" visible="#{frasesCartaoBean.currentApplication == 'USSD'}">
+                            <p:outputLabel value="#{tabelaRow.regras_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="NAOCLIENTE_RECARGA" filterBy="#{tabelaRow.naocliente_recarga_ussd}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('NAOCLIENTE_RECARGA_USSD')}" visible="#{frasesCartaoBean.currentApplication == 'USSD'}">
+                            <p:outputLabel value="#{tabelaRow.naocliente_recarga_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="INCENTIVO_OFERTA_PRE" filterBy="#{tabelaRow.incentivo_oferta_pre_ussd}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('INCENTIVO_OFERTA_PRE_USSD')}" visible="#{frasesCartaoBean.currentApplication == 'USSD'}">
+                            <p:outputLabel value="#{tabelaRow.incentivo_oferta_pre_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="FALLBACK" filterBy="#{tabelaRow.fallback_ussd}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('FALLBACK_USSD')}" visible="#{frasesCartaoBean.currentApplication == 'USSD'}">
+                            <p:outputLabel value="#{tabelaRow.fallback_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="SVA" filterBy="#{tabelaRow.sva_ussd}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('SVA_USSD')}" visible="#{frasesCartaoBean.currentApplication == 'USSD'}">
+                            <p:outputLabel value="#{tabelaRow.sva_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="INFORMASALDOPROMO" filterBy="#{tabelaRow.informasaldopromo_ussd}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('INFORMASALDOPROMO_USSD')}" visible="#{frasesCartaoBean.currentApplication == 'USSD'}">
+                            <p:outputLabel value="#{tabelaRow.informasaldopromo_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="OFERTAMIGRADOS" filterBy="#{tabelaRow.ofertamigrados_ussd}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('OFERTAMIGRADOS_USSD')}" visible="#{frasesCartaoBean.currentApplication == 'USSD'}">
+                            <p:outputLabel value="#{tabelaRow.ofertamigrados_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="INFORMAPROMO_USSD" filterBy="#{tabelaRow.informapromo_ussd_ussd}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('INFORMAPROMO_USSD_USSD')}" visible="#{frasesCartaoBean.currentApplication == 'USSD'}">
+                            <p:outputLabel value="#{tabelaRow.informapromo_ussd_ussd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+
+
+
+                        <p:column headerText="PROMOPADRAO" filterBy="#{tabelaRow.promopadrao_144}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('PROMOPADRAO_144')}" visible="#{frasesCartaoBean.currentApplication == '144'}">
+                            <p:outputLabel value="#{tabelaRow.promopadrao_144}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="SEMRECARGA" filterBy="#{tabelaRow.semrecarga_144}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('SEMRECARGA_144')}" visible="#{frasesCartaoBean.currentApplication == '144'}">
+                            <p:outputLabel value="#{tabelaRow.semrecarga_144}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="CHAMADA" filterBy="#{tabelaRow.chamada_144}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('CHAMADA_144')}" visible="#{frasesCartaoBean.currentApplication == '144'}">
+                            <p:outputLabel value="#{tabelaRow.chamada_144}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="DETALHES" filterBy="#{tabelaRow.detalhes_144}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('DETALHES_144')}" visible="#{frasesCartaoBean.currentApplication == '144'}">
+                            <p:outputLabel value="#{tabelaRow.detalhes_144}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="RECARGA" filterBy="#{tabelaRow.recarga_144}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('RECARGA_144')}" visible="#{frasesCartaoBean.currentApplication == '144'}">
+                            <p:outputLabel value="#{tabelaRow.recarga_144}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="INFORMAVALIDADE" filterBy="#{tabelaRow.informavalidade_144}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('INFORMAVALIDADE_144')}" visible="#{frasesCartaoBean.currentApplication == '144'}">
+                            <p:outputLabel value="#{tabelaRow.informavalidade_144}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="VALIDADE" filterBy="#{tabelaRow.validade_144}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('VALIDADE_144')}" visible="#{frasesCartaoBean.currentApplication == '144'}">
+                            <p:outputLabel value="#{tabelaRow.validade_144}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="CONTINGENCIA" filterBy="#{tabelaRow.contingencia_144}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('CONTINGENCIA_144')}" visible="#{frasesCartaoBean.currentApplication == '144'}">
+                            <p:outputLabel value="#{tabelaRow.contingencia_144}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="NAOCLIENTE_INFORMAPROMO" filterBy="#{tabelaRow.naocliente_informapromo_144}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('NAOCLIENTE_INFORMAPROMO_144')}" visible="#{frasesCartaoBean.currentApplication == '144'}">
+                            <p:outputLabel value="#{tabelaRow.naocliente_informapromo_144}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="NAOCLIENTE_VALIDADE" filterBy="#{tabelaRow.naocliente_validade_144}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('NAOCLIENTE_VALIDADE_144')}" visible="#{frasesCartaoBean.currentApplication == '144'}">
+                            <p:outputLabel value="#{tabelaRow.naocliente_validade_144}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="REGRAS" filterBy="#{tabelaRow.regras_144}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('REGRAS_144')}" visible="#{frasesCartaoBean.currentApplication == '144'}">
+                            <p:outputLabel value="#{tabelaRow.regras_144}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="NAOCLIENTE_RECARGA" filterBy="#{tabelaRow.naocliente_recarga_144}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('NAOCLIENTE_RECARGA_144')}" visible="#{frasesCartaoBean.currentApplication == '144'}">
+                            <p:outputLabel value="#{tabelaRow.naocliente_recarga_144}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="INCENTIVO_OFERTA_PRE" filterBy="#{tabelaRow.incentivo_oferta_pre_144}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('INCENTIVO_OFERTA_PRE_144')}" visible="#{frasesCartaoBean.currentApplication == '144'}">
+                            <p:outputLabel value="#{tabelaRow.incentivo_oferta_pre_144}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="FALLBACK" filterBy="#{tabelaRow.fallback_144}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('FALLBACK_144')}" visible="#{frasesCartaoBean.currentApplication == '144'}">
+                            <p:outputLabel value="#{tabelaRow.fallback_144}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="SVA" filterBy="#{tabelaRow.sva_144}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('SVA_144')}" visible="#{frasesCartaoBean.currentApplication == '144'}">
+                            <p:outputLabel value="#{tabelaRow.sva_144}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="INFORMASALDOPROMO" filterBy="#{tabelaRow.informasaldopromo_144}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('INFORMASALDOPROMO_144')}" visible="#{frasesCartaoBean.currentApplication == '144'}">
+                            <p:outputLabel value="#{tabelaRow.informasaldopromo_144}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="OFERTAMIGRADOS" filterBy="#{tabelaRow.ofertamigrados_144}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('OFERTAMIGRADOS_144')}" visible="#{frasesCartaoBean.currentApplication == '144'}">
+                            <p:outputLabel value="#{tabelaRow.ofertamigrados_144}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="INFORMAPROMO_USSD" filterBy="#{tabelaRow.informapromo_ussd_144}"  filterFunction="#{genericFilter.filter}"  width="550" styleClass="#{tabelaRow.getStyleClass('INFORMAPROMO_USSD_144')}" visible="#{frasesCartaoBean.currentApplication == '144'}">
+                            <p:outputLabel value="#{tabelaRow.informapromo_ussd_144}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </h:panelGroup>
+
+            <!-- ADICIONAR PROMOCAO -->
+            <p:sidebar id="sideBarAddId" widgetVar="sidebarAdd" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Adicionar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesAdd"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formAdd">
+                    <ui:include src="/xhtml/sec/FrasesCartao_addIds.xhtml" />
+                    <ui:include src="/xhtml/sec/FrasesCartao_add.xhtml" >
+                        <ui:param name="mBean" value="#{frasesCartaoBean}" />
+                        <ui:param name="mBeanNew" value="#{frasesCartaoBean.newConfigOfertasPre}" />
+                    </ui:include>
+
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarAdd').hide()"/>
+                        <p:commandButton value="Adicionar" validateClient="true" update="messages,messagesAdd" actionListener="#{frasesCartaoBean.adicionar()}" onstart="showLoader();" oncomplete="hideLoader();"/>
+                        <p:selectBooleanCheckbox itemLabel="Adicionar outra" value="#{frasesCartaoBean.adicionarOutra}" style="min-width: 140px"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- EDITAR PROMOCAO -->
+            <p:sidebar id="sideBarEditId" widgetVar="sidebarEdit" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Editar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesEdit"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formEdit">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-12">
+                            <p:scrollPanel style="width:100%;height:100px">
+                                <p:panelGrid columns="6">
+                                    <p:repeat value="#{frasesCartaoBean.selectedConfigOfertasPreList}" var="selectedConfigOfertasPreItem">
+                                        <p:button value="#{selectedConfigOfertasPreItem.idDdd}" disabled="true" style="margin: 2px;"/>
+                                    </p:repeat>
+                                </p:panelGrid>
+                            </p:scrollPanel>
+                        </div>
+                    </div>
+                    <h:panelGroup rendered="#{frasesCartaoBean.isEditProd()}">
+                        <p:separator />
+                        <div class="ui-g ui-fluid">
+                            <div class="ui-g-12 ui-md-6 ui-lg-2">
+                                <p:outputLabel value="DT_GMUD" styleClass="field_label"/>
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                    <p:calendar id="editDT_GMUD" placeholder="DT_GMUD" required="true" value="#{frasesCartaoBean.editConfigOfertasPre.dt_gmud}" mask="99/99/9999" showOn="button">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                    </p:calendar>
+                                    <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox value="true"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                    <p:separator />
+                    <p:tabView id="tabEditId" >
+                        <p:tab title="USSD" >
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                    <p:outputLabel value="PROMOPADRAO" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="PROMOPADRAO_USSD" value="#{frasesCartaoBean.editConfigOfertasPre.promopadrao_ussd}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditPROMOPADRAO_USSD">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditPromopadrao_ussd(true)}" update="formEdit:tabEditId:checkeditPromopadrao_ussd"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditPromopadrao_ussd" value="#{frasesCartaoBean.editConfigOfertasPre.editPromopadrao_ussd}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditPROMOPADRAO_USSD" />
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                    <p:outputLabel value="SEMRECARGA" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="SEMRECARGA_USSD" value="#{frasesCartaoBean.editConfigOfertasPre.semrecarga_ussd}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditSEMRECARGA_USSD">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditSemrecarga_ussd(true)}" update="formEdit:tabEditId:checkeditSemrecarga_ussd"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditSemrecarga_ussd" value="#{frasesCartaoBean.editConfigOfertasPre.editSemrecarga_ussd}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditSEMRECARGA_USSD" />
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                    <p:outputLabel value="CHAMADA" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="CHAMADA_USSD" value="#{frasesCartaoBean.editConfigOfertasPre.chamada_ussd}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditCHAMADA_USSD">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditChamada_ussd(true)}" update="formEdit:tabEditId:checkeditChamada_ussd"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditChamada_ussd" value="#{frasesCartaoBean.editConfigOfertasPre.editChamada_ussd}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditCHAMADA_USSD" />
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                    <p:outputLabel value="DETALHES" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="DETALHES_USSD" value="#{frasesCartaoBean.editConfigOfertasPre.detalhes_ussd}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditDETALHES_USSD">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditDetalhes_ussd(true)}" update="formEdit:tabEditId:checkeditDetalhes_ussd"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditDetalhes_ussd" value="#{frasesCartaoBean.editConfigOfertasPre.editDetalhes_ussd}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditDETALHES_USSD" />
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                    <p:outputLabel value="RECARGA" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="RECARGA_USSD" value="#{frasesCartaoBean.editConfigOfertasPre.recarga_ussd}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditRECARGA_USSD">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditRecarga_ussd(true)}" update="formEdit:tabEditId:checkeditRecarga_ussd"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditRecarga_ussd" value="#{frasesCartaoBean.editConfigOfertasPre.editRecarga_ussd}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditRECARGA_USSD" />
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                    <p:outputLabel value="VALIDADE" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="VALIDADE_USSD" value="#{frasesCartaoBean.editConfigOfertasPre.validade_ussd}" cols="120" rows="4" maxlength="123" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditVALIDADE_USSD">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditValidade_ussd(true)}" update="formEdit:tabEditId:checkeditValidade_ussd"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditValidade_ussd" value="#{frasesCartaoBean.editConfigOfertasPre.editValidade_ussd}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditVALIDADE_USSD" />
+                                </div>
+                            </div>
+
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                    <p:outputLabel value="INCENTIVO_OFERTA_PRE" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="INCENTIVO_OFERTA_PRE_USSD" value="#{frasesCartaoBean.editConfigOfertasPre.incentivo_oferta_pre_ussd}" cols="120" rows="4" maxlength="50" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditINCENTIVO_OFERTA_PRE_USSD">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditIncentivo_oferta_pre_ussd(true)}" update="formEdit:tabEditId:checkeditIncentivo_oferta_pre_ussd"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditIncentivo_oferta_pre_ussd" value="#{frasesCartaoBean.editConfigOfertasPre.editIncentivo_oferta_pre_ussd}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditINCENTIVO_OFERTA_PRE_USSD" />
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                    <p:outputLabel value="FALLBACK" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="FALLBACK_USSD" value="#{frasesCartaoBean.editConfigOfertasPre.fallback_ussd}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditFALLBACK_USSD">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditFallback_ussd(true)}" update="formEdit:tabEditId:checkeditFallback_ussd"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditFallback_ussd" value="#{frasesCartaoBean.editConfigOfertasPre.editFallback_ussd}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditFALLBACK_USSD" />
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                    <p:outputLabel value="SVA" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="SVA_USSD" value="#{frasesCartaoBean.editConfigOfertasPre.sva_ussd}" cols="120" rows="4" maxlength="118" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditSVA_USSD">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditSva_ussd(true)}" update="formEdit:tabEditId:checkeditSva_ussd"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditSva_ussd" value="#{frasesCartaoBean.editConfigOfertasPre.editSva_ussd}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditSVA_USSD" />
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">    
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                    <p:outputLabel value="NAOCLIENTE_INFORMAPROMO" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="NAOCLIENTE_INFORMAPROMO_USSD" value="#{frasesCartaoBean.editConfigOfertasPre.naocliente_informapromo_ussd}" cols="120" rows="4" maxlength="120" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditNAOCLIENTE_INFORMAPROMO_USSD">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditNaocliente_informapromo_ussd(true)}" update="formEdit:tabEditId:checkeditNaocliente_informapromo_ussd"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditNaocliente_informapromo_ussd" value="#{frasesCartaoBean.editConfigOfertasPre.editNaocliente_informapromo_ussd}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditNAOCLIENTE_INFORMAPROMO_USSD" />
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                    <p:outputLabel value="INFORMASALDOPROMO" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="INFORMASALDOPROMO_USSD" value="#{frasesCartaoBean.editConfigOfertasPre.informasaldopromo_ussd}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditINFORMASALDOPROMO_USSD">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditInformasaldopromo_ussd(true)}" update="formEdit:tabEditId:checkeditInformasaldopromo_ussd"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditInformasaldopromo_ussd" value="#{frasesCartaoBean.editConfigOfertasPre.editInformasaldopromo_ussd}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditINFORMASALDOPROMO_USSD" />
+                                </div>
+                            </div>
+                        </p:tab>
+
+                        <p:tab title="144/880" >
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <p:outputLabel value="PROMOPADRAO" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="PROMOPADRAO" value="#{frasesCartaoBean.editConfigOfertasPre.promopadrao_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditPROMOPADRAO_144">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditPromopadrao_144(true)}" update="formEdit:tabEditId:checkeditPromopadrao_144"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditPromopadrao_144" value="#{frasesCartaoBean.editConfigOfertasPre.editPromopadrao_144}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditPROMOPADRAO_144" />
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <p:outputLabel value="SEMRECARGA" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="SEMRECARGA" value="#{frasesCartaoBean.editConfigOfertasPre.semrecarga_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditSEMRECARGA_144">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditSemrecarga_144(true)}" update="formEdit:tabEditId:checkeditSemrecarga_144"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditSemrecarga_144" value="#{frasesCartaoBean.editConfigOfertasPre.editSemrecarga_144}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditSEMRECARGA_144" />
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <p:outputLabel value="CHAMADA" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="CHAMADA" value="#{frasesCartaoBean.editConfigOfertasPre.chamada_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditCHAMADA_144">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditChamada_144(true)}" update="formEdit:tabEditId:checkeditChamada_144"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditChamada_144" value="#{frasesCartaoBean.editConfigOfertasPre.editChamada_144}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditCHAMADA_144" />
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <p:outputLabel value="DETALHES" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="DETALHES" value="#{frasesCartaoBean.editConfigOfertasPre.detalhes_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditDETALHES_144">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditDetalhes_144(true)}" update="formEdit:tabEditId:checkeditDetalhes_144"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditDetalhes_144" value="#{frasesCartaoBean.editConfigOfertasPre.editDetalhes_144}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditDETALHES_144" />
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <p:outputLabel value="RECARGA" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="RECARGA" value="#{frasesCartaoBean.editConfigOfertasPre.recarga_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditRECARGA_144">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditRecarga_144(true)}" update="formEdit:tabEditId:checkeditRecarga_144"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditRecarga_144" value="#{frasesCartaoBean.editConfigOfertasPre.editRecarga_144}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditRECARGA_144" />
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <p:outputLabel value="VALIDADE" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="VALIDADE" value="#{frasesCartaoBean.editConfigOfertasPre.validade_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditVALIDADE_144">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditValidade_144(true)}" update="formEdit:tabEditId:checkeditValidade_144"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditValidade_144" value="#{frasesCartaoBean.editConfigOfertasPre.editValidade_144}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditVALIDADE_144" />
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <p:outputLabel value="CONTINGENCIA" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="CONTINGENCIA" value="#{frasesCartaoBean.editConfigOfertasPre.contingencia_144}" cols="180" rows="8" maxlength="4000" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditCONTINGENCIA_144">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditContingencia_144(true)}" update="formEdit:tabEditId:checkeditContingencia_144"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditContingencia_144" value="#{frasesCartaoBean.editConfigOfertasPre.editContingencia_144}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditCONTINGENCIA_144" />
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <p:outputLabel value="INCENTIVO_OFERTA_PRE" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="INCENTIVO_OFERTA_PRE" value="#{frasesCartaoBean.editConfigOfertasPre.incentivo_oferta_pre_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditINCENTIVO_OFERTA_PRE_144">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditIncentivo_oferta_pre_144(true)}" update="formEdit:tabEditId:checkeditIncentivo_oferta_pre_144"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditIncentivo_oferta_pre_144" value="#{frasesCartaoBean.editConfigOfertasPre.editIncentivo_oferta_pre_144}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditINCENTIVO_OFERTA_PRE_144" />
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <p:outputLabel value="FALLBACK" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="FALLBACK" value="#{frasesCartaoBean.editConfigOfertasPre.fallback_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditFALLBACK_144">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditFallback_144(true)}" update="formEdit:tabEditId:checkeditFallback_144"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditFallback_144" value="#{frasesCartaoBean.editConfigOfertasPre.editFallback_144}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditFALLBACK_144" />
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <p:outputLabel value="SVA" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="SVA" value="#{frasesCartaoBean.editConfigOfertasPre.sva_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditSVA_144">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditSva_144(true)}" update="formEdit:tabEditId:checkeditSva_144"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditSva_144" value="#{frasesCartaoBean.editConfigOfertasPre.editSva_144}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditSVA_144" />
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <p:outputLabel value="NAOCLIENTE_INFORMAPROMO" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="NAOCLIENTE_INFORMAPROMO" value="#{frasesCartaoBean.editConfigOfertasPre.naocliente_informapromo_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditNAOCLIENTE_INFORMAPROMO_144">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditNaocliente_informapromo_144(true)}" update="formEdit:tabEditId:checkeditNaocliente_informapromo_144"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditNaocliente_informapromo_144" value="#{frasesCartaoBean.editConfigOfertasPre.editNaocliente_informapromo_144}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditNAOCLIENTE_INFORMAPROMO_144" />
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <p:outputLabel value="NAOCLIENTE_VALIDADE" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="NAOCLIENTE_VALIDADE" value="#{frasesCartaoBean.editConfigOfertasPre.naocliente_validade_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditNAOCLIENTE_VALIDADE_144">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditNaocliente_validade_144(true)}" update="formEdit:tabEditId:checkeditNaocliente_validade_144"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditNaocliente_validade_144" value="#{frasesCartaoBean.editConfigOfertasPre.editNaocliente_validade_144}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditNAOCLIENTE_VALIDADE_144" />
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <p:outputLabel value="NAOCLIENTE_REGRAS" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="NAOCLIENTE_REGRAS" value="#{frasesCartaoBean.editConfigOfertasPre.regras_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditREGRAS_144">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditRegras_144(true)}" update="formEdit:tabEditId:checkeditRegras_144"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditRegras_144" value="#{frasesCartaoBean.editConfigOfertasPre.editRegras_144}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditREGRAS_144" />
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <p:outputLabel value="NAOCLIENTE_RECARGA" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="NAOCLIENTE_RECARGA" value="#{frasesCartaoBean.editConfigOfertasPre.naocliente_recarga_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditNAOCLIENTE_RECARGA_144">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditNaocliente_recarga_144(true)}" update="formEdit:tabEditId:checkeditNaocliente_recarga_144"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditNaocliente_recarga_144" value="#{frasesCartaoBean.editConfigOfertasPre.editNaocliente_recarga_144}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditNAOCLIENTE_RECARGA_144" />
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <p:outputLabel value="INFORMASALDOPROMO" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="INFORMASALDOPROMO" value="#{frasesCartaoBean.editConfigOfertasPre.informasaldopromo_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditINFORMASALDOPROMO_144">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditInformasaldopromo_144(true)}" update="formEdit:tabEditId:checkeditInformaSaldoPromo_144"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditInformaSaldoPromo_144" value="#{frasesCartaoBean.editConfigOfertasPre.editInformasaldopromo_144}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditINFORMASALDOPROMO_144" />
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <p:outputLabel value="OFERTAMIGRADOS" styleClass="field_label"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="OFERTAMIGRADOS" value="#{frasesCartaoBean.editConfigOfertasPre.ofertamigrados_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditOFERTAMIGRADOS_144">      
+                                            <p:ajax event="change" listener="#{frasesCartaoBean.editConfigOfertasPre.setEditOfertamigrados_144(true)}" update="formEdit:tabEditId:checkeditOfertamigrados_144"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditOfertamigrados_144" value="#{frasesCartaoBean.editConfigOfertasPre.editOfertamigrados_144}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditOFERTAMIGRADOS_144" />
+                                </div>
+                            </div>
+                        </p:tab>
+                    </p:tabView>
+
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarEdit').hide()"/>
+                        <p:commandButton value="Confirmar" validateClient="true" actionListener="#{frasesCartaoBean.editar()}" update="messages,messagesEdit,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="hideLoader();"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- HISTORICO PROMOCAO -->
+            <p:sidebar id="sideBarHistoryId" widgetVar="sidebarHistory" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Histórico</h1>
+                <p:separator />
+                <h:form id="formHistory">
+                    <p:dataTable
+                        id="tabelaHistoryId"
+                        value="#{frasesCartaoBean.selectedConfigOfertasPreHistoryList}"
+                        var="tabelaHistory"
+                        widgetVar="tabelaHistoryCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="370"  
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:column headerText="ÚLTIMO STATUS" width="100" groupRow="true">
+                            <p:outputLabel value="#{tabelaHistory.lastStatus}"/>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100">
+                            <p:outputLabel value="#{tabelaHistory.user.login}"/>
+                        </p:column>
+                        <p:column headerText="MODIFICADO" width="150">
+                            <p:outputLabel value="#{tabelaHistory.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00" />
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="PROMOPADRAO_USSD" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('PROMOPADRAO_USSD',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.promopadrao_ussd}" rendered="#{tabelaHistory.editMap.getOrDefault('PROMOPADRAO_USSD',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="SEMRECARGA_USSD" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('SEMRECARGA_USSD',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.semrecarga_ussd}" rendered="#{tabelaHistory.editMap.getOrDefault('SEMRECARGA_USSD',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="CHAMADA_USSD" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('CHAMADA_USSD',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.chamada_ussd}" rendered="#{tabelaHistory.editMap.getOrDefault('CHAMADA_USSD',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="DETALHES_USSD" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('DETALHES_USSD',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.detalhes_ussd}" rendered="#{tabelaHistory.editMap.getOrDefault('DETALHES_USSD',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="RECARGA_USSD" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('RECARGA_USSD',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.recarga_ussd}" rendered="#{tabelaHistory.editMap.getOrDefault('RECARGA_USSD',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="VALIDADE_USSD" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('VALIDADE_USSD',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.validade_ussd}" rendered="#{tabelaHistory.editMap.getOrDefault('VALIDADE_USSD',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="NAOCLIENTE_INFORMAPROMO_USSD" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('NAOCLIENTE_INFORMAPROMO_USSD',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.naocliente_informapromo_ussd}" rendered="#{tabelaHistory.editMap.getOrDefault('NAOCLIENTE_INFORMAPROMO_USSD',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="INCENTIVO_OFERTA_PRE_USSD" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INCENTIVO_OFERTA_PRE_USSD',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.incentivo_oferta_pre_ussd}" rendered="#{tabelaHistory.editMap.getOrDefault('INCENTIVO_OFERTA_PRE_USSD',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="FALLBACK_USSD" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('FALLBACK_USSD',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.fallback_ussd}" rendered="#{tabelaHistory.editMap.getOrDefault('FALLBACK_USSD',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="SVA_USSD" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('SVA_USSD',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.sva_ussd}" rendered="#{tabelaHistory.editMap.getOrDefault('SVA_USSD',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="INFORMASALDOPROMO_USSD" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INFORMASALDOPROMO_USSD',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.informasaldopromo_ussd}" rendered="#{tabelaHistory.editMap.getOrDefault('INFORMASALDOPROMO_USSD',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+
+                        <p:column headerText="PROMOPADRAO_144" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('PROMOPADRAO_144',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.promopadrao_144}" rendered="#{tabelaHistory.editMap.getOrDefault('PROMOPADRAO_144',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="SEMRECARGA_144" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('SEMRECARGA_144',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.semrecarga_144}" rendered="#{tabelaHistory.editMap.getOrDefault('SEMRECARGA_144',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="CHAMADA_144" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('CHAMADA_144',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.chamada_144}" rendered="#{tabelaHistory.editMap.getOrDefault('CHAMADA_144',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="DETALHES_144" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('DETALHES_144',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.detalhes_144}" rendered="#{tabelaHistory.editMap.getOrDefault('DETALHES_144',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="RECARGA_144" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('RECARGA_144',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.recarga_144}" rendered="#{tabelaHistory.editMap.getOrDefault('RECARGA_144',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="INFORMAVALIDADE_144" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INFORMAVALIDADE_144',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.informavalidade_144}" rendered="#{tabelaHistory.editMap.getOrDefault('INFORMAVALIDADE_144',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="VALIDADE_144" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('VALIDADE_144',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.validade_144}" rendered="#{tabelaHistory.editMap.getOrDefault('VALIDADE_144',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="CONTINGENCIA_144" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('CONTINGENCIA_144',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.contingencia_144}" rendered="#{tabelaHistory.editMap.getOrDefault('CONTINGENCIA_144',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="NAOCLIENTE_INFORMAPROMO_144" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('NAOCLIENTE_INFORMAPROMO_144',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.naocliente_informapromo_144}" rendered="#{tabelaHistory.editMap.getOrDefault('NAOCLIENTE_INFORMAPROMO_144',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="NAOCLIENTE_VALIDADE_144" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('NAOCLIENTE_VALIDADE_144',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.naocliente_validade_144}" rendered="#{tabelaHistory.editMap.getOrDefault('NAOCLIENTE_VALIDADE_144',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="REGRAS_144" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('REGRAS_144',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.regras_144}" rendered="#{tabelaHistory.editMap.getOrDefault('REGRAS_144',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="NAOCLIENTE_RECARGA_144" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('NAOCLIENTE_RECARGA_144',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.naocliente_recarga_144}" rendered="#{tabelaHistory.editMap.getOrDefault('NAOCLIENTE_RECARGA_144',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="INCENTIVO_OFERTA_PRE_144" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INCENTIVO_OFERTA_PRE_144',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.incentivo_oferta_pre_144}" rendered="#{tabelaHistory.editMap.getOrDefault('INCENTIVO_OFERTA_PRE_144',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="FALLBACK_144" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('FALLBACK_144',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.fallback_144}" rendered="#{tabelaHistory.editMap.getOrDefault('FALLBACK_144',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="SVA_144" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('SVA_144',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.sva_144}" rendered="#{tabelaHistory.editMap.getOrDefault('SVA_144',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="INFORMASALDOPROMO_144" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INFORMASALDOPROMO_144',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.informasaldopromo_144}" rendered="#{tabelaHistory.editMap.getOrDefault('INFORMASALDOPROMO_144',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="OFERTAMIGRADOS_144" width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('OFERTAMIGRADOS_144',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.ofertamigrados_144}" rendered="#{tabelaHistory.editMap.getOrDefault('OFERTAMIGRADOS_144',true)}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+
+                    </p:dataTable>
+                </h:form>
+            </p:sidebar>
+
+            <!-- DELETAR PROMOCAO -->
+            <p:sidebar id="sideBarDeleteId" widgetVar="sidebarDelete" position="top" baseZIndex="10000" style="overflow: auto;min-height: 160px;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Tem certeza?</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesDel"></p:messages>
+                    </div>
+                </div>
+                <p:separator />
+                <h:form id="formDel">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-3 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar id="delDT_GMUD" placeholder="DT_GMUD" required="true" value="#{frasesCartaoBean.gmudToDelete}" disabled="#{frasesCartaoBean.gmudToDelete != null}" mask="99/99/9999" pattern="dd/MM/yyyy" showOn="button">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                </p:calendar>
+                            </div>
+                        </div>
+                        <p:commandButton value="Sim" validateClient="true" actionListener="#{frasesCartaoBean.deletar()}" onstart="showLoader();" oncomplete="hideLoader();" update="messages,messagesDel,formTable:tabelaId" icon="fa fa-check" />
+                        <p:commandButton value="Não" oncomplete="PF('sidebarDelete').hide()" icon="fa fa-times" />
+                    </div>
+                </h:form>
+            </p:sidebar>
+
+            <!-- SCRIPT PROMOCAO -->
+            <p:sidebar id="sideBarScriptId" widgetVar="sidebarScript" position="top" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Gerar Script</h1>
+                <h:form id="formScript">
+                    <p:separator />
+                    <p:commandButton value="USSD" ajax="false" actionListener="#{frasesCartaoBean.generateScriptFile('USSD')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{frasesCartaoBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                </h:form>
+            </p:sidebar>
+
+            <p:dialog id="expiredGmudDlgId" header="GMUD Expirada: #{frasesCartaoBean.expiredGmud}" widgetVar="expiredGmudDlg" rendered="#{frasesCartaoBean.expiredGmud != null and controleBean.canEdit()}" closable="false">
+                <h:form id="formExpired">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Essa GMUD expirou e suas alterações precisam ir para produção ou apenas adiada, antes de prosseguir com novas alterações.<br/>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-8">
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Adiar" onclick="PF('newDtGmudDlg').show();"/>
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Implantar" onclick="PF('confirmDlg').show();" style="float: right; display: #{controleBean.visibilityDeploy(frasesCartaoBean.aprovacaoFiltered)}"/>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="newDtGmudDlg" showHeader="false" width="min-content" closable="false">
+                <h:form id="formNewDate">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            <p:datePicker id="inline" value="#{frasesCartaoBean.newDtGmud}" locale="br" inline="true">
+                                <p:ajax event="dateSelect" listener="#{frasesCartaoBean.adiar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist,expiredGmudDlgId" onstart="showLoader();" oncomplete="location.reload();"/>
+                            </p:datePicker>
+                            <div class="ui-g-6">
+                                <p:commandButton value="Cancelar" onclick="PF('newDtGmudDlg').hide();" icon="fa fa-times" />
+                            </div>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlg" header="Implantar GMUD" closable="false">
+                <h:form id="formConfirm">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Todas as alterações serão inseridas nos registros de produção!<br/>
+                            Confirmar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{frasesCartaoBean.aprovar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlg').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgAprovar" header="Aprovar GMUD" closable="false">
+                <h:form id="formConfirmAprovar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Aprovar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{frasesCartaoBean.aprovarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgAprovar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>			
+            <p:dialog widgetVar="confirmDlgIniciar" header="Iniciar GMUD" closable="false">
+                <h:form id="formConfirmIniciar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma o inicio da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{frasesCartaoBean.iniciarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgIniciar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgIniciar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgValidar" header="Validar GMUD" closable="false">
+                <h:form id="formConfirmValidar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma a validação da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{frasesCartaoBean.validarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgValidar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgValidar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgUAT" header="Enviar GMUD para UAT" closable="false">
+                <h:form id="formConfirmUAT">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para UAT?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{frasesCartaoBean.uatGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgUAT').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgUAT').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgImplantacao" header="Enviar GMUD para Implantacao" closable="false">
+                <h:form id="formConfirmImplantacao">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para Implantacao?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{frasesCartaoBean.implantarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgImplantacao').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgImplantacao').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+        </div>
+
+        <script  type="text/javascript" target="body">
+            $j = jQuery;
+            $j(document).ready(function () {
+                PF('tabelaCell').filter();
+                hideLoader();
+                try {
+                    PF('expiredGmudDlg').show();
+                } catch (e) {
+                }
+
+            });
+        </script>
+        <h:outputStylesheet name="css/template.css" library="pages" />
+    </ui:define>
+</ui:composition>

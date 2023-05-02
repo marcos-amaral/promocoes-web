@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/xhtml/template/template.xhtml">
+
+
+    <ui:define name="conteudo">
+        <h:outputScript name="js/template.js" library="pages" />
+        <div id="loading"></div>
+        <p:growl id="messages" showDetail="true" />
+
+        <div class="container">
+            
+            <h:form>
+                <ui:include src="/xhtml/template/ModalDialog.xhtml" />
+            </h:form>
+            
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12">
+                    <h:panelGroup id="panelAprovacao" style="visibility: #{tbOiCPromocoesBean.aprovacaoFiltered != null?'unset':'hidden'}">
+                        <i class="fa fa-check-circle-o" style="color: yellowgreen; font-size: 2em;"></i>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value=" GMUD status #{tbOiCPromocoesBean.aprovacaoFiltered.status.tipo} por #{tbOiCPromocoesBean.aprovacaoFiltered.user.name} em "/>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value="#{tbOiCPromocoesBean.aprovacaoFiltered.dt_aprovacao}">
+                            <f:convertDateTime timeStyle="short" type="both" dateStyle="full" locale="pt-BR" timeZone="GMT-03:00"/>
+                        </p:outputLabel>
+                    </h:panelGroup>
+                </div>
+            </div>
+
+            <h:form id="formButtons">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Adicionar" id="buttonAdd" oncomplete="PF('sidebarAdd').show()" actionListener="#{tbOiCPromocoesBean.preLoadEditBean()}" update="sideBarAddId" disabled="#{!controleBean.canEdit() or tbOiCPromocoesBean.expiredGmud != null}" styleClass="ui-priority-primary" icon="fa fa-plus"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Editar" id="buttonEdit" oncomplete="PF('sidebarEdit').show()" actionListener="#{tbOiCPromocoesBean.preLoadEditBean()}" update="sideBarEditId" disabled="#{tbOiCPromocoesBean.selectedTemplateList.size() eq 0 or !controleBean.canEdit() or tbOiCPromocoesBean.expiredGmud != null or !tbOiCPromocoesBean.canEdit()}" styleClass="ui-priority-primary" icon="fa fa-edit"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Excluir" id="buttonDel" oncomplete="PF('sidebarDelete').show()" actionListener="#{tbOiCPromocoesBean.preLoadEditBean()}" update="sideBarDeleteId" styleClass="ui-priority-primary" disabled="#{tbOiCPromocoesBean.selectedTemplateList.size() eq 0 or !controleBean.canEdit() or tbOiCPromocoesBean.expiredGmud != null}" icon="fa fa-eraser"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Histórico" id="buttonHist" oncomplete="hideLoader();PF('sidebarHistory').show()" update="formHistory:tabelaHistoryId" styleClass="ui-priority-primary" disabled="#{tbOiCPromocoesBean.selectedTemplateList.size() eq 0 or tbOiCPromocoesBean.selectedTemplateList.size() gt 1}" icon="fa fa-history"/>
+                    </div>
+                    <!--
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Script" id="buttonScript" oncomplete="PF('sidebarScript').show()" styleClass="ui-priority-primary" icon="fa fa-file-code-o"/>
+                    </div>
+                    -->
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:splitButton  value="Adiar" id="buttonAdm" onclick="PF('newDtGmudDlg').show();" icon="fa fa-clock-o" disabled="#{tbOiCPromocoesBean.defaultFilterValue eq 'PRODUCAO' or controleBean.isMarketing()}">
+                            <p:menuitem value="Iniciar" onclick="PF('confirmDlgIniciar').show();" disabled="#{tbOiCPromocoesBean.defaultFilterValue eq 'PRODUCAO' or !(tbOiCPromocoesBean.expiredGmud == null and controleBean.canStart(tbOiCPromocoesBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Validar" onclick="PF('confirmDlgValidar').show();" disabled="#{tbOiCPromocoesBean.defaultFilterValue eq 'PRODUCAO' or !(tbOiCPromocoesBean.expiredGmud == null and controleBean.canValidate(tbOiCPromocoesBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Aprovar" onclick="PF('confirmDlgAprovar').show();" disabled="#{tbOiCPromocoesBean.defaultFilterValue eq 'PRODUCAO' or !(tbOiCPromocoesBean.expiredGmud == null and controleBean.canAprove(tbOiCPromocoesBean.aprovacaoFiltered, false))}"/>
+                            <p:menuitem value="Liberar UAT" onclick="PF('confirmDlgUAT').show();" disabled="#{tbOiCPromocoesBean.defaultFilterValue eq 'PRODUCAO' or !(tbOiCPromocoesBean.expiredGmud == null and controleBean.canUAT(tbOiCPromocoesBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Liberar Implantação" onclick="PF('confirmDlgImplantacao').show();" disabled="#{tbOiCPromocoesBean.defaultFilterValue eq 'PRODUCAO' or !(tbOiCPromocoesBean.expiredGmud == null and controleBean.canReleaseDeployment(tbOiCPromocoesBean.aprovacaoFiltered, false))}"/>
+                            <p:menuitem value="Implantar" onclick="PF('confirmDlg').show();" disabled="#{tbOiCPromocoesBean.defaultFilterValue eq 'PRODUCAO' or !controleBean.canDeploy(tbOiCPromocoesBean.aprovacaoFiltered)}"/>
+                        </p:splitButton>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4">
+                        <h:outputLabel value="#{tbOiCPromocoesBean.aprovacaoFiltered.status.tipo}" style="float: right; font-style: oblique; color: #fa392f"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-3" style="float: right; padding-right: 50px;">
+                        <h:outputLabel value="TB_OICPROMOCOES" style="float: right;"/>
+                    </div>
+                </div>
+            </h:form>
+
+            <!-- TABELA PRINCIPAL --> 
+            <h:panelGroup>
+                <h:form id="formTable">
+                    <p:dataTable
+                        id="tabelaId"
+                        value="#{tbOiCPromocoesBean.dataModel}"
+                        lazy="true"
+                        paginator="true"
+                        rows="50"
+                        paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        paginatorPosition="bottom"
+                        rowsPerPageTemplate="10,50,100"
+                        var="tabelaRow"
+                        widgetVar="tabelaCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="300"  
+                        editable="true" 
+                        editMode="cell" 
+                        selection="#{tbOiCPromocoesBean.selectedTemplateList}"
+                        rowKey="#{tabelaRow.id}"
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:ajax event="rowSelect" update="formButtons" />
+                        <p:ajax event="rowUnselect" update="formButtons" />
+                        <p:ajax event="toggleSelect" update="formButtons" />
+                        <p:ajax event="rowSelectCheckbox" update="formButtons" />
+                        <p:ajax event="rowUnselectCheckbox" update="formButtons" />
+
+                        <p:ajax event="filter" listener="#{tbOiCPromocoesBean.cleanSelected()}" update="panelAprovacao,formButtons"/>
+
+                        <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+
+                        <p:column headerText="GMUD" filterBy="#{tabelaRow.dtGmudStr}" filterMatchMode="exact" filterValue="#{tbOiCPromocoesBean.defaultFilterValue}" width="120" styleClass="#{tabelaRow.getStyleClass('GMUD')}">
+                            <f:facet name="filter">
+                                <p:selectOneMenu onchange="PF('tabelaCell').filter()" value="#{tbOiCPromocoesBean.defaultFilterValue}" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="PRODUÇÃO" itemValue="PRODUCAO"/>
+                                    <f:selectItems value="#{tbOiCPromocoesBean.gmudList}"/>
+                                </p:selectOneMenu>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.dtGmudStr}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="MODIFICADA" width="100" styleClass="#{tabelaRow.getStyleClass('MODIFICADA')}">
+                            <p:outputLabel value="#{tabelaRow.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy  HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100" styleClass="#{tabelaRow.getStyleClass('LOGIN')}">
+                            <p:outputLabel value="#{tabelaRow.user.login}"/>
+                        </p:column>
+                        
+                        <p:column headerText="TB_DDD" filterBy="#{tabelaRow.tb_ddd}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_DDD')}">
+                            <p:outputLabel id="dddId" value="#{tabelaRow.tb_ddd}" ondblclick="copyToClip($(this));"/>
+                            <p:tooltip id="toolTipDDD" for="dddId" value="#{tabelaRow.tb_ddd}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+                        </p:column>
+                        
+                        <p:column headerText="TB_ID_BENEFICIO" filterBy="#{tabelaRow.tb_id_beneficio}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_ID_BENEFICIO')}"><p:outputLabel value="#{tabelaRow.tb_id_beneficio}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_ID_PROGRAMA" filterBy="#{tabelaRow.tb_id_programa}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_ID_PROGRAMA')}"><p:outputLabel value="#{tabelaRow.tb_id_programa}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_REGIAO" filterBy="#{tabelaRow.tb_regiao}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('TB_REGIAO')}"><p:outputLabel value="#{tabelaRow.tb_regiao}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="INCENTIVO1" filterBy="#{tabelaRow.incentivo1}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('INCENTIVO1')}"><p:outputLabel value="#{tabelaRow.incentivo1}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="INCENTIVO2" filterBy="#{tabelaRow.incentivo2}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('INCENTIVO2')}"><p:outputLabel value="#{tabelaRow.incentivo2}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="OUTROSPLANOS" filterBy="#{tabelaRow.outrosplanos}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('OUTROSPLANOS')}"><p:outputLabel value="#{tabelaRow.outrosplanos}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="OFFERCODE" filterBy="#{tabelaRow.offercode}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('OFFERCODE')}"><p:outputLabel value="#{tabelaRow.offercode}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_PLANO" filterBy="#{tabelaRow.tb_plano}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('TB_PLANO')}"><p:outputLabel value="#{tabelaRow.tb_plano}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_NOME_PROMOCAO" filterBy="#{tabelaRow.tb_nome_promocao}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('TB_NOME_PROMOCAO')}"><p:outputLabel value="#{tabelaRow.tb_nome_promocao}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_TIPO_PROMO" filterBy="#{tabelaRow.tb_tipo_promo}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('TB_TIPO_PROMO')}"><p:outputLabel value="#{tabelaRow.tb_tipo_promo}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_TAXA_ADESAO" filterBy="#{tabelaRow.tb_taxa_adesao}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('TB_TAXA_ADESAO')}"><p:outputLabel value="#{tabelaRow.tb_taxa_adesao}" ondblclick="copyToClip($(this));"/></p:column>                        
+                        <p:column headerText="TB_DT_INICIO_PROMO" filterBy="#{tabelaRow.tb_dt_inicio_promo}" filterFunction="#{dateRangeFilter.filterByDate}" width="120" styleClass="#{tabelaRow.getStyleClass('TB_DT_INICIO_PROMO')}">
+                            <f:facet name="filter">
+                                <h:inputHidden id="filterInic" />
+                            </f:facet>
+                            <f:facet name="header">
+                                <p:outputLabel value="DATA_INIC" />
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_dt_inicio_promo}" ondblclick="copyToClip($(this));">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        
+                        <p:column headerText="TB_DT_FIM_PROMO" filterBy="#{tabelaRow.tb_dt_fim_promo}" filterFunction="#{dateRangeFilter.filterByDate}" width="120" styleClass="#{tabelaRow.getStyleClass('TB_DT_FIM_PROMO')}">
+                            <f:facet name="filter">
+                                <h:inputHidden id="filterFim" />
+                            </f:facet>
+                            <f:facet name="header">
+                                <p:outputLabel value="DATA_FIM" />
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_dt_fim_promo}" ondblclick="copyToClip($(this));">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        
+                        <p:column headerText="TB_SN_ELEGIVEL_NOVA_PROMO" filterBy="#{tabelaRow.tb_sn_elegivel_nova_promoStr}" filterMatchMode="equals" width="160" styleClass="#{tabelaRow.getStyleClass('TB_SN_ELEGIVEL_NOVA_PROMO')}">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_sn_elegivel_nova_promoStr}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        
+                        <p:column headerText="SN_OFERTA_SEM_FRANQUIA" filterBy="#{tabelaRow.sn_oferta_sem_franquiaStr}" filterMatchMode="equals" width="160" styleClass="#{tabelaRow.getStyleClass('SN_OFERTA_SEM_FRANQUIA')}">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.sn_oferta_sem_franquiaStr}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="TB_LIGACAOOIMOVELFIXO_DADOS" filterBy="#{tabelaRow.tb_ligacaooimovelfixo_dadosStr}" filterMatchMode="equals" width="170" styleClass="#{tabelaRow.getStyleClass('TB_LIGACAOOIMOVELFIXO_DADOS')}">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_ligacaooimovelfixo_dadosStr}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="TB_BONUSLIGACAOMIX_DADOS" filterBy="#{tabelaRow.tb_bonusligacaomix_dadosStr}" filterMatchMode="equals" width="150" styleClass="#{tabelaRow.getStyleClass('TB_BONUSLIGACAOMIX_DADOS')}">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_bonusligacaomix_dadosStr}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        
+                        <p:column headerText="TB_SN_BONUS_TORPEDO" filterBy="#{tabelaRow.tb_sn_bonus_torpedoStr}" filterMatchMode="equals" width="150" styleClass="#{tabelaRow.getStyleClass('TB_SN_BONUS_TORPEDO')}">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_sn_bonus_torpedoStr}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="TB_USSD_CONVERTIDO" filterBy="#{tabelaRow.tb_ussd_convertidoStr}" filterMatchMode="equals" width="150" styleClass="#{tabelaRow.getStyleClass('TB_USSD_CONVERTIDO')}">
+                            <f:facet name="filter">
+                                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="Todos" itemValue="" />
+                                    <f:selectItem itemLabel="S" itemValue="S" />
+                                    <f:selectItem itemLabel="N" itemValue="N" />
+                                </p:selectOneButton>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.tb_ussd_convertidoStr}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="TB_TIPO_BONUS" filterBy="#{tabelaRow.tb_tipo_bonus}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('TB_TIPO_BONUS')}"><p:outputLabel value="#{tabelaRow.tb_tipo_bonus}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_FRANQUIA" filterBy="#{tabelaRow.tb_franquia}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('TB_FRANQUIA')}"><p:outputLabel value="#{tabelaRow.tb_franquia}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_BONUS" filterBy="#{tabelaRow.tb_bonus}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('TB_BONUS')}"><p:outputLabel value="#{tabelaRow.tb_bonus}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_QTD_TORP" filterBy="#{tabelaRow.tb_qtd_torp}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('TB_QTD_TORP')}"><p:outputLabel value="#{tabelaRow.tb_qtd_torp}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_BONUS_TORP" filterBy="#{tabelaRow.tb_bonus_torp}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('TB_BONUS_TORP')}"><p:outputLabel value="#{tabelaRow.tb_bonus_torp}" ondblclick="copyToClip($(this));"/></p:column>
+
+                       
+                    </p:dataTable>
+                </h:form>
+            </h:panelGroup>
+
+            <!-- ADICIONAR PROMOCAO -->
+            <p:sidebar id="sideBarAddId" widgetVar="sidebarAdd" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Adicionar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesAdd"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formAdd">
+                    <ui:include src="/xhtml/pri/TbOiCPromocoes_addIds.xhtml" />
+                    <ui:include src="/xhtml/pri/TbOiCPromocoes_add.xhtml" >
+                        <ui:param name="mBean" value="#{tbOiCPromocoesBean}" />
+                        <ui:param name="mBeanNew" value="#{tbOiCPromocoesBean.getNewTemplate()}" />
+                    </ui:include>
+
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarAdd').hide()"/>
+                        <p:commandButton value="Adicionar" validateClient="true" update="messages,messagesAdd" actionListener="#{tbOiCPromocoesBean.adicionar()}" onstart="showLoader();" oncomplete="hideLoader();"/>
+                        <p:selectBooleanCheckbox itemLabel="Adicionar outra" value="#{tbOiCPromocoesBean.adicionarOutra}" style="min-width: 140px"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- EDITAR PROMOCAO -->
+            <p:sidebar id="sideBarEditId" widgetVar="sidebarEdit" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Editar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesEdit"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formEdit">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-12">
+                            <p:scrollPanel style="width:100%;height:100px">
+                                <p:panelGrid columns="6">
+                                    <p:repeat value="#{tbOiCPromocoesBean.selectedTemplateList}" var="selectedConfigOfertasPreItem">
+                                        <p:button value="#{selectedConfigOfertasPreItem.idDdd}" disabled="true" style="margin: 2px;"/>
+                                    </p:repeat>
+                                </p:panelGrid>
+                            </p:scrollPanel>
+                        </div>
+                    </div>
+                    <h:panelGroup rendered="#{tbOiCPromocoesBean.isEditProd()}">
+                        <p:separator />
+                        <div class="ui-g ui-fluid">
+                            <div class="ui-g-12 ui-md-6 ui-lg-2">
+                                <p:outputLabel value="DT_GMUD" styleClass="field_label"/>
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                    <p:calendar id="editDT_GMUD" placeholder="DT_GMUD" required="true" value="#{tbOiCPromocoesBean.editTemplate.dt_gmud}" mask="99/99/9999" showOn="button">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                    </p:calendar>
+                                    <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox value="true"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                    <p:separator />
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_REGIAO" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputText placeholder="TB_REGIAO" value="#{tbOiCPromocoesBean.editTemplate.tb_regiao}" maxlength="2">
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditTb_regiao(true)}" update="formEdit:checkeditTb_regiao"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_regiao" value="#{tbOiCPromocoesBean.editTemplate.editTb_regiao}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="INCENTIVO1" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText placeholder="INCENTIVO1" value="#{tbOiCPromocoesBean.editTemplate.incentivo1}">      
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditIncentivo1(true)}" update="formEdit:checkeditIncentivo1"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditIncentivo1" value="#{tbOiCPromocoesBean.editTemplate.editIncentivo1}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="INCENTIVO2" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText placeholder="INCENTIVO2" value="#{tbOiCPromocoesBean.editTemplate.incentivo2}">      
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditIncentivo2(true)}" update="formEdit:checkeditIncentivo2"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditIncentivo2" value="#{tbOiCPromocoesBean.editTemplate.editIncentivo2}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="OUTROSPLANOS" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText placeholder="OUTROSPLANOS" value="#{tbOiCPromocoesBean.editTemplate.outrosplanos}">      
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditOutrosplanos(true)}" update="formEdit:checkeditOutrosplanos"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditOutrosplanos" value="#{tbOiCPromocoesBean.editTemplate.editOutrosplanos}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="OFFERCODE" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText placeholder="OFFERCODE" value="#{tbOiCPromocoesBean.editTemplate.offercode}" >      
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditOffercode(true)}" update="formEdit:checkeditOffercode"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditOffercode" value="#{tbOiCPromocoesBean.editTemplate.editOffercode}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                             <p:outputLabel value="TB_PLANO" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText placeholder="TB_PLANO" value="#{tbOiCPromocoesBean.editTemplate.tb_plano}" >      
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditTb_plano(true)}" update="formEdit:checkeditTb_plano"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_plano" value="#{tbOiCPromocoesBean.editTemplate.editTb_plano}"/></span>
+                            </div>
+                        </div>
+                        
+                        
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_NOME_PROMOCAO" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText placeholder="TB_NOME_PROMOCAO" value="#{tbOiCPromocoesBean.editTemplate.tb_nome_promocao}">      
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditTb_nome_promocao(true)}" update="formEdit:checkeditTb_nome_promocao"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_nome_promocao" value="#{tbOiCPromocoesBean.editTemplate.editTb_nome_promocao}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_TIPO_PROMO" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                                <p:inputText placeholder="TB_TIPO_PROMO" value="#{tbOiCPromocoesBean.editTemplate.tb_tipo_promo}">      
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditTb_tipo_promo(true)}" update="formEdit:checkeditTb_tipo_promo"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_tipo_promo" value="#{tbOiCPromocoesBean.editTemplate.editTb_tipo_promo}"/></span>
+                            </div>
+                        </div>
+                        
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_TAXA_ADESAO" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-wifi"></i></span>
+                                <p:inputNumber placeholder="TB_TAXA_ADESAO" value="#{tbOiCPromocoesBean.editTemplate.tb_taxa_adesao}" thousandSeparator="">
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditTb_taxa_adesao(true)}" update="formEdit:checkeditTb_taxa_adesao"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_taxa_adesao" value="#{tbOiCPromocoesBean.editTemplate.editTb_taxa_adesao}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_DT_INICIO_PROMO" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:inputMask placeholder="TB_DT_INICIO_PROMO" value="#{tbOiCPromocoesBean.editTemplate.tb_dt_inicio_promo}" mask="99/99/9999">
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditTb_dt_inicio_promo(true)}" update="formEdit:checkeditTb_dt_inicio_promo"/>
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                </p:inputMask>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_dt_inicio_promo" value="#{tbOiCPromocoesBean.editTemplate.editTb_dt_inicio_promo}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_DT_FIM_PROMO" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:inputMask placeholder="TB_DT_FIM_PROMO" value="#{tbOiCPromocoesBean.editTemplate.tb_dt_fim_promo}" mask="99/99/9999">
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditTb_dt_fim_promo(true)}" update="formEdit:checkeditTb_dt_fim_promo"/>
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                </p:inputMask>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_dt_fim_promo" value="#{tbOiCPromocoesBean.editTemplate.editTb_dt_fim_promo}"/></span>
+                            </div>
+                        </div>
+                        
+                    </div>    
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <p:outputLabel value="TB_TIPO_BONUS" styleClass="field_label"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="TB_TIPO_BONUS" value="#{tbOiCPromocoesBean.editTemplate.tb_tipo_bonus}" >
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditTb_tipo_bonus(true)}" update="formEdit:checkeditTb_tipo_bonus"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_tipo_bonus" value="#{tbOiCPromocoesBean.editTemplate.editTb_tipo_bonus}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                             <p:outputLabel value="TB_FRANQUIA" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-wifi"></i></span>
+                                <p:inputNumber placeholder="TB_FRANQUIA" value="#{tbOiCPromocoesBean.editTemplate.tb_franquia}"  thousandSeparator="">
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditTb_franquia(true)}" update="formEdit:checkeditTb_franquia"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_franquia" value="#{tbOiCPromocoesBean.editTemplate.editTb_franquia}"/></span>
+                            </div>
+                        </div>
+                        
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                             <p:outputLabel value="TB_BONUS" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-wifi"></i></span>
+                                <p:inputNumber placeholder="TB_BONUS" value="#{tbOiCPromocoesBean.editTemplate.tb_bonus}" decimalPlaces="0" thousandSeparator="">
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditTb_bonus(true)}" update="formEdit:checkeditTb_bonus"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_bonus" value="#{tbOiCPromocoesBean.editTemplate.editTb_bonus}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                             <p:outputLabel value="TB_QTD_TORP" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-wifi"></i></span>
+                                <p:inputNumber placeholder="TB_QTD_TORP" value="#{tbOiCPromocoesBean.editTemplate.tb_qtd_torp}" decimalPlaces="0" thousandSeparator="">
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditTb_qtd_torp(true)}" update="formEdit:checkeditTb_qtd_torp"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_qtd_torp" value="#{tbOiCPromocoesBean.editTemplate.editTb_qtd_torp}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <p:outputLabel value="TB_BONUS_TORP" styleClass="field_label"/>
+                            <div class="ui-inputgroup inputnumber">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-wifi"></i></span>
+                                <p:inputNumber placeholder="TB_BONUS_TORP" value="#{tbOiCPromocoesBean.editTemplate.tb_bonus_torp}" decimalPlaces="0" thousandSeparator="">
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditTb_bonus_torp(true)}" update="formEdit:checkeditTb_bonus_torp"/>
+                                </p:inputNumber>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_bonus_torp" value="#{tbOiCPromocoesBean.editTemplate.editTb_bonus_torp}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton  value="#{tbOiCPromocoesBean.editTemplate.tb_sn_elegivel_nova_promo}" onLabel="TB_SN_ELEGIVEL_NOVA_PROMO" offLabel="TB_SN_ELEGIVEL_NOVA_PROMO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditTb_sn_elegivel_nova_promo(true)}" update="formEdit:checkeditTb_sn_elegivel_nova_promo"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_sn_elegivel_nova_promo" value="#{tbOiCPromocoesBean.editTemplate.editTb_sn_elegivel_nova_promo}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton id="editSnOfertaSemFranquiaId" value="#{tbOiCPromocoesBean.editTemplate.sn_oferta_sem_franquia}" onLabel="SN_OFERTA_SEM_FRANQUIA" offLabel="SN_OFERTA_SEM_FRANQUIA" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditSn_oferta_sem_franquia(true)}" update="formEdit:checkeditSn_oferta_sem_franquia"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditSn_oferta_sem_franquia" value="#{tbOiCPromocoesBean.editTemplate.editSn_oferta_sem_franquia}"/></span>
+                            </div>
+                        </div>
+                        
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{tbOiCPromocoesBean.editTemplate.tb_ligacaooimovelfixo_dados}" onLabel="TB_LIGACAOOIMOVELFIXO_DADOS" offLabel="TB_LIGACAOOIMOVELFIXO_DADOS" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditTb_ligacaooimovelfixo_dados(true)}" update="formEdit:checkeditTb_ligacaooimovelfixo_dados"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_ligacaooimovelfixo_dados" value="#{tbOiCPromocoesBean.editTemplate.editTb_ligacaooimovelfixo_dados}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{tbOiCPromocoesBean.editTemplate.tb_bonusligacaomix_dados}" onLabel="TB_BONUSLIGACAOMIX_DADOS" offLabel="TB_BONUSLIGACAOMIX_DADOS" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditTb_bonusligacaomix_dados(true)}" update="formEdit:checkeditTb_bonusligacaomix_dados"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_bonusligacaomix_dados" value="#{tbOiCPromocoesBean.editTemplate.editTb_bonusligacaomix_dados}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                                <p:selectBooleanButton value="#{tbOiCPromocoesBean.editTemplate.tb_ussd_convertido}" onLabel="TB_USSD_CONVERTIDO" offLabel="TB_USSD_CONVERTIDO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                                    <p:ajax event="change" listener="#{tbOiCPromocoesBean.editTemplate.setEditTb_ussd_convertido(true)}" update="formEdit:checkeditTb_ussd_convertido"/>
+                                </p:selectBooleanButton>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_ussd_convertido" value="#{tbOiCPromocoesBean.editTemplate.editTb_ussd_convertido}"/></span>
+                            </div>
+                        </div>
+                    </div>
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarEdit').hide()"/>
+                        <p:commandButton value="Confirmar" validateClient="true" actionListener="#{tbOiCPromocoesBean.editar()}" update="messages,messagesEdit,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="hideLoader();"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- HISTORICO PROMOCAO -->
+            <p:sidebar id="sideBarHistoryId" widgetVar="sidebarHistory" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Histórico</h1>
+                <p:separator />
+                <h:form id="formHistory">
+                    <p:dataTable
+                        id="tabelaHistoryId"
+                        value="#{tbOiCPromocoesBean.selectedTemplateHistoryList}"
+                        var="tabelaHistory"
+                        widgetVar="tabelaHistoryCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="370"  
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:column headerText="ÚLTIMO STATUS" width="100" groupRow="true">
+                            <p:outputLabel value="#{tabelaHistory.lastStatus}"/>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100">
+                            <p:outputLabel value="#{tabelaHistory.user.login}"/>
+                        </p:column>
+                        <p:column headerText="MODIFICADO" width="150">
+                            <p:outputLabel value="#{tabelaHistory.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00" />
+                            </p:outputLabel>
+                        </p:column>
+                        
+                        
+                        <p:column headerText="TB_DT_INICIO_PROMO" width="70" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_DT_INICIO_PROMO',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.tb_dt_inicio_promo}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_DT_INICIO_PROMO',true)}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="TB_DT_FIM_PROMO" width="70" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_DT_FIM_PROMO',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.tb_dt_fim_promo}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_DT_FIM_PROMO',true)}">
+                                <f:convertDateTime pattern="dd/MM/yyyy"  locale="pt-BR" timeZone="GMT-03:00" />
+                            </p:outputLabel>
+                        </p:column>
+                        
+                        <p:column headerText="TB_REGIAO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_REGIAO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_regiao}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_REGIAO',true)}"/></p:column>
+                        <p:column headerText="INCENTIVO1" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INCENTIVO1',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.incentivo1}" rendered="#{tabelaHistory.editMap.getOrDefault('INCENTIVO1',true)}"/></p:column>
+                        <p:column headerText="INCENTIVO2" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INCENTIVO2',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.incentivo2}" rendered="#{tabelaHistory.editMap.getOrDefault('INCENTIVO2',true)}"/></p:column>
+                        <p:column headerText="OUTROSPLANOS" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('OUTROSPLANOS',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.outrosplanos}" rendered="#{tabelaHistory.editMap.getOrDefault('OUTROSPLANOS',true)}"/></p:column>
+                        <p:column headerText="OFFERCODE" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('OFFERCODE',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.offercode}" rendered="#{tabelaHistory.editMap.getOrDefault('OFFERCODE',true)}"/></p:column>
+                        <p:column headerText="TB_PLANO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_PLANO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_plano}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_PLANO',true)}"/></p:column>
+                        <p:column headerText="TB_NOME_PROMOCAO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_NOME_PROMOCAO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_nome_promocao}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_NOME_PROMOCAO',true)}"/></p:column>
+                        <p:column headerText="TB_TIPO_PROMO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_TIPO_PROMO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_tipo_promo}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_TIPO_PROMO',true)}"/></p:column>
+                        <p:column headerText="TB_SN_ELEGIVEL_NOVA_PROMO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_SN_ELEGIVEL_NOVA_PROMO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_sn_elegivel_nova_promo}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_SN_ELEGIVEL_NOVA_PROMO',true)}"/></p:column>
+                        <p:column headerText="TB_TAXA_ADESAO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_TAXA_ADESAO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_taxa_adesao}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_TAXA_ADESAO',true)}"/></p:column>
+                        <p:column headerText="TB_TIPO_BONUS" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_TIPO_BONUS',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_tipo_bonus}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_TIPO_BONUS',true)}"/></p:column>
+                        <p:column headerText="TB_FRANQUIA" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_FRANQUIA',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_franquia}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_FRANQUIA',true)}"/></p:column>
+                        <p:column headerText="TB_BONUS" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_BONUS',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_bonus}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_BONUS',true)}"/></p:column>
+                        <p:column headerText="TB_SN_BONUS_TORPEDO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_SN_BONUS_TORPEDO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_sn_bonus_torpedo}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_SN_BONUS_TORPEDO',true)}"/></p:column>
+                        <p:column headerText="TB_QTD_TORP" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_QTD_TORP',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_qtd_torp}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_QTD_TORP',true)}"/></p:column>
+                        <p:column headerText="TB_BONUS_TORP" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_BONUS_TORP',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_bonus_torp}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_BONUS_TORP',true)}"/></p:column>
+                        <p:column headerText="SN_OFERTA_SEM_FRANQUIA" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('SN_OFERTA_SEM_FRANQUIA',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.sn_oferta_sem_franquia}" rendered="#{tabelaHistory.editMap.getOrDefault('SN_OFERTA_SEM_FRANQUIA',true)}"/></p:column>
+                        <p:column headerText="TB_LIGACAOOIMOVELFIXO_DADOS" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_LIGACAOOIMOVELFIXO_DADOS',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_ligacaooimovelfixo_dados}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_LIGACAOOIMOVELFIXO_DADOS',true)}"/></p:column>
+                        <p:column headerText="TB_BONUSLIGACAOMIX_DADOS" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_BONUSLIGACAOMIX_DADOS',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_bonusligacaomix_dados}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_BONUSLIGACAOMIX_DADOS',true)}"/></p:column>
+                        <p:column headerText="TB_USSD_CONVERTIDO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_USSD_CONVERTIDO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_ussd_convertido}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_USSD_CONVERTIDO',true)}"/></p:column>
+
+                        
+                    </p:dataTable>
+                </h:form>
+            </p:sidebar>
+
+            <!-- DELETAR PROMOCAO -->
+            <p:sidebar id="sideBarDeleteId" widgetVar="sidebarDelete" position="top" baseZIndex="10000" style="overflow: auto;min-height: 160px;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Tem certeza?</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesDel"></p:messages>
+                    </div>
+                </div>
+                <p:separator />
+                <h:form id="formDel">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-3 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar id="delDT_GMUD" placeholder="DT_GMUD" required="true" value="#{tbOiCPromocoesBean.gmudToDelete}" disabled="#{tbOiCPromocoesBean.gmudToDelete != null}" mask="99/99/9999" pattern="dd/MM/yyyy" showOn="button">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                </p:calendar>
+                            </div>
+                        </div>
+                        <p:commandButton value="Sim" validateClient="true" actionListener="#{tbOiCPromocoesBean.deletar()}" onstart="showLoader();" oncomplete="hideLoader();" update="messages,messagesDel,formTable:tabelaId" icon="fa fa-check" />
+                        <p:commandButton value="Não" oncomplete="PF('sidebarDelete').hide()" icon="fa fa-times" />
+                    </div>
+                </h:form>
+            </p:sidebar>
+
+            <!-- SCRIPT PROMOCAO -->
+            <p:sidebar id="sideBarScriptId" widgetVar="sidebarScript" position="top" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Gerar Script</h1>
+                <h:form id="formScript">
+                    <p:separator />
+                    <p:commandButton value="USSD" ajax="false" actionListener="#{tbOiCPromocoesBean.generateScriptFile('USSD')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{tbOiCPromocoesBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                    <p:commandButton value="*880" ajax="false" actionListener="#{tbOiCPromocoesBean.generateScriptFile('880')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{tbOiCPromocoesBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                    <p:commandButton value="*144" ajax="false" actionListener="#{tbOiCPromocoesBean.generateScriptFile('144')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{tbOiCPromocoesBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                </h:form>
+            </p:sidebar>
+
+            <p:dialog id="expiredGmudDlgId" header="GMUD Expirada: #{tbOiCPromocoesBean.expiredGmud}" widgetVar="expiredGmudDlg" rendered="#{tbOiCPromocoesBean.expiredGmud != null and controleBean.canEdit()}" closable="false">
+                <h:form id="formExpired">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Essa GMUD expirou e suas alterações precisam ir para produção ou apenas adiada, antes de prosseguir com novas alterações.<br/>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-8">
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Adiar" onclick="PF('newDtGmudDlg').show();"/>
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Implantar" onclick="PF('confirmDlg').show();" style="float: right; display: #{controleBean.visibilityDeploy(tbOiCPromocoesBean.aprovacaoFiltered)}"/>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="newDtGmudDlg" showHeader="false" width="min-content" closable="false">
+                <h:form id="formNewDate">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            <p:datePicker id="inline" value="#{tbOiCPromocoesBean.newDtGmud}" locale="br" inline="true">
+                                <p:ajax event="dateSelect" listener="#{tbOiCPromocoesBean.adiar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist,expiredGmudDlgId" onstart="showLoader();" oncomplete="location.reload();"/>
+                            </p:datePicker>
+                            <div class="ui-g-6">
+                                <p:commandButton value="Cancelar" onclick="PF('newDtGmudDlg').hide();" icon="fa fa-times" />
+                            </div>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlg" header="Implantar GMUD" closable="false">
+                <h:form id="formConfirm">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Todas as alterações serão inseridas nos registros de produção!<br/>
+                            Confirmar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{tbOiCPromocoesBean.aprovar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlg').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgAprovar" header="Aprovar GMUD" closable="false">
+                <h:form id="formConfirmAprovar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Aprovar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{tbOiCPromocoesBean.aprovarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgAprovar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgIniciar" header="Iniciar GMUD" closable="false">
+                <h:form id="formConfirmIniciar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma o inicio da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{tbOiCPromocoesBean.iniciarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgIniciar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgIniciar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgValidar" header="Validar GMUD" closable="false">
+                <h:form id="formConfirmValidar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma a validação da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{tbOiCPromocoesBean.validarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgValidar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgValidar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgUAT" header="Enviar GMUD para UAT" closable="false">
+                <h:form id="formConfirmUAT">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para UAT?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{tbOiCPromocoesBean.uatGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgUAT').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgUAT').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgImplantacao" header="Enviar GMUD para Implantacao" closable="false">
+                <h:form id="formConfirmImplantacao">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para Implantacao?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{tbOiCPromocoesBean.implantarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgImplantacao').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgImplantacao').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+        </div>
+
+        <script  type="text/javascript" target="body">
+            $j = jQuery;
+            $j(document).ready(function () {
+                PF('tabelaCell').filter();
+                hideLoader();
+                try {
+                    PF('expiredGmudDlg').show();
+                } catch (e) {
+                }
+
+            });
+        </script>
+        <h:outputStylesheet name="css/template.css" library="pages" />
+    </ui:define>
+</ui:composition>

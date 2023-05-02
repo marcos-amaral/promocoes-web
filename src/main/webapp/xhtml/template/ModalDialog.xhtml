@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:body>
+
+        <p:dialog 
+            draggable="false" 
+            closeOnEscape="true" 
+            modal="true" 
+            id="exceptionDialog" 
+            resizable="false"
+            styleClass="errorDialog"
+            onShow="$('.ui-dialog-content.ui-widget-content').css('background-color', 'rgba(255, 255, 255, 1.0)').css('opacity', '1.0');"
+            onHide="$('.ui-dialog-content.ui-widget-content').css('background', 'none').css('opacity', '.99 ');"
+            header="Um erro Inesperado Ocorreu: Exception '#{pfExceptionHandler.type}'" 
+            widgetVar="exceptionDialog" 
+            height="300">
+            <h3>Tente realizar novamente a solicitação.</h3>
+            <h3>Caso o problema continue, favor enviar o erro abaixo para: ceura@liq.com.br</h3>
+            Mensagem: #{pfExceptionHandler.message} <br />
+            StackTrace: <h:outputText value="#{pfExceptionHandler.formattedStackTrace}" escape="false" />
+            <br />
+        </p:dialog>
+
+        <p:dialog 
+            draggable="false" 
+            closeOnEscape="true" 
+            modal="true" 
+            id="exceptionDialogEx" 
+            resizable="false"
+            styleClass="errorDialog"
+            onShow="$('.ui-dialog-content.ui-widget-content').css('background-color', 'rgba(255, 255, 255, 1.0)').css('opacity', '1.0');"
+            onHide="$('.ui-dialog-content.ui-widget-content').css('background', 'none').css('opacity', '.99 ');"
+            header="Sua sessão expirou!" 
+            widgetVar="exceptionDialogEx">
+            <p>Devido a um grande tempo de inatividade ou a uma necessidade do servidor, sua sessão expirou. Clique no botão abaixo para recarregar:</p>
+            <br />
+            <p:button onclick="document.location.href = document.location.href;" value="Recarregar!" />
+        </p:dialog>
+
+    </h:body>
+</html>

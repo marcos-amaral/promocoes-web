@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+
+
+
+    <!-- ADICIONAR PROMOCAO -->
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12 ui-md-6 ui-lg-2">
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('DT_GMUD')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                        <p:calendar id="addDT_GMUD" placeholder="DT_GMUD" required="#{mBean.isObrigatorio('DT_GMUD')}"  value="#{mBeanNew.dt_gmud}" mask="99/99/9999" mindate="#{mBean.today}" showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00">
+                            <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            <p:ajax event="valueChange" process="@this"  listener="#{mBean.reloadGmud()}" update="@(.TB_INCENTIVO_1),@(.TB_INCENTIVO_2),@(.TB_INCENTIVO_3),@(.TB_INCENTIVO_4)" /> 
+                            <p:ajax  event="dateSelect" process="@this"  listener="#{mBean.reloadGmud()}" update="@(.TB_INCENTIVO_1),@(.TB_INCENTIVO_2),@(.TB_INCENTIVO_3),@(.TB_INCENTIVO_4)" /> 
+                        </p:calendar>    
+                    </div>
+                </div>
+                <div class="ui-g-12 ui-md-12 ui-lg-3">
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTA')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                        <p:inputText id="addOFERTA" placeholder="OFERTA" required="#{mBean.isObrigatorio('OFERTA')}" value="#{mBeanNew.oferta}"/>
+                    </div>
+                </div>
+            </div>
+            <p:separator />
+
+            </ui:composition>

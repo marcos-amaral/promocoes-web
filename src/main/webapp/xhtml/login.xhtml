@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core" 
+      xmlns:t="http://xmlns.jcp.org/jsf/passthrough"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <f:facet name="first">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+            <meta name="apple-mobile-web-app-capable" content="yes" />
+        </f:facet>
+    </h:head>
+
+    <h:body class="login-body">
+        <div class="login-panel ui-fluid" style="width: min-content; padding: 50px;">
+            <div class="ui-g">
+                <h:form>
+                    <div class="ui-g-12 logo-container" style="padding: 0;">
+                        <!--                        <p:outputLabel value="TEMPLATE" 
+                                                               style="font-family: calibri;
+                                                               font-weight: bold;
+                                                               font-size: 3em;
+                                                               color: #00006d;"/>
+                                                <p:outputLabel value="WEB" 
+                                                               style="font-family: calibri;
+                                                               font-weight: bold;
+                                                               font-size: 3em;
+                                                               color: #8a8a8a;"/>-->
+                        <p:graphicImage name="images/mca/logo_full.png" library="verona-layout" style="margin-top: -50px"/>
+                        <!--<h2>Monitoração de Canais de Atendimento Oi!</h2>-->
+                    </div>
+
+                    <div class="ui-g-12" style="min-height: 80px; padding: 5px; width: 300px">
+                        <p:messages id="messages" showDetail="true"></p:messages>
+                    </div>
+                    <div class="ui-g-12" style="padding: 5px;">
+                        <p:inputText placeholder="Login" value="#{controleBean.userName}" style="font-size: 13px;"/>
+                    </div>
+
+                    <div class="ui-g-12" style="padding: 5px;">
+                        <p:password placeholder="Senha" feedback="false" value="#{controleBean.password}" style="font-size: 13px;"/>
+                    </div>
+
+                    <div class="ui-g-12 button-container" style="padding: 2px;margin-top: 10px">
+                        <p:commandButton id="loginButton" 
+                                         value="Login" 
+                                         widgetVar="loginButtonWV"
+                                         action="#{controleBean.login()}" 
+                                         styleClass="blue-btn raised-btn "
+                                         onclick="PF('loginButtonWV').disable()"
+                                         oncomplete="PF('loginButtonWV').enable()"
+                                         update="messages"
+                                         />
+                    </div>
+
+                    <p:ajaxStatus id="ajaxStatus" widgetVar="ajaxStatus"
+                                  style="width:32px;height:32px;position:fixed;right:7px;bottom:7px">
+                        <f:facet name="start">
+                            <i class="fa fa-circle-o-notch fa-spin ajax-loader" aria-hidden="true"></i>
+                        </f:facet>
+
+                        <f:facet name="complete">
+                            <h:outputText value="" />
+                        </f:facet>
+                    </p:ajaxStatus>
+
+                </h:form>
+            </div>
+        </div>
+
+        <h:outputStylesheet name="css/prime/layout/layout-cosmic.css" library="verona-layout" />
+        <h:outputStylesheet name="css/core/styles.css" library="verona-layout" />
+        <h:outputStylesheet name="css/core/ngrmonitor.css" library="verona-layout" />
+        <h:outputStylesheet name="css/pages/login.css" library="verona-layout" />
+    </h:body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/xhtml/template/template.xhtml">
+    <ui:define name="conteudo">
+        <p:growl id="messages" showDetail="true" life="10000"/>
+
+        <h:form id="form">
+            <p:remoteCommand name="rc" update="form:btnFinalizarOCSPre,form:btnFinalizarINPre,form:btnFinalizarINControle" action="#{addIncentivoS2SBean.setFinalizado(true)}" />
+
+            <div class="container">
+                <h:panelGroup>
+                    <p:wizard id="wizardId" 
+                              flowListener="#{addIncentivoS2SBean.onFlowProcess}" 
+                              nextLabel="Próximo" 
+                              backLabel="Anterior"
+                              widgetVar="wiz">
+                        <p:ajax event="next" update="messages,form:tableConfirm" />
+
+                        <!-- ID -->
+                        <p:tab title="IDs" id="tabIds">
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel for="calendar_dt_gmud" value="Data GMUD:" />
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-2">
+                                    <p:calendar id="calendar_dt_gmud" required="true" value="#{addIncentivoS2SBean.dt_gmud}" mindate="#{addIncentivoS2SBean.today}" showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00"/>
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel for="radio_plano" value="Tipo Plano:" />
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-3">
+                                    <p:selectOneRadio id="radio_plano" required="true" value="#{addIncentivoS2SBean.tipoPlano}" unselectable="true">
+                                        <p:ajax event="change" process="@this" update="form:radio_tarifador"/>
+                                        <f:selectItem itemLabel="Pré-pago" itemValue="PRE" />
+                                        <f:selectItem itemLabel="Oi Controle" itemValue="CONTROLE" />
+                                    </p:selectOneRadio>
+                                </div>
+                                <div class="ui-g-1 ui-md-3 ui-lg-8">
+                                    <p:message for="radio_plano" display="icon" />
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-4 ui-md-4 ui-lg-1" style="text-align: right; padding-top: 0.9em;">
+                                    <p:outputLabel for="radio_tarifador" value="Tarifador:" />
+                                </div>
+                                <div class="ui-g-6 ui-md-5 ui-lg-3">
+                                    <p:selectOneRadio id="radio_tarifador" required="true" value="#{addIncentivoS2SBean.tarifador}" unselectable="true">
+                                        <p:ajax event="change" process="@this"/>
+                                        <f:selectItem itemLabel="IN" itemValue="IN" />
+                                        <f:selectItem itemLabel="OCS" itemValue="OCS" itemDisabled="true" />
+                                    </p:selectOneRadio>
+                                </div>
+                                <div class="ui-g-1 ui-md-3 ui-lg-8">
+                                    <p:message for="radio_tarifador" display="icon" />
+                                </div>
+                            </div>
+                        </p:tab>
+                        <!-- DDD -->
+                        <p:tab title="Grupos de DDD" id="tabDDDs">
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-12 ui-md-12 ui-lg-3">
+                                    <p:pickList id="pickList" value="#{addIncentivoS2SBean.allDdds}" var="ddd" itemLabel="#{ddd}" itemValue="#{ddd}" />
+                                </div>
+                                <div class="ui-g-3 ui-md-3 ui-lg-1">
+                                    <p:commandButton value="Adicionar" 
+                                                     update="form:pickList,form:tableDdds,messages"
+                                                     actionListener="#{addIncentivoS2SBean.addGrupoDdd()}" 
+                                                     styleClass="ui-priority-primary"/>
+                                </div>
+                                <div class="ui-g-12 ui-md-12 ui-lg-7">
+                                    <p:dataTable id="tableDdds"
+                                                 value="#{addIncentivoS2SBean.ddds144}"
+                                                 var="dddGrupo"
+                                                 rowIndexVar="rowIndex"
+                                                 emptyMessage=""
+                                                 reflow="true">
+                                        <f:facet name="header">
+                                            *144 / *880 / USSD
+                                        </f:facet>
+
+                                        <p:column width="10%">
+                                            <p:outputLabel value="Grupo #{rowIndex+1}"/>
+                                        </p:column>
+                                        <p:column  width="75%">
+                                            <p:chips id="chipsDdd" value="#{dddGrupo}" valueChangeListener="#{addIncentivoS2SBean.setCurrentDddGroupIndex(rowIndex)}">
+                                                <p:ajax event="itemUnselect" listener="#{addIncentivoS2SBean.removeDdd}" update="form:pickList, form:tableDdds" />
+                                                <p:ajax event="itemSelect" listener="#{addIncentivoS2SBean.addDdd}" update="form:pickList, form:tableDdds" />
+                                            </p:chips>
+                                        </p:column>
+                                        <p:column  width="15%">
+                                            <p:commandButton value="Remover" 
+                                                             update="form:pickList,form:tableDdds"
+                                                             actionListener="#{addIncentivoS2SBean.removeGrupoDdd(rowIndex)}" 
+                                                             styleClass="ui-priority-primary"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </div>
+                            </div>
+                        </p:tab>
+                        <!-- Dados -->
+                        <p:tab title="Dados" id="tabDados" >
+                            <p:tabView id="tabViewAppsDados" tabindex="tabDadosIndex" style="z-index: 10">
+                                <p:ajax event="tabChange" listener="#{addIncentivoS2SBean.onTabChangeTemplate144}"/>
+
+                                <p:tab title="*144 / *880 / USSD S2S #{('IN' eq addIncentivoS2SBean.tarifador and 'CONTROLE' eq addIncentivoS2SBean.tipoPlano)?'(Controle > Controle)':''}" rendered="#{addIncentivoS2SBean.ddds144!=null and addIncentivoS2SBean.ddds144.size() gt 0}">
+                                    <p:tabView id="tabView144DddsS2S"
+                                               value="#{addIncentivoS2SBean.ddds144}" 
+                                               activeIndex="#{addIncentivoS2SBean.indexGrupoDados144}"
+                                               var="ddd144GrupoTab">
+                                        <p:ajax event="tabChange" listener="#{addIncentivoS2SBean.onTabChange144}"/>
+
+                                        <p:tab title="Grupo #{addIncentivoS2SBean.ddds144.indexOf(ddd144GrupoTab)+1}" >
+                                            <p:chips id="chipsDddGroup" value="#{ddd144GrupoTab}" readonly="true" disabled="true" styleClass="chipsView"/>
+                                            <h:panelGroup id="mainInsertDiv" style="" layout="block">
+                                                
+                                                <h:panelGroup rendered="#{'OCS' eq addIncentivoS2SBean.tarifador and 'PRE' eq addIncentivoS2SBean.tipoPlano}" layout="block">
+                                                   
+                                                    <ui:include id="includeId" src="/xhtml/ocs/IncentivoOfertasPreS2S_add.xhtml">
+                                                        <ui:param name="mBean" value="#{incentivoOfertasPreS2SBean}" />
+                                                        <ui:param name="mBeanNew" value="#{incentivoOfertasPreS2SBean.getNewTemplate(
+                                                                                           addIncentivoS2SBean.ddds144.size(),
+                                                                                           addIncentivoS2SBean.ddds144.indexOf(ddd144GrupoTab),
+                                                                                           addIncentivoS2SBean.getDddsString(addIncentivoS2SBean.ddds144.indexOf(ddd144GrupoTab)),
+                                                                                           addIncentivoS2SBean.dt_gmud)}" />
+                                                    </ui:include>
+                                                </h:panelGroup>
+                                                
+                                                
+                                                
+                                               <h:panelGroup rendered="#{'IN' eq addIncentivoS2SBean.tarifador and 'PRE' eq addIncentivoS2SBean.tipoPlano}" layout="block">
+                                                
+                                                    <ui:include id="includeId" src="/xhtml/sec/IoCartaoCartaoS2S_add.xhtml">
+                                                        <ui:param name="mBean" value="#{ioCartaoCartaoS2SBean}" />
+                                                        <ui:param name="mBeanNew" value="#{ioCartaoCartaoS2SBean.getNewTemplate(
+                                                                                           addIncentivoS2SBean.ddds144.size(),
+                                                                                           addIncentivoS2SBean.ddds144.indexOf(ddd144GrupoTab),
+                                                                                           addIncentivoS2SBean.getDddsString(addIncentivoS2SBean.ddds144.indexOf(ddd144GrupoTab)),
+                                                                                           addIncentivoS2SBean.dt_gmud)}" />
+                                                    </ui:include>
+                                                </h:panelGroup>
+                                                
+                                                
+                                                <h:panelGroup rendered="#{'IN' eq addIncentivoS2SBean.tarifador and 'CONTROLE' eq addIncentivoS2SBean.tipoPlano}" layout="block">
+                                                   
+                                                    <ui:include id="includeId" src="/xhtml/sec/IoControleControleS2S_add.xhtml">
+                                                        <ui:param name="mBean" value="#{ioControleControleS2SBean}" />
+                                                        <ui:param name="mBeanNew" value="#{ioControleControleS2SBean.getNewTemplate(
+                                                                                           addIncentivoS2SBean.ddds144.size(),
+                                                                                           addIncentivoS2SBean.ddds144.indexOf(ddd144GrupoTab),
+                                                                                           addIncentivoS2SBean.getDddsString(addIncentivoS2SBean.ddds144.indexOf(ddd144GrupoTab)),
+                                                                                           addIncentivoS2SBean.dt_gmud)}" />
+                                                    </ui:include>
+                                                </h:panelGroup>
+                                               
+                                            </h:panelGroup>
+                                        </p:tab>
+                                    </p:tabView>
+                                </p:tab>
+                            </p:tabView>
+                        </p:tab>
+                        <!-- View -->
+                        <p:tab title="Confirmação" id="tabConfirm">
+                            <br/><br/>
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-6 ui-md-3 ui-lg-2">
+                                    <p:commandButton id="btnFinalizarOCSPre"
+                                                     rendered="#{'OCS' eq addIncentivoS2SBean.tarifador and 'PRE' eq addIncentivoS2SBean.tipoPlano}"
+                                                     value="Finalizar" 
+                                                     actionListener="#{addIncentivoS2SBean.adicionar(incentivoOfertasPreS2SBean.tabelasEnum,incentivoOfertasPreS2SBean.newTemplateList,null,null,null,null,frasePreOcsBean.tabelasEnum,frasePreOcsBean.newTemplateList)}" 
+                                                     oncomplete="rc()"
+                                                     immediate="true"
+                                                     update="messages"
+                                                     disabled="#{addIncentivoS2SBean.finalizado}"
+                                                     styleClass="pink-btn"/>
+                                    <p:commandButton id="btnFinalizarINPre"
+                                                     rendered="#{'IN' eq addIncentivoS2SBean.tarifador and 'PRE' eq addIncentivoS2SBean.tipoPlano}"
+                                                     value="Finalizar" 
+                                                     actionListener="#{addIncentivoS2SBean.adicionar(ioCartaoCartaoS2SBean.tabelasEnum,ioCartaoCartaoS2SBean.newTemplateList,null,null,tbTemplateBean.tabelasEnum,tbTemplateBean.newTemplateList,frasePreBean.tabelasEnum,frasePreBean.newTemplateList)}" 
+                                                     oncomplete="rc()"
+                                                     immediate="true"
+                                                     update="messages"
+                                                     disabled="#{addIncentivoS2SBean.finalizado}"
+                                                     styleClass="pink-btn"/>
+                                    <p:commandButton id="btnFinalizarINControle"
+                                                     rendered="#{'IN' eq addIncentivoS2SBean.tarifador and 'CONTROLE' eq addIncentivoS2SBean.tipoPlano}"
+                                                     value="Finalizar" 
+                                                     actionListener="#{addIncentivoS2SBean.adicionar(ioControleControleS2SBean.tabelasEnum,ioControleControleS2SBean.newTemplateList,ioCartaoControleBean.tabelasEnum,ioCartaoControleBean.newTemplateList,tbTemplateControleBean.tabelasEnum,tbTemplateControleBean.newTemplateList,frasesControleCadBean.tabelasEnum,frasesControleCadBean.newTemplateList)}" 
+                                                     oncomplete="rc()"
+                                                     immediate="true"
+                                                     update="messages"
+                                                     disabled="#{addIncentivoS2SBean.finalizado}"
+                                                     styleClass="pink-btn"/>
+
+                                </div>
+                                <div class="ui-g-6 ui-md-3 ui-lg-2">
+                                    <p:commandButton value="Começar de novo" 
+                                                     actionListener="#{addIncentivoS2SBean.reset()}" 
+                                                     oncomplete="PF('wiz').loadStep('tabIds', false)"
+                                                     immediate="true"
+                                                     update="form:wizardId"
+                                                     styleClass="black-btn"/>
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid">
+                                <p:dataTable
+                                    id="tableConfirm"
+                                    rendered="#{addIncentivoS2SBean.ddds144!=null and addIncentivoS2SBean.ddds144.size() gt 0}"
+                                    value="#{addIncentivoS2SBean.listaNewTemplateDados}"
+                                    var="newTemplateDados"
+                                    reflow="true">
+                                    <f:facet name="header">
+                                        Dados *144 / *880 / USSD
+                                    </f:facet>
+
+                                    <p:columns value="#{addIncentivoS2SBean.colunasTemplateDados}" var="field" headerText="#{field.key}" field="#{field.property}" width="#{field.width}" style="word-break: break-all">
+                                        <p:outputLabel id="tableColumnContentId" value="#{newTemplateDados[field.property]}"/>
+                                        <p:tooltip id="toolTip" for="tableColumnContentId" value="#{newTemplateDados[field.property]}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+                                    </p:columns>
+                                </p:dataTable>
+                            </div>
+                        </p:tab>
+                    </p:wizard>
+                </h:panelGroup>
+            </div>
+        </h:form>
+
+        <h:outputStylesheet name="css/template.css" library="pages" />
+
+        <style type="text/css">
+            .chipsView .ui-icon-close {
+                visibility: hidden !important;
+            }
+        </style>
+    </ui:define>
+</ui:composition>

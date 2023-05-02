@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:ui="http://java.sun.com/jsf/facelets" 
+      xmlns:h="http://java.sun.com/jsf/html" 
+      xmlns:f="http://java.sun.com/jsf/core" 
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition template="/WEB-INF/template/template.xhtml">
+        <ui:define name="conteudo">
+            <br />
+
+            <div class="container">
+
+                <div class="container" style="font-size: 70%;">
+                    <h2>Administração de Usuários</h2>
+                </div>
+
+                <h:form id="mainForm">
+                    <p:growl id="growl" life="4000" showDetail="true" />
+
+                    <ui:include src="/WEB-INF/template/ModalDialog.xhtml" />
+
+                    <p:separator />
+
+                    <p:dataTable var="user" 
+                                 value="#{userAdministrationBean.userList}"
+                                 paginator="true" 
+                                 rows="10"
+                                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                 rowsPerPageTemplate="10,20,50, 100"
+                                 selectionMode="single"
+                                 selection="#{userAdministrationBean.selectedUser}"
+                                 id="userTable"
+                                 lazy="true"
+                                 style="font-size: 81%;"
+                                 styleClass="callLogTableStyle"
+                                 paginatorPosition="top"
+                                 emptyMessage="Nenhum usuário encontrado"
+                                 reflow="true"
+                                 >
+                        <p:ajax event="rowSelect" listener="#{userAdministrationBean.onRowSelect}" update="deleteUserId editUserId :updateUserForm:modalEditUserViewerDiv :deleteUserForm:modalDeleteUserViewerDiv"/>
+
+                        <p:column headerText="Login" filterBy="#{user.login}" filterMatchMode="contains" sortBy="#{user.login}">
+                            <h:outputText value="#{user.login}"/>
+                        </p:column>
+
+                        <p:column headerText="Nome" filterBy="#{user.name}" filterMatchMode="contains" sortBy="#{user.name}" priority="2">
+                            <h:outputText value="#{user.name}"/>
+                        </p:column>
+
+                        <p:column headerText="NickName" filterBy="#{user.nickName}" filterMatchMode="contains" sortBy="#{user.nickName}" priority="3">
+                            <h:outputText value="#{user.nickName}"/>
+                        </p:column>
+
+                        <p:column headerText="Departamento" filterBy="#{user.department}" filterMatchMode="contains" sortBy="#{user.department}" priority="4">
+                            <h:outputText value="#{user.department}"/>
+                        </p:column>
+
+                        <p:column headerText="Email" filterBy="#{user.email}" filterMatchMode="contains" sortBy="#{user.email}" priority="6">
+                            <h:outputText value="#{user.email}"/>
+                        </p:column>
+
+                        <f:facet name="footer">
+                            <p:commandButton id="newUserId"
+                                             update=":newUserForm:modalInsertUserViewerDiv" 
+                                             icon="ui-icon-person" 
+                                             value="Novo Usuário" 
+                                             style="right: 0px;"
+                                             onstart="PF('statusDialog').show()"
+                                             oncomplete="PF('statusDialog').hide()"
+                                             onsuccess="$('#modalInsertUserViewer').modal('show')"
+                                             onerror="alert('Houve um erro na inserção de Usuário. Por favor tente novamente.')"/>
+                            <p:commandButton id="editUserId"
+                                             disabled="#{!userAdministrationBean.enableEdit}"
+                                             update=":updateUserForm:modalEditUserViewerDiv"
+                                             icon="ui-icon-pencil" 
+                                             value="Editar Usuário" 
+                                             style="right: 0px;"
+                                             onstart="PF('statusDialog').show()"
+                                             oncomplete="PF('statusDialog').hide()"
+                                             onsuccess="$('#modalEditUserViewer').modal('show')"
+                                             onerror="alert('Houve um erro na edição de Usuário. Por favor tente novamente.')"/>
+                            <p:commandButton id="deleteUserId"
+                                             disabled="#{!userAdministrationBean.enableDelete}"
+                                             update=":deleteUserForm:modalDeleteUserViewerDiv"
+                                             icon="ui-icon-trash" 
+                                             value="Deletar Usuário" 
+                                             style="right: 0px;"
+                                             onstart="PF('statusDialog').show()"
+                                             oncomplete="PF('statusDialog').hide()"
+                                             onsuccess="$('#modalDeleteUserViewer').modal('show')"
+                                             onerror="alert('Houve um erro na deleção de Usuário. Por favor tente novamente.')"/>
+                        </f:facet>
+                    </p:dataTable>
+
+                </h:form>
+
+                <h:form id="newUserForm">
+                    <!--MODAL NEW USER-->
+                    <div class="modal fade" id="modalInsertUserViewer" tabindex="-1" role="dialog" aria-labelledby="modalCallLogViewerLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-vlarge">
+                            <div class="modal-content center center-block">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&#215;</button>
+                                    <h4 class="modal-title" id="modalFilterLabel">Inclusão de Usuário</h4>
+                                </div>
+                                <h:panelGroup id="modalInsertUserViewerDiv"  styleClass="modal-body" layout="block" >
+
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-4 col-md-4">
+                                            <label for="loginField">Login</label>
+                                            <h:inputText id="loginField" value="#{userAdministrationBean.newUser.login}" required="true" styleClass="form-control">
+                                                <f:validateRequired />
+                                            </h:inputText>
+                                            <br/>
+
+                                            <label for="nameField">Nome</label>
+                                            <h:inputText id="nameField" value="#{userAdministrationBean.newUser.name}" required="true" styleClass="form-control">
+                                                <f:validateRequired />
+                                            </h:inputText>
+                                            <br/>
+
+                                            <label for="nickNameField">NickName</label>
+                                            <h:inputText id="nickNameField" value="#{userAdministrationBean.newUser.nickName}" required="true" styleClass="form-control">
+                                                <f:validateRequired />
+                                            </h:inputText>
+                                            <br/>
+
+                                            <label for="departmentField">Departamento</label>
+                                            <h:inputText id="departmentField" value="#{userAdministrationBean.newUser.department}" required="true" styleClass="form-control">
+                                            </h:inputText>
+                                            <br/>
+
+                                            <label for="emailField">E-mail</label>
+                                            <h:inputText id="emailField" value="#{userAdministrationBean.newUser.email}" required="true" styleClass="form-control">
+                                                <f:validateRequired />
+                                            </h:inputText>
+                                            <br/>
+                                            <label for="siteField">Site</label>
+                                            <h:selectOneMenu id="siteField" value="#{userAdministrationBean.newUser.site}" converter="genericConverter" required="true" styleClass="form-control">
+                                                <f:selectItem itemValue="#{null}" itemLabel="Selecione..."/>
+                                                <f:selectItems value="#{userAdministrationBean.siteList}"/>
+                                                <f:validateRequired />
+                                            </h:selectOneMenu>
+                                        </div>
+
+                                        <div class="col-xs-12 col-sm-4 col-md-7">
+
+                                            <br/>
+                                            <h3 style="margin-top:0px">Nível de Permissão - Acesso Geral</h3>
+
+                                            <br/>
+                                            
+                                            <h3 style="margin-top:0px">Nível de Permissão - Administração</h3>
+
+<!--                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-4">
+                                                    <span style="white-space:nowrap">
+                                                        <h:selectBooleanCheckbox id="editAdministrationViewAccess" value="#{userAdministrationBean.newUser.administrationViewAccess}" />
+                                                        <h:outputLabel class="labelSpacer" for="editAdministrationViewAccess" value="Visualização Administração"/>
+                                                    </span>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-4">
+                                                    <span style="white-space:nowrap">
+                                                        <h:selectBooleanCheckbox id="editUserAdministrationAccess" value="#{userAdministrationBean.newUser.userAdministrationAccess}" />
+                                                        <h:outputLabel class="labelSpacer" for="editUserAdministrationAccess" value="Administração de Usuários"/>
+                                                    </span>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-4">
+                                                    <span style="white-space:nowrap">
+                                                        <h:selectBooleanCheckbox disabled="#{!controleBean.user.systemAdministrationAccess}" id="editSystemAdministrationAccess" value="#{userAdministrationBean.newUser.systemAdministrationAccess}" />
+                                                        <h:outputLabel class="labelSpacer" for="editSystemAdministrationAccess" value="Administração do Sistema"/>
+                                                    </span>
+                                                </div>
+                                            </div>-->
+                                            
+                                        </div>
+
+                                    </div>
+                                </h:panelGroup>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal" id="modalButton">Fechar</button>
+                                    <h:commandButton class="btn btn-primary" value="Salvar" action="#{userAdministrationBean.insertUser()}"/>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal-dialog -->
+                    </div><!-- /.modal -->
+
+                </h:form>
+
+                <h:form id="updateUserForm">
+
+                    <!--MODAL EDIT USER -->
+                    <div class="modal fade" id="modalEditUserViewer" tabindex="-1" role="dialog" aria-labelledby="modalEditUserViewerLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-vlarge">
+                            <div class="modal-content center center-block">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&#215;</button>
+                                    <h4 class="modal-title" id="modalFilterLabel">Alteração de Usuário</h4>
+                                </div>
+                                <h:panelGroup id="modalEditUserViewerDiv"  styleClass="modal-body" layout="block" >
+
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-4 col-md-4">
+                                            <label for="loginEditField">Login</label>
+                                            <h:inputText id="loginEditField" value="#{userAdministrationBean.selectedUser.login}" required="true" styleClass="form-control">
+                                                <f:validateRequired />
+                                            </h:inputText>
+                                            <br/>
+
+                                            <label for="nameEditField">Nome</label>
+                                            <h:inputText id="nameEditField" value="#{userAdministrationBean.selectedUser.name}" required="true" styleClass="form-control">
+                                                <f:validateRequired />
+                                            </h:inputText>
+                                            <br/>
+
+                                            <label for="nickNameEditField">NickName</label>
+                                            <h:inputText id="nickNameEditField" value="#{userAdministrationBean.selectedUser.nickName}" required="true" styleClass="form-control">
+                                                <f:validateRequired />
+                                            </h:inputText>
+                                            <br/>
+
+                                            <label for="departmentEditField">Departamento</label>
+                                            <h:inputText id="departmentEditField" value="#{userAdministrationBean.selectedUser.department}" required="true" styleClass="form-control">
+                                            </h:inputText>
+                                            <br/>
+
+                                            <label for="emailEditField">E-mail</label>
+                                            <h:inputText id="emailEditField" value="#{userAdministrationBean.selectedUser.email}" required="true" styleClass="form-control">
+                                                <f:validateRequired />
+                                            </h:inputText>
+                                            <br/>
+
+                                            <label for="siteEditField">Site</label>
+                                            <h:selectOneMenu id="siteEditField" value="#{userAdministrationBean.selectedUser.site}" converter="genericConverter" required="true" styleClass="form-control">
+                                                <f:selectItems value="#{userAdministrationBean.siteList}"/>
+                                            </h:selectOneMenu>
+
+                                        </div>
+
+                                        <div class="col-xs-12 col-sm-4 col-md-7">
+
+                                            <br/>
+                                            <h3 style="margin-top:0px">Nível de Permissão - Acesso Geral</h3>
+
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-4">
+                                                    <span style="white-space:nowrap">
+                                                        <h:selectBooleanCheckbox id="editMonitorImportAccess" value="#{userAdministrationBean.selectedUser.monitorImportAccess}" />
+                                                        <h:outputLabel class="labelSpacer" for="editMonitorImportAccess" value="Importação de Chamadas"/>
+                                                    </span>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-4">
+                                                    <span style="white-space:nowrap">
+                                                        <h:selectBooleanCheckbox id="editMonitorCallsAccess" value="#{userAdministrationBean.selectedUser.monitorCallsAccess}" />
+                                                        <h:outputLabel class="labelSpacer" for="editMonitorCallsAccess" value="Monitoração de Chamadas"/>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-4">
+                                                    <span style="white-space:nowrap">
+                                                        <h:selectBooleanCheckbox id="editMonitorFinanceAccess" value="#{userAdministrationBean.selectedUser.monitorFinanceAccess}" />
+                                                        <h:outputLabel class="labelSpacer" for="editMonitorFinanceAccess" value="Monitoração Financeira"/>
+                                                    </span>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-4">
+                                                    <span style="white-space:nowrap">
+                                                        <h:selectBooleanCheckbox id="editMonitorCallsErrorsAccess" value="#{userAdministrationBean.selectedUser.monitorCallsErrorsAccess}" />
+                                                        <h:outputLabel class="labelSpacer" for="editMonitorCallsErrorsAccess" value="Detalhamento de Erros"/>
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <br/>
+                                            <h3 style="margin-top:0px">Nível de Permissão - Consulta Chamadas</h3>
+
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-4">
+                                                    <span style="white-space:nowrap">
+                                                        <h:selectBooleanCheckbox id="editCountCallsAccess" value="#{userAdministrationBean.selectedUser.countCallsAccess}" />
+                                                        <h:outputLabel class="labelSpacer" for="editCountCallsAccess" value="Contar Chamadas"/>
+                                                    </span>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-4">
+                                                    <span style="white-space:nowrap">
+                                                        <h:selectBooleanCheckbox id="editConsultCallsAccess" value="#{userAdministrationBean.selectedUser.consultCallsAccess}" />
+                                                        <h:outputLabel class="labelSpacer" for="editConsultCallsAccess" value="Consultar Chamadas"/>
+                                                    </span>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-4">
+                                                    <span style="white-space:nowrap">
+                                                        <h:selectBooleanCheckbox id="editExportCallsAccess" value="#{userAdministrationBean.selectedUser.exportCallsAccess}" />
+                                                        <h:outputLabel class="labelSpacer" for="editExportCallsAccess" value="Exportar Chamadas"/>
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <br/>
+                                            <h3 style="margin-top:0px">Nível de Permissão - Relatórios</h3>
+
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-4">
+                                                    <span style="white-space:nowrap">
+                                                        <h:selectBooleanCheckbox id="editReportCallsAccess" value="#{userAdministrationBean.selectedUser.reportCallsAccess}" />
+                                                        <h:outputLabel class="labelSpacer" for="editReportCallsAccess" value="Relatórios Gráficos"/>
+                                                    </span>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-4">
+                                                    <span style="white-space:nowrap">
+                                                        <h:selectBooleanCheckbox id="editReportMenuAccess" value="#{userAdministrationBean.selectedUser.reportMenuAccess}" />
+                                                        <h:outputLabel class="labelSpacer" for="editReportMenuAccess" value="Relatórios Textuais"/>
+                                                    </span>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-4">
+                                                    <span style="white-space:nowrap">
+                                                        <h:selectBooleanCheckbox id="editReportFinanceAccess" value="#{userAdministrationBean.selectedUser.reportFinanceAccess}" />
+                                                        <h:outputLabel class="labelSpacer" for="editReportFinanceAccess" value="Relatórios Financeiros"/>
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <br/>
+                                            <h3 style="margin-top:0px">Nível de Permissão - Filtros</h3>
+
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-4">
+                                                    <span style="white-space:nowrap">
+                                                        <h:selectBooleanCheckbox id="editBussinessFilterAccess" value="#{userAdministrationBean.selectedUser.bussinessFilterAccess}" />
+                                                        <h:outputLabel class="labelSpacer" for="editBussinessFilterAccess" value="Filtro de Negócios"/>
+                                                    </span>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-4">
+                                                    <span style="white-space:nowrap">
+                                                        <h:selectBooleanCheckbox id="editNavigationFilterAccess" value="#{userAdministrationBean.selectedUser.navigationFilterAccess}" />
+                                                        <h:outputLabel class="labelSpacer" for="editNavigationFilterAccess" value="Filtro de Navegação"/>
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <br/>
+                                            <h3 style="margin-top:0px">Nível de Permissão - Administração</h3>
+
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-4">
+                                                    <span style="white-space:nowrap">
+                                                        <h:selectBooleanCheckbox disabled="#{!controleBean.user.systemAdministrationAccess}" id="editAdministrationViewAccess" value="#{userAdministrationBean.selectedUser.administrationViewAccess}" />
+                                                        <h:outputLabel class="labelSpacer" for="editAdministrationViewAccess" value="Visualização Administração"/>
+                                                    </span>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-4">
+                                                    <span style="white-space:nowrap">
+                                                        <h:selectBooleanCheckbox disabled="#{!controleBean.user.userAdministrationAccess}" id="editUserAdministrationAccess" value="#{userAdministrationBean.selectedUser.userAdministrationAccess}" />
+                                                        <h:outputLabel class="labelSpacer" for="editUserAdministrationAccess" value="Administração de Usuários"/>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </h:panelGroup>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal" id="modalButton">Fechar</button>
+                                    <h:commandButton class="btn btn-primary" value="Salvar" action="#{userAdministrationBean.updateUser()}"/>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal-dialog -->
+                    </div><!-- /.modal -->
+
+                </h:form>
+
+                <h:form id="deleteUserForm">
+
+                    <!--MODAL DELETE USER -->
+                    <div class="modal fade" id="modalDeleteUserViewer" tabindex="-1" role="dialog" aria-labelledby="modalDeleteUserViewerLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-vlarge">
+                            <div class="modal-content center center-block"  style="max-width: 396px;">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&#215;</button>
+                                    <h4 class="modal-title" id="modalFilterLabel">Deleção de Usuário</h4>
+                                </div>
+                                <h:panelGroup id="modalDeleteUserViewerDiv"  styleClass="modal-body" layout="block" >
+
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-12 col-md-12">
+                                            Confirma a deleção do Usuário <h:outputText value="#{userAdministrationBean.selectedUser.login}"/>?
+                                        </div>
+                                    </div>
+                                </h:panelGroup>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal" id="modalButton">Cancelar</button>
+                                    <h:commandButton class="btn btn-danger" value="Deletar" action="#{userAdministrationBean.deleteUser()}"/>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal-dialog -->
+                    </div><!-- /.modal -->
+
+                </h:form>
+
+            </div>
+
+            <h:outputScript library="bootstrap3" name="js/pages/UserAdministration.js"/>
+        </ui:define>
+    </ui:composition>
+</html>

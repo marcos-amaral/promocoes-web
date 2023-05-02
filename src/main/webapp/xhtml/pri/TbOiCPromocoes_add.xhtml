@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+
+    <!--Adicionar Promção-->
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="TB_REGIAO" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('TB_REGIAO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                <p:inputText id="addTB_REGIAO" placeholder="TB_REGIAO" required="#{tbOiCPromocoesBean.isObrigatorio('TB_REGIAO')}"  value="#{tbOiCPromocoesBean.newTemplate.tb_regiao}"/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="INCENTIVO1" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('INCENTIVO1')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                <p:inputText id="addINCENTIVO1" placeholder="INCENTIVO1" required="#{tbOiCPromocoesBean.isObrigatorio('INCENTIVO1')}"  value="#{tbOiCPromocoesBean.newTemplate.incentivo1}"/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="INCENTIVO2" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('INCENTIVO2')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                <p:inputText  id="addINCENTIVO2" placeholder="INCENTIVO2" required="#{tbOiCPromocoesBean.isObrigatorio('INCENTIVO2')}"  value="#{tbOiCPromocoesBean.newTemplate.incentivo2}"/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="OUTROSPLANOS" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('OUTROSPLANOS')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                <p:inputText  id="addOUTROSPLANOS" placeholder="OUTROSPLANOS" required="#{tbOiCPromocoesBean.isObrigatorio('OUTROSPLANOS')}"  value="#{tbOiCPromocoesBean.newTemplate.outrosplanos}"/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="OFFERCODE" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('OFFERCODE')?'background-color: khaki':''}" >
+                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                <p:inputText  id="addOFFERCODE" placeholder="OFFERCODE" required="#{tbOiCPromocoesBean.isObrigatorio('OFFERCODE')}"  value="#{tbOiCPromocoesBean.newTemplate.offercode}"/>      
+            </div>
+        </div>
+
+    </div>    
+    <div class="ui-g ui-fluid">
+
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <p:outputLabel value="TB_NOME_PROMOCAO" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('TB_NOME_PROMOCAO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                <p:inputText  id="addTB_NOME_PROMOCAO" placeholder="TB_NOME_PROMOCAO" required="#{tbOiCPromocoesBean.isObrigatorio('TB_NOME_PROMOCAO')}"  value="#{tbOiCPromocoesBean.newTemplate.tb_nome_promocao}"/>      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <p:outputLabel value="TB_TIPO_PROMO" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('TB_TIPO_PROMO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                <p:inputText id="addTB_TIPO_PROMO" placeholder="TB_TIPO_PROMO" required="#{tbOiCPromocoesBean.isObrigatorio('TB_TIPO_PROMO')}"  value="#{tbOiCPromocoesBean.newTemplate.tb_tipo_promo}"/>      
+            </div>
+        </div>
+
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="TB_PLANO" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('TB_PLANO')?'background-color: khaki':''}" >
+                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                <p:inputText  id="addTB_PLANO" placeholder="TB_PLANO" required="#{tbOiCPromocoesBean.isObrigatorio('TB_PLANO')}"  value="#{tbOiCPromocoesBean.newTemplate.tb_plano}"/>      
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="ui-g ui-fluid">
+
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="TB_TAXA_ADESAO" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('TB_TAXA_ADESAO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-wifi"></i></span>
+                <p:inputNumber id="addTB_TAXA_ADESAO" placeholder="TB_TAXA_ADESAO" required="#{tbOiCPromocoesBean.isObrigatorio('TB_TAXA_ADESAO')}" value="#{tbOiCPromocoesBean.newTemplate.tb_taxa_adesao}" decimalPlaces="2" thousandSeparator="" decimalSeparator="," decimalSeparatorAlternative="." symbol="R$" />      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="TB_QTD_TORP" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('TB_QTD_TORP')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-wifi"></i></span>
+                <p:inputNumber id="addTB_QTD_TORP" placeholder="TB_QTD_TORP" required="#{tbOiCPromocoesBean.isObrigatorio('TB_QTD_TORP')}" value="#{tbOiCPromocoesBean.newTemplate.tb_qtd_torp}" decimalPlaces="2" thousandSeparator="" decimalSeparator="," decimalSeparatorAlternative="." symbol="R$" />      
+            </div>
+        </div>
+
+
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="TB_BONUS_TORP" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('TB_BONUS_TORP')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-wifi"></i></span>
+                <p:inputNumber id="addTB_BONUS_TORP" placeholder="TB_BONUS_TORP" required="#{tbOiCPromocoesBean.isObrigatorio('TB_BONUS_TORP')}" value="#{tbOiCPromocoesBean.newTemplate.tb_bonus_torp}" decimalPlaces="2" thousandSeparator="" decimalSeparator="," decimalSeparatorAlternative="." symbol="R$" />      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+             <p:outputLabel value="TB_DT_INICIO_PROMO" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('TB_DT_INICIO_PROMO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                <p:inputMask id="addTB_DT_INICIO_PROMO" placeholder="TB_DT_INICIO_PROMO" required="#{tbOiCPromocoesBean.isObrigatorio('TB_DT_INICIO_PROMO')}" value="#{tbOiCPromocoesBean.newTemplate.tb_dt_inicio_promo}" mask="99/99/9999">
+                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                </p:inputMask>    
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+             <p:outputLabel value="TB_DT_FIM_PROMO" styleClass="field_label"/>
+            <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('TB_DT_FIM_PROMO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                <p:inputMask id="addTB_DT_FIM_PROMO" placeholder="TB_DT_FIM_PROMO" required="#{tbOiCPromocoesBean.isObrigatorio('TB_DT_FIM_PROMO')}" value="#{tbOiCPromocoesBean.newTemplate.tb_dt_fim_promo}" mask="99/99/9999">
+                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                </p:inputMask>         
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <div class="ui-g ui-fluid">
+
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="TB_TIPO_BONUS" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber"  style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('TB_TIPO_BONUS')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                <p:inputText  id="addTB_TIPO_BONUS" placeholder="TB_TIPO_BONUS" required="#{tbOiCPromocoesBean.isObrigatorio('TB_TIPO_BONUS')}" value="#{tbOiCPromocoesBean.newTemplate.tb_tipo_bonus}"/>      
+            </div>
+        </div>
+
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+             <p:outputLabel value="TB_FRANQUIA" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('TB_FRANQUIA')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                <p:inputNumber id="addTB_FRANQUIA" placeholder="TB_FRANQUIA" required="#{tbOiCPromocoesBean.isObrigatorio('TB_FRANQUIA')}" value="#{tbOiCPromocoesBean.newTemplate.tb_franquia}" decimalPlaces="2" thousandSeparator="" decimalSeparator="," decimalSeparatorAlternative="." symbol="R$" />      
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-2">
+            <p:outputLabel value="TB_BONUS" styleClass="field_label"/>
+            <div class="ui-inputgroup inputnumber" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('TB_BONUS')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-tag"></i></span>
+                <p:inputNumber id="addTB_BONUS" placeholder="TB_BONUS" required="#{tbOiCPromocoesBean.isObrigatorio('TB_BONUS')}" value="#{tbOiCPromocoesBean.newTemplate.tb_bonus}" decimalPlaces="2" thousandSeparator="" decimalSeparator="," decimalSeparatorAlternative="." symbol="R$" />      
+            </div>
+        </div>
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('TB_SN_BONUS_TORPEDO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                <p:selectBooleanButton required="#{tbOiCPromocoesBean.isObrigatorio('TB_SN_BONUS_TORPEDO')}" value="#{tbOiCPromocoesBean.newTemplate.tb_sn_bonus_torpedo}" onLabel="TB_SN_BONUS_TORPEDO" offLabel="TB_SN_BONUS_TORPEDO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('SN_OFERTA_SEM_FRANQUIA')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                <p:selectBooleanButton required="#{tbOiCPromocoesBean.isObrigatorio('SN_OFERTA_SEM_FRANQUIA')}" value="#{tbOiCPromocoesBean.newTemplate.sn_oferta_sem_franquia}" onLabel="SN_OFERTA_SEM_FRANQUIA" offLabel="SN_OFERTA_SEM_FRANQUIA" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('TB_LIGACAOOIMOVELFIXO_DADOS')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                <p:selectBooleanButton required="#{tbOiCPromocoesBean.isObrigatorio('TB_LIGACAOOIMOVELFIXO_DADOS')}" value="#{tbOiCPromocoesBean.newTemplate.tb_ligacaooimovelfixo_dados}" onLabel="TB_LIGACAOOIMOVELFIXO_DADOS" offLabel="TB_LIGACAOOIMOVELFIXO_DADOS" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('TB_BONUSLIGACAOMIX_DADOS')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                <p:selectBooleanButton required="#{tbOiCPromocoesBean.isObrigatorio('TB_BONUSLIGACAOMIX_DADOS')}" value="#{tbOiCPromocoesBean.newTemplate.tb_bonusligacaomix_dados}" onLabel="TB_BONUSLIGACAOMIX_DADOS" offLabel="TB_BONUSLIGACAOMIX_DADOS" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%"/>
+            </div>
+        </div>
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('TB_SN_ELEGIVEL_NOVA_PROMO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                <p:selectBooleanButton required="#{tbOiCPromocoesBean.isObrigatorio('TB_SN_ELEGIVEL_NOVA_PROMO')}" value="#{tbOiCPromocoesBean.newTemplate.tb_sn_elegivel_nova_promo}" onLabel="TB_SN_ELEGIVEL_NOVA_PROMO" offLabel="TB_SN_ELEGIVEL_NOVA_PROMO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%" />
+            </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-3">
+            <div class="ui-inputgroup" style="padding: 0.15em; #{tbOiCPromocoesBean.isObrigatorio('TB_USSD_CONVERTIDO')?'background-color: khaki':''}">
+                <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                <p:selectBooleanButton required="#{tbOiCPromocoesBean.isObrigatorio('TB_USSD_CONVERTIDO')}" value="#{tbOiCPromocoesBean.newTemplate.tb_ussd_convertido}" onLabel="TB_USSD_CONVERTIDO" offLabel="TB_USSD_CONVERTIDO" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%" />
+            </div>
+        </div>
+    </div>
+
+
+</ui:composition>

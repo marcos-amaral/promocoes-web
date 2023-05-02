@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-6 ui-lg-1">
+            <p:commandButton value="Adicionar" id="buttonAdd" oncomplete="PF('sidebarAdd').show()" actionListener="#{mBean.preLoadEditBean()}" update="sideBarAddId" disabled="#{!controleBean.canEdit() or mBean.expiredGmud != null}" styleClass="ui-priority-primary" icon="fa fa-plus"/>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-1">
+            <p:commandButton value="Editar" id="buttonEdit" oncomplete="PF('sidebarEdit').show()" actionListener="#{mBean.preLoadEditBean()}" update="sideBarEditId" disabled="#{mBean.selectedTemplateList.size() eq 0 or !controleBean.canEdit() or mBean.expiredGmud != null or !mBean.canEdit()}" styleClass="ui-priority-primary" icon="fa fa-edit"/>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-1">
+            <p:commandButton value="Excluir" id="buttonDel" oncomplete="PF('sidebarDelete').show()" actionListener="#{mBean.preLoadEditBean()}" update="sideBarDeleteId" styleClass="ui-priority-primary" disabled="#{mBean.selectedTemplateList.size() eq 0 or !controleBean.canEdit() or mBean.expiredGmud != null}" icon="fa fa-eraser"/>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-1">
+            <p:commandButton value="Histórico" id="buttonHist" oncomplete="hideLoader();PF('sidebarHistory').show()" update="formHistory:tabelaHistoryId" styleClass="ui-priority-primary" disabled="#{mBean.selectedTemplateList.size() eq 0 or mBean.selectedTemplateList.size() gt 1}" icon="fa fa-history"/>
+        </div>
+        <!--
+        <div class="ui-g-12 ui-md-6 ui-lg-1">
+            <p:commandButton value="Script" id="buttonScript" oncomplete="PF('sidebarScript').show()" styleClass="ui-priority-primary" icon="fa fa-file-code-o"/>
+        </div>
+        -->
+
+        <div class="ui-g-12 ui-md-6 ui-lg-1">
+            <p:splitButton  value="Adiar" id="buttonAdm" onclick="PF('newDtGmudDlg').show();" icon="fa fa-clock-o" disabled="#{mBean.defaultFilterValue eq 'PRODUCAO' or controleBean.isMarketing()}">
+                <p:menuitem value="Iniciar" onclick="PF('confirmDlgIniciar').show();" disabled="#{mBean.defaultFilterValue eq 'PRODUCAO' or !(mBean.expiredGmud == null and controleBean.canStart(mBean.aprovacaoFiltered)) or isTelaPrompt}"/>
+                <p:menuitem value="Validar" onclick="PF('confirmDlgValidar').show();" disabled="#{mBean.defaultFilterValue eq 'PRODUCAO' or !(mBean.expiredGmud == null and controleBean.canValidate(mBean.aprovacaoFiltered)) or isTelaPrompt}"/>
+                <p:menuitem value="Aprovar" onclick="PF('confirmDlgAprovar').show();" disabled="#{mBean.defaultFilterValue eq 'PRODUCAO' or !(mBean.expiredGmud == null and controleBean.canAprove(mBean.aprovacaoFiltered, isTelaPrompt))}"/>
+                <p:menuitem value="Liberar UAT" onclick="PF('confirmDlgUAT').show();" disabled="#{mBean.defaultFilterValue eq 'PRODUCAO' or !(mBean.expiredGmud == null and controleBean.canUAT(mBean.aprovacaoFiltered))or isTelaPrompt}"/>
+                <p:menuitem value="Liberar Implantação" onclick="PF('confirmDlgImplantacao').show();" disabled="#{mBean.defaultFilterValue eq 'PRODUCAO' or !(mBean.expiredGmud == null and controleBean.canReleaseDeployment(mBean.aprovacaoFiltered, isTelaPrompt))}"/>
+                <p:menuitem value="Implantar" onclick="PF('confirmDlg').show();" disabled="#{mBean.defaultFilterValue eq 'PRODUCAO' or !controleBean.canDeploy(mBean.aprovacaoFiltered)}"/>
+            </p:splitButton> 
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-4">
+            <h:outputLabel value="#{mBean.aprovacaoFiltered.status.tipo}" style="float: right; font-style: oblique; color: #fa392f"/>
+        </div>
+        <div class="ui-g-12 ui-md-6 ui-lg-3" style="float: right; padding-right: 50px;">
+            <h:outputLabel value="#{template_name}" style="float: right;"/>
+        </div>
+    </div>
+
+</ui:composition>

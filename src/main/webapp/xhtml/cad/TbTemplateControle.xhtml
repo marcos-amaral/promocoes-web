@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/xhtml/template/template.xhtml">
+
+
+    <ui:define name="conteudo">
+        <h:outputScript name="js/template.js" library="pages" />
+        <div id="loading"></div>
+        <p:growl id="messages" showDetail="true" />
+
+        <div class="container">
+            <h:form>
+                <ui:include src="/xhtml/template/ModalDialog.xhtml" />
+            </h:form>
+            
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12">
+                    <h:panelGroup id="panelAprovacao" style="visibility: #{tbTemplateControleBean.aprovacaoFiltered != null?'unset':'hidden'}">
+                        <i class="fa fa-check-circle-o" style="color: yellowgreen; font-size: 2em;"></i>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value=" GMUD status #{tbTemplateControleBean.aprovacaoFiltered.status.tipo} por #{tbTemplateControleBean.aprovacaoFiltered.user.name} em "/>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value="#{tbTemplateControleBean.aprovacaoFiltered.dt_aprovacao}">
+                            <f:convertDateTime timeStyle="short" type="both" dateStyle="full" locale="pt-BR" timeZone="GMT-03:00"/>
+                        </p:outputLabel>
+                    </h:panelGroup>
+                </div>
+            </div>
+
+            <h:form id="formButtons">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Adicionar" id="buttonAdd" oncomplete="PF('sidebarAdd').show()" actionListener="#{tbTemplateControleBean.preLoadEditBean()}" update="sideBarAddId" disabled="#{!controleBean.canEdit() or tbTemplateControleBean.expiredGmud != null}" styleClass="ui-priority-primary" icon="fa fa-plus"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Editar" id="buttonEdit" oncomplete="PF('sidebarEdit').show()" actionListener="#{tbTemplateControleBean.preLoadEditBean()}" update="sideBarEditId" disabled="#{tbTemplateControleBean.selectedTemplateList.size() eq 0 or !controleBean.canEdit() or tbTemplateControleBean.expiredGmud != null or !tbTemplateControleBean.canEdit()}" styleClass="ui-priority-primary" icon="fa fa-edit"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Excluir" id="buttonDel" oncomplete="PF('sidebarDelete').show()" actionListener="#{tbTemplateControleBean.preLoadEditBean()}" update="sideBarDeleteId" styleClass="ui-priority-primary" disabled="#{tbTemplateControleBean.selectedTemplateList.size() eq 0 or !controleBean.canEdit() or tbTemplateControleBean.expiredGmud != null}" icon="fa fa-eraser"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Histórico" id="buttonHist" oncomplete="hideLoader();PF('sidebarHistory').show()" update="formHistory:tabelaHistoryId" styleClass="ui-priority-primary" disabled="#{tbTemplateControleBean.selectedTemplateList.size() eq 0 or tbTemplateControleBean.selectedTemplateList.size() gt 1}" icon="fa fa-history"/>
+                    </div>
+                    <!--
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Script" id="buttonScript" oncomplete="PF('sidebarScript').show()" styleClass="ui-priority-primary" icon="fa fa-file-code-o"/>
+                    </div>
+                    -->
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:splitButton  value="Adiar" id="buttonAdm" onclick="PF('newDtGmudDlg').show();" icon="fa fa-clock-o" disabled="#{tbTemplateControleBean.defaultFilterValue eq 'PRODUCAO' or controleBean.isMarketing()}">
+                            <p:menuitem value="Iniciar" onclick="PF('confirmDlgIniciar').show();" disabled="#{tbTemplateControleBean.defaultFilterValue eq 'PRODUCAO' or !(tbTemplateControleBean.expiredGmud == null and controleBean.canStart(tbTemplateControleBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Validar" onclick="PF('confirmDlgValidar').show();" disabled="#{tbTemplateControleBean.defaultFilterValue eq 'PRODUCAO' or !(tbTemplateControleBean.expiredGmud == null and controleBean.canValidate(tbTemplateControleBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Aprovar" onclick="PF('confirmDlgAprovar').show();" disabled="#{tbTemplateControleBean.defaultFilterValue eq 'PRODUCAO' or !(tbTemplateControleBean.expiredGmud == null and controleBean.canAprove(tbTemplateControleBean.aprovacaoFiltered, false))}"/>
+                            <p:menuitem value="Liberar UAT" onclick="PF('confirmDlgUAT').show();" disabled="#{tbTemplateControleBean.defaultFilterValue eq 'PRODUCAO' or !(tbTemplateControleBean.expiredGmud == null and controleBean.canUAT(tbTemplateControleBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Liberar Implantação" onclick="PF('confirmDlgImplantacao').show();" disabled="#{tbTemplateControleBean.defaultFilterValue eq 'PRODUCAO' or !(tbTemplateControleBean.expiredGmud == null and controleBean.canReleaseDeployment(tbTemplateControleBean.aprovacaoFiltered, false))}"/>
+                            <p:menuitem value="Implantar" onclick="PF('confirmDlg').show();" disabled="#{tbTemplateControleBean.defaultFilterValue eq 'PRODUCAO' or !controleBean.canDeploy(tbTemplateControleBean.aprovacaoFiltered)}"/>
+                        </p:splitButton>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4">
+                        <h:outputLabel value="#{tbTemplateControleBean.aprovacaoFiltered.status.tipo}" style="float: right; font-style: oblique; color: #fa392f"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-3" style="float: right; padding-right: 50px;">
+                        <h:outputLabel value="TB_TEMPLATE_CONTROLE" style="float: right;"/>
+                    </div>
+                </div>
+            </h:form>
+
+            <!-- TABELA PRINCIPAL --> 
+            <h:panelGroup>
+                <h:form id="formTable">
+                    <p:dataTable
+                        id="tabelaId"
+                        value="#{tbTemplateControleBean.dataModel}"
+                        lazy="true"
+                        paginator="true"
+                        rows="50"
+                        paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        paginatorPosition="bottom"
+                        rowsPerPageTemplate="10,50,100"
+                        var="tabelaRow"
+                        widgetVar="tabelaCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="300"  
+                        editable="true" 
+                        editMode="cell" 
+                        selection="#{tbTemplateControleBean.selectedTemplateList}"
+                        rowKey="#{tabelaRow.id}"
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:ajax event="rowSelect" update="formButtons" />
+                        <p:ajax event="rowUnselect" update="formButtons" />
+                        <p:ajax event="toggleSelect" update="formButtons" />
+                        <p:ajax event="rowSelectCheckbox" update="formButtons" />
+                        <p:ajax event="rowUnselectCheckbox" update="formButtons" />
+
+                        <p:ajax event="filter" listener="#{tbTemplateControleBean.cleanSelected()}" update="panelAprovacao,formButtons"/>
+
+                        <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+
+                        <p:column headerText="GMUD" filterBy="#{tabelaRow.dtGmudStr}" filterMatchMode="exact" filterValue="#{tbTemplateControleBean.defaultFilterValue}" width="120" styleClass="#{tabelaRow.getStyleClass('GMUD')}">
+                            <f:facet name="filter">
+                                <p:selectOneMenu onchange="PF('tabelaCell').filter()" value="#{tbTemplateControleBean.defaultFilterValue}" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="PRODUÇÃO" itemValue="PRODUCAO"/>
+                                    <f:selectItems value="#{tbTemplateControleBean.gmudList}"/>
+                                </p:selectOneMenu>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.dtGmudStr}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="MODIFICADA" width="100" styleClass="#{tabelaRow.getStyleClass('MODIFICADA')}">
+                            <p:outputLabel value="#{tabelaRow.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy  HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100" styleClass="#{tabelaRow.getStyleClass('LOGIN')}">
+                            <p:outputLabel value="#{tabelaRow.user.login}"/>
+                        </p:column>
+                        
+                        <p:column headerText="DDD" filterBy="#{tabelaRow.ddd}"  filterFunction="#{genericFilter.filter}" width="100" styleClass="#{tabelaRow.getStyleClass('DDD')}">
+                            <p:outputLabel id="toolTipDDD" value="#{tabelaRow.ddd}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        
+                        <p:column headerText="OFFERCODE" filterBy="#{tabelaRow.offercode}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('OFFERCODE')}"><p:outputLabel value="#{tabelaRow.offercode}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="OFERTA_CADASTRO" filterBy="#{tabelaRow.oferta_cadastro}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('OFERTA_CADASTRO')}"><p:outputLabel value="#{tabelaRow.oferta_cadastro}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="OFERTA_CADASTRO_ESCOLHIDA" filterBy="#{tabelaRow.oferta_cadastro_escolhida}"  filterFunction="#{genericFilter.filter}" width="140" styleClass="#{tabelaRow.getStyleClass('OFERTA_CADASTRO_ESCOLHIDA')}"><p:outputLabel value="#{tabelaRow.oferta_cadastro_escolhida}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TX_ADESAO_BOLETO" filterBy="#{tabelaRow.tx_adesao_boleto}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('TX_ADESAO_BOLETO')}"><p:outputLabel value="#{tabelaRow.tx_adesao_boleto}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_FRANQUIA_OFERTA" filterBy="#{tabelaRow.tb_franquia_oferta}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('TB_FRANQUIA_OFERTA')}"><p:outputLabel value="#{tabelaRow.tb_franquia_oferta}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TIPO_PAGAMENTO" filterBy="#{tabelaRow.tipo_pagamento}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('TIPO_PAGAMENTO')}"><p:outputLabel value="#{tabelaRow.tipo_pagamento}" ondblclick="copyToClip($(this));"/></p:column>
+
+
+                    </p:dataTable>
+                </h:form>
+            </h:panelGroup>
+
+            <!-- ADICIONAR PROMOCAO -->
+            <p:sidebar id="sideBarAddId" widgetVar="sidebarAdd" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Adicionar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesAdd"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formAdd">
+                        <ui:include src="/xhtml/cad/TbTemplateControle_addIds.xhtml" /> 
+                            
+                        <ui:include src="/xhtml/cad/TbTemplateControle_add.xhtml" >
+                            <ui:param name="mBean" value="#{tbTemplateControleBean}" />
+                            <ui:param name="mBeanNew" value="#{tbTemplateControleBean.getNewTemplate()}" />
+                    </ui:include>
+                    
+                        <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarAdd').hide()"/>
+                        <p:commandButton value="Adicionar" validateClient="true" update="messages,messagesAdd" actionListener="#{tbTemplateControleBean.adicionar()}" onstart="showLoader();" oncomplete="hideLoader();"/>
+                        <p:selectBooleanCheckbox itemLabel="Adicionar outra" value="#{tbTemplateControleBean.adicionarOutra}" style="min-width: 140px"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- EDITAR PROMOCAO -->
+            <p:sidebar id="sideBarEditId" widgetVar="sidebarEdit" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Editar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesEdit"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formEdit">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-12">
+                            <p:scrollPanel style="width:100%;height:100px">
+                                <p:panelGrid columns="6">
+                                    <p:repeat value="#{tbTemplateControleBean.selectedTemplateList}" var="selectedConfigOfertasPreItem">
+                                        <p:button value="#{selectedConfigOfertasPreItem.idDdd}" disabled="true" style="margin: 2px;"/>
+                                    </p:repeat>
+                                </p:panelGrid>
+                            </p:scrollPanel>
+                        </div>
+                    </div>
+                    <h:panelGroup rendered="#{tbTemplateControleBean.isEditProd()}">
+                        <p:separator />
+                        <div class="ui-g ui-fluid">
+                            <div class="ui-g-12 ui-md-6 ui-lg-2">
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                    <p:calendar id="editDT_GMUD" placeholder="DT_GMUD" required="true" value="#{tbTemplateControleBean.editTemplate.dt_gmud}" mask="99/99/9999" showOn="button">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                    </p:calendar>
+                                    <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox value="true"/></span>
+                                </div>
+                            </div>
+                        </div>
+                        <p:separator />
+                    </h:panelGroup>
+                    <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="OFFERCODE" value="#{tbTemplateControleBean.editTemplate.offercode}"><p:ajax event="click" listener="#{tbTemplateControleBean.editTemplate.setEditOffercode(true)}" update="formEdit:checkeditOffercode"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditOffercode" value="#{tbTemplateControleBean.editTemplate.editOffercode}"/></span></div></div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="OFERTA_CADASTRO" value="#{tbTemplateControleBean.editTemplate.oferta_cadastro}"><p:ajax event="click" listener="#{tbTemplateControleBean.editTemplate.setEditOferta_cadastro(true)}" update="formEdit:checkeditOferta_cadastro"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditOferta_cadastro" value="#{tbTemplateControleBean.editTemplate.editOferta_cadastro}"/></span></div></div>
+                    
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="OFERTA_CADASTRO_ESCOLHIDA" value="#{tbTemplateControleBean.editTemplate.oferta_cadastro_escolhida}"><p:ajax event="click" listener="#{tbTemplateControleBean.editTemplate.setEditOferta_cadastro_escolhida(true)}" update="formEdit:checkeditOferta_cadastro_escolhida"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditOferta_cadastro_escolhida" value="#{tbTemplateControleBean.editTemplate.editOferta_cadastro_escolhida}"/></span></div></div>
+                    
+                     <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputMask placeholder="TX_ADESAO_BOLETO" value="#{tbTemplateControleBean.editTemplate.tx_adesao_boleto}" >
+                                    <p:ajax event="change" listener="#{tbTemplateControleBean.editTemplate.setEditTx_adesao_boleto(true)}" update="formEdit:checkeditTx_adesao_boleto"/>
+                                </p:inputMask>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTx_adesao_boleto" value="#{tbTemplateControleBean.editTemplate.editTx_adesao_boleto}"/></span>
+                            </div>
+                        </div>
+                      <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                                <p:inputMask placeholder="TB_FRANQUIA_OFERTA" value="#{tbTemplateControleBean.editTemplate.tb_franquia_oferta}" >
+                                    <p:ajax event="change" listener="#{tbTemplateControleBean.editTemplate.setEditTb_franquia_oferta(true)}" update="formEdit:checkeditTb_franquia_oferta"/>
+                                </p:inputMask>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_franquia_oferta" value="#{tbTemplateControleBean.editTemplate.editTb_franquia_oferta}"/></span>
+                            </div>
+                        </div>
+                    
+                    
+                    
+                    <div class="ui-g-12 ui-md-6 ui-lg-4">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                     <p:selectOneMenu 
+                        appendTo="@this"
+                        value="#{tbTemplateControleBean.editTemplate.tipo_pagamento}"
+                        required="#{mBean.isObrigatorio('TIPO_PAGAMENTO')}"
+                        label="TIPO_PAGAMENTO"
+                        >
+                    <f:selectItem itemLabel="" itemValue="" />
+                    <f:selectItem itemLabel="CREDITO" itemValue="CREDITO"/>
+                    <f:selectItem itemLabel="BOLETO" itemValue="BOLETO"/>
+     
+                    <p:ajax event="change" process="@this" listener="#{tbTemplateControleBean.editTemplate.setEditTipo_pagamento(true)}" update="formEdit:checkeditTipo_pagamento"/>
+                </p:selectOneMenu>                               
+                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTipo_pagamento" value="#{tbTemplateControleBean.editTemplate.editTipo_pagamento}"/>
+                
+                </span>
+                         
+                            
+                    </div>
+                    </div>
+                    </div>
+
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarEdit').hide()"/>
+                        <p:commandButton value="Confirmar" validateClient="true" actionListener="#{tbTemplateControleBean.editar()}" update="messages,messagesEdit,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="hideLoader();"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- HISTORICO PROMOCAO -->
+            <p:sidebar id="sideBarHistoryId" widgetVar="sidebarHistory" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Histórico</h1>
+                <p:separator />
+                <h:form id="formHistory">
+                    <p:dataTable
+                        id="tabelaHistoryId"
+                        value="#{tbTemplateControleBean.selectedTemplateHistoryList}"
+                        var="tabelaHistory"
+                        widgetVar="tabelaHistoryCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="370"  
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:column headerText="ÚLTIMO STATUS" width="100" groupRow="true">
+                            <p:outputLabel value="#{tabelaHistory.lastStatus}"/>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100">
+                            <p:outputLabel value="#{tabelaHistory.user.login}"/>
+                        </p:column>
+                        <p:column headerText="MODIFICADO" width="150">
+                            <p:outputLabel value="#{tabelaHistory.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00" />
+                            </p:outputLabel>
+                        </p:column>
+                        
+                        <p:column headerText="OFFERCODE" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('OFFERCODE',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.offercode}" rendered="#{tabelaHistory.editMap.getOrDefault('OFFERCODE',true)}"/></p:column>
+                        <p:column headerText="OFERTA_CADASTRO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('OFERTA_CADASTRO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.oferta_cadastro}" rendered="#{tabelaHistory.editMap.getOrDefault('OFERTA_CADASTRO',true)}"/></p:column>
+                        <p:column headerText="OFERTA_CADASTRO_ESCOLHIDA" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('OFERTA_CADASTRO_ESCOLHIDA',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.oferta_cadastro_escolhida}" rendered="#{tabelaHistory.editMap.getOrDefault('OFERTA_CADASTRO_ESCOLHIDA',true)}"/></p:column>
+                        <p:column headerText="TX_ADESAO_BOLETO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TX_ADESAO_BOLETO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tx_adesao_boleto}" rendered="#{tabelaHistory.editMap.getOrDefault('TX_ADESAO_BOLETO',true)}"/></p:column>
+                        <p:column headerText="TB_FRANQUIA_OFERTA" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_FRANQUIA_OFERTA',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_franquia_oferta}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_FRANQUIA_OFERTA',true)}"/></p:column>
+                        <p:column headerText="TIPO_PAGAMENTO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TIPO_PAGAMENTO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tipo_pagamento}" rendered="#{tabelaHistory.editMap.getOrDefault('TIPO_PAGAMENTO',true)}"/></p:column>
+
+                        
+                    </p:dataTable>
+                </h:form>
+            </p:sidebar>
+
+            <!-- DELETAR PROMOCAO -->
+            <p:sidebar id="sideBarDeleteId" widgetVar="sidebarDelete" position="top" baseZIndex="10000" style="overflow: auto;min-height: 160px;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Tem certeza?</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesDel"></p:messages>
+                    </div>
+                </div>
+                <p:separator />
+                <h:form id="formDel">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-3 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar id="delDT_GMUD" placeholder="DT_GMUD" required="true" value="#{tbTemplateControleBean.gmudToDelete}" disabled="#{tbTemplateControleBean.gmudToDelete != null}" mask="99/99/9999" pattern="dd/MM/yyyy" showOn="button">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                </p:calendar>
+                            </div>
+                        </div>
+                        <p:commandButton value="Sim" validateClient="true" actionListener="#{tbTemplateControleBean.deletar()}" onstart="showLoader();" oncomplete="hideLoader();" update="messages,messagesDel,formTable:tabelaId" icon="fa fa-check" />
+                        <p:commandButton value="Não" oncomplete="PF('sidebarDelete').hide()" icon="fa fa-times" />
+                    </div>
+                </h:form>
+            </p:sidebar>
+
+            <!-- SCRIPT PROMOCAO -->
+            <p:sidebar id="sideBarScriptId" widgetVar="sidebarScript" position="top" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Gerar Script</h1>
+                <h:form id="formScript">
+                    <p:separator />
+                    <p:commandButton value="USSD" ajax="false" actionListener="#{tbTemplateControleBean.generateScriptFile('USSD')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{tbTemplateControleBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                    <p:commandButton value="*880" ajax="false" actionListener="#{tbTemplateControleBean.generateScriptFile('880')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{tbTemplateControleBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                    <p:commandButton value="*144" ajax="false" actionListener="#{tbTemplateControleBean.generateScriptFile('144')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{tbTemplateControleBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                </h:form>
+            </p:sidebar>
+
+            <p:dialog id="expiredGmudDlgId" header="GMUD Expirada: #{tbTemplateControleBean.expiredGmud}" widgetVar="expiredGmudDlg" rendered="#{tbTemplateControleBean.expiredGmud != null and controleBean.canEdit()}" closable="false">
+                <h:form id="formExpired">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Essa GMUD expirou e suas alterações precisam ir para produção ou apenas adiada, antes de prosseguir com novas alterações.<br/>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-8">
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Adiar" onclick="PF('newDtGmudDlg').show();"/>
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Implantar" onclick="PF('confirmDlg').show();" style="float: right; display: #{controleBean.visibilityDeploy(tbTemplateControleBean.aprovacaoFiltered)}"/>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="newDtGmudDlg" showHeader="false" width="min-content" closable="false">
+                <h:form id="formNewDate">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            <p:datePicker id="inline" value="#{tbTemplateControleBean.newDtGmud}" locale="br" inline="true">
+                                <p:ajax event="dateSelect" listener="#{tbTemplateControleBean.adiar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist,expiredGmudDlgId" onstart="showLoader();" oncomplete="location.reload();"/>
+                            </p:datePicker>
+                            <div class="ui-g-6">
+                                <p:commandButton value="Cancelar" onclick="PF('newDtGmudDlg').hide();" icon="fa fa-times" />
+                            </div>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlg" header="Implantar GMUD" closable="false">
+                <h:form id="formConfirm">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Todas as alterações serão inseridas nos registros de produção!<br/>
+                            Confirmar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{tbTemplateControleBean.aprovar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlg').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgAprovar" header="Aprovar GMUD" closable="false">
+                <h:form id="formConfirmAprovar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Aprovar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{tbTemplateControleBean.aprovarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgAprovar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgIniciar" header="Iniciar GMUD" closable="false">
+                <h:form id="formConfirmIniciar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma o inicio da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{tbTemplateControleBean.iniciarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgIniciar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgIniciar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgValidar" header="Validar GMUD" closable="false">
+                <h:form id="formConfirmValidar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma a validação da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{tbTemplateControleBean.validarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgValidar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgValidar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgUAT" header="Enviar GMUD para UAT" closable="false">
+                <h:form id="formConfirmUAT">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para UAT?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{tbTemplateControleBean.uatGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgUAT').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgUAT').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgImplantacao" header="Enviar GMUD para Implantacao" closable="false">
+                <h:form id="formConfirmImplantacao">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para Implantacao?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{tbTemplateControleBean.implantarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgImplantacao').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgImplantacao').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+        </div>
+
+        <script  type="text/javascript" target="body">
+            $j = jQuery;
+            $j(document).ready(function () {
+                PF('tabelaCell').filter();
+                hideLoader();
+                try {
+                    PF('expiredGmudDlg').show();
+                } catch (e) {
+                }
+
+            });
+        </script>
+        <h:outputStylesheet name="css/template.css" library="pages" />
+    </ui:define>
+</ui:composition>

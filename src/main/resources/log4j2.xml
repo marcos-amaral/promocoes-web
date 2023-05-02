@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration package="com.oi" status="TRACE">
+    
+    <Properties>
+        <!-- Sets this values to 'false' and 'INFO' for production -->
+        <Property name="immediateFlushParameter" value="true"/>
+        <Property name="includeLocationParameter" value="true"/>
+        <Property name="defaultLoggerLevel" value="TRACE"/>
+        <!--
+            Set the following parameters based on the available disk space to be used with the application log.
+        -->
+        <Property name="pmax" value="20"/>
+        <Property name="psize" value="40 MB"/>
+    </Properties>
+    
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+        
+        <RollingRandomAccessFile immediateFlush="${immediateFlushParameter}" name="PromocoesWebFile" fileName="../PromocoesWeb/logs/PromocoesWeb.log" filePattern="../PromocoesWeb/logs/PromocoesWeb-%i.log.zip">
+            <PatternLayout>
+                <Pattern>%d{MM-dd HH:mm:ss.SSS}|[%-5level]|#%x|%t|%tp|%c{1}.%M(%L) - %msg%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="${psize}" />
+            </Policies>
+            <DefaultRolloverStrategy max="${pmax}" fileIndex="min" />
+        </RollingRandomAccessFile>
+    </Appenders>
+    
+    <Loggers>
+        <Logger name="br.com.oi" includeLocation="${includeLocationParameter}" level="${defaultLoggerLevel}" additivity="false">
+            <AppenderRef ref="PromocoesWebFile" />
+        </Logger>
+        <Logger name="com.oi" includeLocation="${includeLocationParameter}" level="${defaultLoggerLevel}" additivity="false">
+            <AppenderRef ref="PromocoesWebFile" />
+        </Logger>
+        <Logger name="com.contax" includeLocation="${includeLocationParameter}" level="${defaultLoggerLevel}" additivity="false">
+            <AppenderRef ref="PromocoesWebFile" />
+        </Logger>
+        <Root level="ERROR">
+            <AppenderRef ref="PromocoesWebFile" />
+        </Root>
+    </Loggers>
+</Configuration>

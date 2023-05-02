@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+    <p:tabView>
+        <p:tab title="USSD">
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                    <p:outputLabel value="PROMOPADRAO" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('PROMOPADRAO_USSD')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addPROMOPADRAO" placeholder="PROMOPADRAO_USSD" required="#{mBean.isObrigatorio('PROMOPADRAO_USSD')}" value="#{mBeanNew.promopadrao_ussd}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddPROMOPADRAO_USSD"/>      
+                    </div>
+                    <h:outputText id="caracAddPROMOPADRAO_USSD" />
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                    <p:outputLabel value="SEMRECARGA" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('SEMRECARGA_USSD')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addSEMRECARGA" placeholder="SEMRECARGA_USSD" required="#{mBean.isObrigatorio('SEMRECARGA_USSD')}" value="#{mBeanNew.semrecarga_ussd}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddSEMRECARGA_USSD"/>      
+                    </div>
+                    <h:outputText id="caracAddSEMRECARGA_USSD" />
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                    <p:outputLabel value="CHAMADA" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('CHAMADA_USSD')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addCHAMADA" placeholder="CHAMADA_USSD" required="#{mBean.isObrigatorio('CHAMADA_USSD')}" value="#{mBeanNew.chamada_ussd}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddCHAMADA_USSD"/>      
+                    </div>
+                    <h:outputText id="caracAddCHAMADA_USSD" />
+                </div>
+            </div>
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                    <p:outputLabel value="DETALHES" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('DETALHES_USSD')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addDETALHES" placeholder="DETALHES_USSD" required="#{mBean.isObrigatorio('DETALHES_USSD')}" value="#{mBeanNew.promopadrao_ussd}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddDETALHES_USSD"/>      
+                    </div>
+                    <h:outputText id="caracAddDETALHES_USSD" />
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                    <p:outputLabel value="RECARGA" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('RECARGA_USSD')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addRECARGA" placeholder="RECARGA_USSD" required="#{mBean.isObrigatorio('RECARGA_USSD')}" value="#{mBeanNew.recarga_ussd}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddRECARGA_USSD"/>      
+                    </div>
+                    <h:outputText id="caracAddRECARGA_USSD" />
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                    <p:outputLabel value="VALIDADE" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('VALIDADE_USSD')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addVALIDADE" placeholder="VALIDADE_USSD" required="#{mBean.isObrigatorio('VALIDADE_USSD')}" value="#{mBeanNew.validade_ussd}" cols="120" rows="4" maxlength="123" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddVALIDADE_USSD"/>      
+                    </div>
+                    <h:outputText id="caracAddVALIDADE_USSD" />
+                </div>
+            </div>
+            <div class="ui-g ui-fluid">   
+                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                    <p:outputLabel value="INCENTIVO_OFERTA_PRE" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('INCENTIVO_OFERTA_PRE_USSD')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addINCENTIVO_OFERTA_PRE" placeholder="INCENTIVO_OFERTA_PRE_USSD" required="#{mBean.isObrigatorio('INCENTIVO_OFERTA_PRE_USSD')}" value="#{mBeanNew.incentivo_oferta_pre_ussd}" cols="120" rows="4" maxlength="50" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddINCENTIVO_OFERTA_PRE_USSD"/>      
+                    </div>
+                    <h:outputText id="caracAddINCENTIVO_OFERTA_PRE_USSD" />
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                    <p:outputLabel value="FALLBACK" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('FALLBACK_USSD')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addFALLBACK" placeholder="FALLBACK_USSD" required="#{mBean.isObrigatorio('FALLBACK_USSD')}" value="#{mBeanNew.fallback_ussd}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddFALLBACK_USSD"/>      
+                    </div>
+                    <h:outputText id="caracAddFALLBACK_USSD" />
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                    <p:outputLabel value="SVA" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('SVA_USSD')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addSVA" placeholder="SVA_USSD" required="#{mBean.isObrigatorio('SVA_USSD')}" value="#{mBeanNew.sva_ussd}" cols="120" rows="4" maxlength="118" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddSVA_USSD"/>      
+                    </div>
+                    <h:outputText id="caracAddSVA_USSD" />
+                </div>
+            </div> 
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                    <p:outputLabel value="NAOCLIENTE_INFORMAPROMO" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('NAOCLIENTE_INFORMAPROMO_USSD')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addNAOCLIENTE_INFORMAPROMO" placeholder="NAOCLIENTE_INFORMAPROMO_USSD" required="#{mBean.isObrigatorio('NAOCLIENTE_INFORMAPROMO_USSD')}" value="#{mBeanNew.naocliente_informapromo_ussd}" cols="120" rows="4" maxlength="116" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddNAOCLIENTE_INFORMAPROMO_USSD"/>      
+                    </div>
+                    <h:outputText id="caracAddNAOCLIENTE_INFORMAPROMO_USSD" />
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                    <p:outputLabel value="INFORMASALDOPROMO" styleClass="field_label"/>
+                    <div class="ui-inputgroup">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addINFORMASALDOPROMO" placeholder="INFORMASALDOPROMO_USSD" required="#{mBean.isObrigatorio('INFORMASALDOPROMO_USSD')}" value="#{mBeanNew.informasaldopromo_ussd}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddINFORMASALDOPROMO_USSD"/>
+                    </div>
+                    <h:outputText id="caracAddINFORMASALDOPROMO_USSD" />
+                </div>
+            </div>
+        </p:tab>
+        <p:tab title="144/880">
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                    <p:outputLabel value="PROMOPADRAO" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('PROMOPADRAO_144')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addPROMOPADRAO_144" placeholder="PROMOPADRAO" required="#{mBean.isObrigatorio('PROMOPADRAO_144')}" value="#{mBeanNew.promopadrao_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddPROMOPADRAO_144"/>      
+                    </div>
+                    <h:outputText id="caracAddPROMOPADRAO_144" />
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                    <p:outputLabel value="SEMRECARGA" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('SEMRECARGA_144')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addSEMRECARGA_144" placeholder="SEMRECARGA" required="#{mBean.isObrigatorio('SEMRECARGA_144')}" value="#{mBeanNew.semrecarga_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddSEMRECARGA_144"/>      
+                    </div>
+                    <h:outputText id="caracAddSEMRECARGA_144" />
+                </div>
+            </div>
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                    <p:outputLabel value="CHAMADA" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('CHAMADA_144')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addCHAMADA_144" placeholder="CHAMADA" required="#{mBean.isObrigatorio('CHAMADA_144')}" value="#{mBeanNew.chamada_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddCHAMADA_144"/>      
+                    </div>
+                    <h:outputText id="caracAddCHAMADA_144" />
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                    <p:outputLabel value="DETALHES" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('DETALHES_144')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addDETALHES_144" placeholder="DETALHES" required="#{mBean.isObrigatorio('DETALHES_144')}" value="#{mBeanNew.detalhes_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddDETALHES_144"/>      
+                    </div>
+                    <h:outputText id="caracAddDETALHES_144" />
+                </div>
+            </div>
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                    <p:outputLabel value="RECARGA" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('RECARGA_144')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addRECARGA_144" placeholder="RECARGA" required="#{mBean.isObrigatorio('RECARGA_144')}" value="#{mBeanNew.recarga_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddRECARGA_144"/>      
+                    </div>
+                    <h:outputText id="caracAddRECARGA_144" />
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                    <p:outputLabel value="VALIDADE" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('VALIDADE_144')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addVALIDADE_144" placeholder="VALIDADE" required="#{mBean.isObrigatorio('VALIDADE_144')}" value="#{mBeanNew.validade_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddVALIDADE_144"/>      
+                    </div>
+                    <h:outputText id="caracAddVALIDADE_144" />
+                </div>
+            </div>
+            <div class="ui-g ui-fluid">   
+                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                    <p:outputLabel value="CONTINGENCIA" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('CONTINGENCIA_144')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addCONTINGENCIA_144" placeholder="CONTINGENCIA" required="#{mBean.isObrigatorio('CONTINGENCIA_144')}"  value="#{mBeanNew.contingencia_144}" cols="180" rows="8" maxlength="4000" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddCONTINGENCIA_144"/>      
+                    </div>
+                    <h:outputText id="caracAddCONTINGENCIA_144" />
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                    <p:outputLabel value="INCENTIVO_OFERTA_PRE" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('INCENTIVO_OFERTA_PRE_144')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addINCENTIVO_OFERTA_PRE_144" placeholder="INCENTIVO_OFERTA_PRE" required="#{mBean.isObrigatorio('INCENTIVO_OFERTA_PRE_144')}" value="#{mBeanNew.incentivo_oferta_pre_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddINCENTIVO_OFERTA_PRE_144"/>      
+                    </div>
+                    <h:outputText id="caracAddINCENTIVO_OFERTA_PRE_144" />
+                </div>
+            </div> 
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                    <p:outputLabel value="FALLBACK" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('FALLBACK_144')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea  id="addFALLBACK_144" placeholder="FALLBACK" required="#{mBean.isObrigatorio('FALLBACK_144')}" value="#{mBeanNew.fallback_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddFALLBACK_144"/>      
+                    </div>
+                    <h:outputText id="caracAddFALLBACK_144" />
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                    <p:outputLabel value="SVA" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('SVA_144')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addSVA_144" placeholder="SVA" required="#{mBean.isObrigatorio('SVA_144')}" value="#{mBeanNew.sva_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddSVA_144"/>      
+                    </div>
+                    <h:outputText id="caracAddSVA_144" />
+                </div>
+            </div>
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                    <p:outputLabel value="NAOCLIENTE_INFORMAPROMO" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('NAOCLIENTE_INFORMAPROMO_144')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addNAOCLIENTE_INFORMAPROMO_144" placeholder="NAOCLIENTE_INFORMAPROMO" required="#{mBean.isObrigatorio('NAOCLIENTE_INFORMAPROMO_144')}" value="#{mBeanNew.naocliente_informapromo_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddNAOCLIENTE_INFORMAPROMO_144"/>      
+                    </div>
+                    <h:outputText id="caracAddNAOCLIENTE_INFORMAPROMO_144" />
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                    <p:outputLabel value="NAOCLIENTE_VALIDADE" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('NAOCLIENTE_VALIDADE_144')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addNAOCLIENTE_VALIDADE_144" placeholder="NAOCLIENTE_VALIDADE" required="#{mBean.isObrigatorio('NAOCLIENTE_VALIDADE_144')}" value="#{mBeanNew.naocliente_validade_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddNAOCLIENTE_VALIDADE_144"/>      
+                    </div>
+                    <h:outputText id="caracAddNAOCLIENTE_VALIDADE_144" />
+                </div>
+            </div>
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                    <p:outputLabel value="NAOCLIENTE_REGRAS" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('NAOCLIENTE_REGRAS_144')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea  id="addNAOCLIENTE_REGRAS_144" placeholder="NAOCLIENTE_REGRAS" required="#{mBean.isObrigatorio('NAOCLIENTE_REGRAS_144')}" value="#{mBeanNew.regras_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddREGRAS_144"/>      
+                    </div>
+                    <h:outputText id="caracAddREGRAS_144" />
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                    <p:outputLabel value="NAOCLIENTE_RECARGA" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('NAOCLIENTE_RECARGA_144')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea  id="addNAOCLIENTE_RECARGA_144" placeholder="NAOCLIENTE_RECARGA" required="#{mBean.isObrigatorio('NAOCLIENTE_RECARGA_144')}" value="#{mBeanNew.naocliente_recarga_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddNAOCLIENTE_RECARGA_144"/>      
+                    </div>
+                    <h:outputText id="caracAddNAOCLIENTE_RECARGA_144" />
+                </div>
+            </div>
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                    <p:outputLabel value="INFORMASALDOPROMO" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('INFORMASALDOPROMO_144')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addINFORMASALDOPROMO_144" placeholder="INFORMASALDOPROMO" required="#{mBean.isObrigatorio('INFORMASALDOPROMO_144')}" value="#{mBeanNew.informasaldopromo_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddINFORMASALDOPROMO_144"/>      
+                    </div>
+                    <h:outputText id="caracAddINFORMASALDOPROMO_144" />
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                    <p:outputLabel value="OFERTAMIGRADOS" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTAMIGRADOS_144')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputTextarea id="addOFERTAMIGRADOS_144" placeholder="OFERTAMIGRADOS" required="#{mBean.isObrigatorio('OFERTAMIGRADOS_144')}" value="#{mBeanNew.ofertamigrados_144}" cols="180" rows="8" maxlength="2500" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracAddOFERTAMIGRADOS_144"/>      
+                    </div>
+                    <h:outputText id="caracAddOFERTAMIGRADOS_144" />
+                </div>
+            </div>
+        </p:tab>
+    </p:tabView>
+
+</ui:composition>

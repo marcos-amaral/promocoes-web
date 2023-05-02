@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pretty-config 
+    xmlns="http://ocpsoft.org/schema/rewrite-config-prettyfaces" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://ocpsoft.org/schema/rewrite-config-prettyfaces
+                      http://ocpsoft.org/xml/ns/prettyfaces/rewrite-config-prettyfaces.xsd">
+
+    <!-- LOGIN -->
+    <url-mapping id="">
+        <pattern value="/" />
+        <view-id value="/xhtml/login.jsf" />
+    </url-mapping>
+    <url-mapping id="Login">
+        <pattern value="/Login/" />
+        <view-id value="/xhtml/login.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="Welcome">
+        <pattern value="/Welcome/" />
+        <view-id value="/xhtml/Welcome.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="Importar">
+        <pattern value="/Importar/" />
+        <view-id value="/xhtml/Importar.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="ConfigOfertasPre">
+        <pattern value="/ConfigOfertasPre/" />
+        <view-id value="/xhtml/ocs/ConfigOfertasPre.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="PromptsOfertasPre">
+        <pattern value="/PromptsOfertasPre/" />
+        <view-id value="/xhtml/ocs/PromptsOfertasPre.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="FraseologiasOfertasPre">
+        <pattern value="/FraseologiasOfertasPre/" />
+        <view-id value="/xhtml/ocs/FraseologiasOfertasPre.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="IncentivoOfertasPre">
+        <pattern value="/IncentivoOfertasPre/" />
+        <view-id value="/xhtml/ocs/IncentivoOfertasPre.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="VoCartao">
+        <pattern value="/VoCartao/" />
+        <view-id value="/xhtml/sec/VoCartao.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="BoCartao">
+        <pattern value="/BoCartao/" />
+        <view-id value="/xhtml/sec/BoCartao.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="FrasesCartao">
+        <pattern value="/FrasesCartao/" />
+        <view-id value="/xhtml/sec/FrasesCartao.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="IoCartaoCartao">
+        <pattern value="/IoCartaoCartao/" />
+        <view-id value="/xhtml/sec/IoCartaoCartao.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="IoCartaoControle">
+        <pattern value="/IoCartaoControle/" />
+        <view-id value="/xhtml/sec/IoCartaoControle.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="PromocoesCartao">
+        <pattern value="/PromocoesCartao/" />
+        <view-id value="/xhtml/pri/PromocoesCartao.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="CartaoMenu">
+        <pattern value="/CartaoMenu/" />
+        <view-id value="/xhtml/pri/CartaoMenu.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="PromptCartaoMenu">
+        <pattern value="/PromptCartaoMenu/" />
+        <view-id value="/xhtml/pri/PromptCartaoMenu.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="Prompts">
+        <pattern value="/Prompts/" />
+        <view-id value="/xhtml/prompts/Prompts.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="CadTemplatePreOcs">
+        <pattern value="/CadTemplatePreOcs/" />
+        <view-id value="/xhtml/cad/CadTemplatePreOcs.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="CadFrasePreOcs">
+        <pattern value="/CadFrasePreOcs/" />
+        <view-id value="/xhtml/cad/CadFrasePreOcs.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="CadTemplatePre">
+        <pattern value="/CadTemplatePre/" />
+        <view-id value="/xhtml/cad/CadTemplatePre.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="CadFrasePre">
+        <pattern value="/CadFrasePre/" />
+        <view-id value="/xhtml/cad/CadFrasePre.jsf" />
+        <redirect/>
+    </url-mapping>
+    <url-mapping id="VoControle">
+        <pattern value="/VoControle/" />
+        <view-id value="/xhtml/sec/VoControle.jsf" />
+        <redirect/>
+    </url-mapping>
+</pretty-config>

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/xhtml/template/template.xhtml">
+
+
+    <ui:define name="conteudo">
+        <h:outputScript name="js/template.js" library="pages" />
+        <div id="loading"></div>
+        <p:growl id="messages" showDetail="true" />
+
+        <div class="container">
+            
+            <h:form>
+                <ui:include src="/xhtml/template/ModalDialog.xhtml" />
+            </h:form>
+            
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12">
+                    <h:panelGroup id="panelAprovacao" style="visibility: #{promptControleMenuBean.aprovacaoFiltered != null?'unset':'hidden'}">
+                        <i class="fa fa-check-circle-o" style="color: yellowgreen; font-size: 2em;"></i>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value=" GMUD status #{promptControleMenuBean.aprovacaoFiltered.status.tipo} por #{promptControleMenuBean.aprovacaoFiltered.user.name} em "/>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value="#{promptControleMenuBean.aprovacaoFiltered.dt_aprovacao}">
+                            <f:convertDateTime timeStyle="short" type="both" dateStyle="full" locale="pt-BR" timeZone="GMT-03:00"/>
+                        </p:outputLabel>
+                    </h:panelGroup>
+                </div>
+            </div>
+
+            <h:form id="formButtons">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Adicionar" id="buttonAdd" oncomplete="PF('sidebarAdd').show()" actionListener="#{promptControleMenuBean.preLoadEditBean()}" update="sideBarAddId" disabled="#{!controleBean.canEdit() or promptControleMenuBean.expiredGmud != null}" styleClass="ui-priority-primary" icon="fa fa-plus"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Editar" id="buttonEdit" oncomplete="PF('sidebarEdit').show()" actionListener="#{promptControleMenuBean.preLoadEditBean()}" update="sideBarEditId" disabled="#{promptControleMenuBean.selectedTemplateList.size() eq 0 or !controleBean.canEdit() or promptControleMenuBean.expiredGmud != null or !promptControleMenuBean.canEdit()}" styleClass="ui-priority-primary" icon="fa fa-edit"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Excluir" id="buttonDel" oncomplete="PF('sidebarDelete').show()" actionListener="#{promptControleMenuBean.preLoadEditBean()}" update="sideBarDeleteId" styleClass="ui-priority-primary" disabled="#{promptControleMenuBean.selectedTemplateList.size() eq 0 or !controleBean.canEdit() or promptControleMenuBean.expiredGmud != null}" icon="fa fa-eraser"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Histórico" id="buttonHist" oncomplete="hideLoader();PF('sidebarHistory').show()" update="formHistory:tabelaHistoryId" styleClass="ui-priority-primary" disabled="#{promptControleMenuBean.selectedTemplateList.size() eq 0 or promptControleMenuBean.selectedTemplateList.size() gt 1}" icon="fa fa-history"/>
+                    </div>
+                    <!--
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Script" id="buttonScript" oncomplete="PF('sidebarScript').show()" styleClass="ui-priority-primary" icon="fa fa-file-code-o"/>
+                    </div>
+                    -->
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:splitButton  value="Adiar" id="buttonAdm" onclick="PF('newDtGmudDlg').show();" icon="fa fa-clock-o" disabled="#{promptControleMenuBean.defaultFilterValue eq 'PRODUCAO' or controleBean.isMarketing()}">
+                            <p:menuitem value="Aprovar" onclick="PF('confirmDlgAprovar').show();" disabled="#{promptControleMenuBean.defaultFilterValue eq 'PRODUCAO' or !(promptControleMenuBean.expiredGmud == null and controleBean.canAprove(promptControleMenuBean.aprovacaoFiltered, true))}"/>
+                            <p:menuitem value="Liberar Implantação" onclick="PF('confirmDlgImplantacao').show();" disabled="#{promptControleMenuBean.defaultFilterValue eq 'PRODUCAO' or !(promptControleMenuBean.expiredGmud == null and controleBean.canReleaseDeployment(promptControleMenuBean.aprovacaoFiltered, true))}"/>
+                            <p:menuitem value="Implantar" onclick="PF('confirmDlg').show();" disabled="#{promptControleMenuBean.defaultFilterValue eq 'PRODUCAO' or !controleBean.canDeploy(promptControleMenuBean.aprovacaoFiltered)}"/>
+                        </p:splitButton>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4">
+                        <h:outputLabel value="#{promptControleMenuBean.aprovacaoFiltered.status.tipo}" style="float: right; font-style: oblique; color: #fa392f"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-3" style="float: right; padding-right: 50px;">
+                        <h:outputLabel value="PROMPT_CONTROLEMENU" style="float: right;"/>
+                    </div>
+                </div>
+            </h:form>
+
+            <!-- TABELA PRINCIPAL --> 
+            <h:panelGroup>
+                <h:form id="formTable">
+                    <p:dataTable
+                        id="tabelaId"
+                        value="#{promptControleMenuBean.dataModel}"
+                        lazy="true"
+                        paginator="true"
+                        rows="50"
+                        paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        paginatorPosition="bottom"
+                        rowsPerPageTemplate="10,50,100"
+                        var="tabelaRow"
+                        widgetVar="tabelaCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="300"  
+                        editable="true" 
+                        editMode="cell" 
+                        selection="#{promptControleMenuBean.selectedTemplateList}"
+                        rowKey="#{tabelaRow.id}"
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:ajax event="rowSelect" update="formButtons" />
+                        <p:ajax event="rowUnselect" update="formButtons" />
+                        <p:ajax event="toggleSelect" update="formButtons" />
+                        <p:ajax event="rowSelectCheckbox" update="formButtons" />
+                        <p:ajax event="rowUnselectCheckbox" update="formButtons" />
+
+                        <p:ajax event="filter" listener="#{promptControleMenuBean.cleanSelected()}" update="panelAprovacao,formButtons"/>
+
+                        <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+
+                        <p:column headerText="GMUD" filterBy="#{tabelaRow.dtGmudStr}" filterMatchMode="exact" filterValue="#{promptControleMenuBean.defaultFilterValue}" width="120" styleClass="#{tabelaRow.getStyleClass('GMUD')}">
+                            <f:facet name="filter">
+                                <p:selectOneMenu onchange="PF('tabelaCell').filter()" value="#{promptControleMenuBean.defaultFilterValue}" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="PRODUÇÃO" itemValue="PRODUCAO"/>
+                                    <f:selectItems value="#{promptControleMenuBean.gmudList}"/>
+                                </p:selectOneMenu>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.dtGmudStr}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="MODIFICADA" width="100" styleClass="#{tabelaRow.getStyleClass('MODIFICADA')}">
+                            <p:outputLabel value="#{tabelaRow.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy  HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100" styleClass="#{tabelaRow.getStyleClass('LOGIN')}">
+                            <p:outputLabel value="#{tabelaRow.user.login}"/>
+                        </p:column>
+                        
+                        <p:column headerText="TB_DDD" filterBy="#{tabelaRow.tb_ddd}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_DDD')}">
+                            <p:outputLabel id="dddId" value="#{tabelaRow.tb_ddd}" ondblclick="copyToClip($(this));"/>
+                            <p:tooltip id="toolTipDDD" for="dddId" value="#{tabelaRow.tb_ddd}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+                        </p:column>
+
+                        <p:column headerText="TB_ID_BENEFICIO" filterBy="#{tabelaRow.tb_id_beneficio}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_ID_BENEFICIO')}"><p:outputLabel value="#{tabelaRow.tb_id_beneficio}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_ID_PROGRAMA" filterBy="#{tabelaRow.tb_id_programa}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_ID_PROGRAMA')}"><p:outputLabel value="#{tabelaRow.tb_id_programa}" ondblclick="copyToClip($(this));"/></p:column>
+
+                        <p:column headerText="PROMOPADRAO_MENSAGEMINICIAL" filterBy="#{tabelaRow.promopadrao_mensageminicial}"  filterFunction="#{genericFilter.filter}" width="180" styleClass="#{tabelaRow.getStyleClass('PROMOPADRAO_MENSAGEMINICIAL')}"><p:outputLabel value="#{tabelaRow.promopadrao_mensageminicial}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="PROMOPADRAO_REGRATORPEDO" filterBy="#{tabelaRow.promopadrao_regratorpedo}"  filterFunction="#{genericFilter.filter}" width="180" styleClass="#{tabelaRow.getStyleClass('PROMOPADRAO_REGRATORPEDO')}"><p:outputLabel value="#{tabelaRow.promopadrao_regratorpedo}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="PROMOPADRAO_REGRALIGACAO" filterBy="#{tabelaRow.promopadrao_regraligacao}"  filterFunction="#{genericFilter.filter}" width="160" styleClass="#{tabelaRow.getStyleClass('PROMOPADRAO_REGRALIGACAO')}"><p:outputLabel value="#{tabelaRow.promopadrao_regraligacao}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="PROMOPADRAO_COMOUSAR" filterBy="#{tabelaRow.promopadrao_comousar}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('PROMOPADRAO_COMOUSAR')}"><p:outputLabel value="#{tabelaRow.promopadrao_comousar}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="PROMOPADRAO_DADOS" filterBy="#{tabelaRow.promopadrao_dados}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('PROMOPADRAO_DADOS')}"><p:outputLabel value="#{tabelaRow.promopadrao_dados}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="INFORMAPROMO_MENSAGEMINICIAL" filterBy="#{tabelaRow.informapromo_mensageminicial}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('INFORMAPROMO_MENSAGEMINICIAL')}"><p:outputLabel value="#{tabelaRow.informapromo_mensageminicial}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="INFORMAPROMO_REGRATORPEDO" filterBy="#{tabelaRow.informapromo_regratorpedo}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('INFORMAPROMO_REGRATORPEDO')}"><p:outputLabel value="#{tabelaRow.informapromo_regratorpedo}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="INFORMAPROMO_REGRALIGACAO" filterBy="#{tabelaRow.informapromo_regraligacao}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('INFORMAPROMO_REGRALIGACAO')}"><p:outputLabel value="#{tabelaRow.informapromo_regraligacao}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="INFORMAPROMO_COMOUSAR" filterBy="#{tabelaRow.informapromo_comousar}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('INFORMAPROMO_COMOUSAR')}"><p:outputLabel value="#{tabelaRow.informapromo_comousar}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="INFORMAPROMO_VALIDADEPROMO" filterBy="#{tabelaRow.informapromo_validadepromo}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('INFORMAPROMO_VALIDADEPROMO')}"><p:outputLabel value="#{tabelaRow.informapromo_validadepromo}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="INFORMAPROMO_DADOS" filterBy="#{tabelaRow.informapromo_dados}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('INFORMAPROMO_DADOS')}"><p:outputLabel value="#{tabelaRow.informapromo_dados}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="OUTROSPLANOS_INFORMAPROMOOICONTROLE" filterBy="#{tabelaRow.outrosplanos_informapromooicontrole}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('OUTROSPLANOS_INFORMAPROMOOICONTROLE')}"><p:outputLabel value="#{tabelaRow.outrosplanos_informapromooicontrole}" ondblclick="copyToClip($(this));"/></p:column>
+
+
+                    </p:dataTable>
+                </h:form>
+            </h:panelGroup>
+
+            <!-- ADICIONAR PROMOCAO -->
+            <p:sidebar id="sideBarAddId" widgetVar="sidebarAdd" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Adicionar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesAdd"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formAdd">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar id="addDT_GMUD" placeholder="DT_GMUD" required="true" value="#{promptControleMenuBean.newTemplate.dt_gmud}" mask="99/99/9999" mindate="#{promptControleMenuBean.today}" showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00" >
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                                </p:calendar>    
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputMask id="addTB_ID_BENEFICIO" placeholder="TB_ID_BENEFICIO" required="true" value="#{promptControleMenuBean.newTemplate.tb_id_beneficio}" mask="999"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputMask id="addTB_ID_PROGRAMA" placeholder="TB_ID_PROGRAMA" required="true" value="#{promptControleMenuBean.newTemplate.tb_id_programa}" mask="999"/>      
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                                <p:inputText id="addTB_DDD" placeholder="TB_DDD" required="true" value="#{promptControleMenuBean.newTemplate.tb_ddd}"/>
+                            </div>
+                        </div>
+                    </div>
+                    <p:separator />
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-2"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span><p:inputText placeholder="PROMOPADRAO_MENSAGEMINICIAL" value="#{promptControleMenuBean.newTemplate.promopadrao_mensageminicial}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span><p:inputText placeholder="PROMOPADRAO_REGRATORPEDO" value="#{promptControleMenuBean.newTemplate.promopadrao_regratorpedo}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span><p:inputText placeholder="PROMOPADRAO_REGRALIGACAO" value="#{promptControleMenuBean.newTemplate.promopadrao_regraligacao}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span><p:inputText placeholder="PROMOPADRAO_COMOUSAR" value="#{promptControleMenuBean.newTemplate.promopadrao_comousar}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span><p:inputText placeholder="PROMOPADRAO_DADOS" value="#{promptControleMenuBean.newTemplate.promopadrao_dados}" /></div></div>
+
+
+                    </div>    
+                    <div class="ui-g ui-fluid">
+
+                        <div class="ui-g-12 ui-md-6 ui-lg-2"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span><p:inputText placeholder="INFORMAPROMO_MENSAGEMINICIAL" value="#{promptControleMenuBean.newTemplate.informapromo_mensageminicial}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span><p:inputText placeholder="INFORMAPROMO_REGRATORPEDO" value="#{promptControleMenuBean.newTemplate.informapromo_regratorpedo}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span><p:inputText placeholder="INFORMAPROMO_REGRALIGACAO" value="#{promptControleMenuBean.newTemplate.informapromo_regraligacao}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span><p:inputText placeholder="INFORMAPROMO_COMOUSAR" value="#{promptControleMenuBean.newTemplate.informapromo_comousar}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span><p:inputText placeholder="INFORMAPROMO_VALIDADEPROMO" value="#{promptControleMenuBean.newTemplate.informapromo_validadepromo}" /></div></div>
+
+
+
+                    </div>
+
+                    <div class="ui-g ui-fluid">
+
+                        <div class="ui-g-12 ui-md-6 ui-lg-2"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span><p:inputText placeholder="INFORMAPROMO_DADOS" value="#{promptControleMenuBean.newTemplate.informapromo_dados}" /></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span><p:inputText placeholder="OUTROSPLANOS_INFORMAPROMOOICONTROLE" value="#{promptControleMenuBean.newTemplate.outrosplanos_informapromooicontrole}" /></div></div>
+
+
+
+                    </div>
+
+
+
+
+
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarAdd').hide()"/>
+                        <p:commandButton value="Adicionar" validateClient="true" update="messages,messagesAdd" actionListener="#{promptControleMenuBean.adicionar()}" onstart="showLoader();" oncomplete="hideLoader();"/>
+                        <p:selectBooleanCheckbox itemLabel="Adicionar outra" value="#{promptControleMenuBean.adicionarOutra}" style="min-width: 140px"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- EDITAR PROMOCAO -->
+            <p:sidebar id="sideBarEditId" widgetVar="sidebarEdit" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Editar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesEdit"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formEdit">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-12">
+                            <p:scrollPanel style="width:100%;height:100px">
+                                <p:panelGrid columns="6">
+                                    <p:repeat value="#{promptControleMenuBean.selectedTemplateList}" var="selectedConfigOfertasPreItem">
+                                        <p:button value="#{selectedConfigOfertasPreItem.idDdd}" disabled="true" style="margin: 2px;"/>
+                                    </p:repeat>
+                                </p:panelGrid>
+                            </p:scrollPanel>
+                        </div>
+                    </div>
+                    <h:panelGroup rendered="#{promptControleMenuBean.isEditProd()}">
+                        <p:separator />
+                        <div class="ui-g ui-fluid">
+                            <div class="ui-g-12 ui-md-6 ui-lg-2">
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                    <p:calendar id="editDT_GMUD" placeholder="DT_GMUD" required="true" value="#{promptControleMenuBean.editTemplate.dt_gmud}" mask="99/99/9999" showOn="button">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                    </p:calendar>
+                                    <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox value="true"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                    <p:separator />
+                    <div class="ui-g ui-fluid">
+                        
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="PROMOPADRAO_MENSAGEMINICIAL" value="#{promptControleMenuBean.editTemplate.promopadrao_mensageminicial}"><p:ajax event="click" listener="#{promptControleMenuBean.editTemplate.setEditPromopadrao_mensageminicial(true)}" update="formEdit:checkeditPromopadrao_mensageminicial"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditPromopadrao_mensageminicial" value="#{promptControleMenuBean.editTemplate.editPromopadrao_mensageminicial}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="PROMOPADRAO_COMOUSAR" value="#{promptControleMenuBean.editTemplate.promopadrao_comousar}"><p:ajax event="click" listener="#{promptControleMenuBean.editTemplate.setEditPromopadrao_comousar(true)}" update="formEdit:checkeditPromopadrao_comousar"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditPromopadrao_comousar" value="#{promptControleMenuBean.editTemplate.editPromopadrao_comousar}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="PROMOPADRAO_DADOS" value="#{promptControleMenuBean.editTemplate.promopadrao_dados}"><p:ajax event="click" listener="#{promptControleMenuBean.editTemplate.setEditPromopadrao_dados(true)}" update="formEdit:checkeditPromopadrao_dados"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditPromopadrao_dados" value="#{promptControleMenuBean.editTemplate.editPromopadrao_dados}"/></span></div></div>
+
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="INFORMAPROMO_MENSAGEMINICIAL" value="#{promptControleMenuBean.editTemplate.informapromo_mensageminicial}"><p:ajax event="click" listener="#{promptControleMenuBean.editTemplate.setEditInformapromo_mensageminicial(true)}" update="formEdit:checkeditInformapromo_mensageminicial"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditInformapromo_mensageminicial" value="#{promptControleMenuBean.editTemplate.editInformapromo_mensageminicial}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="INFORMAPROMO_REGRALIGACAO" value="#{promptControleMenuBean.editTemplate.informapromo_regraligacao}"><p:ajax event="click" listener="#{promptControleMenuBean.editTemplate.setEditInformapromo_regraligacao(true)}" update="formEdit:checkeditInformapromo_regraligacao"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditInformapromo_regraligacao" value="#{promptControleMenuBean.editTemplate.editInformapromo_regraligacao}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="INFORMAPROMO_COMOUSAR" value="#{promptControleMenuBean.editTemplate.informapromo_comousar}"><p:ajax event="click" listener="#{promptControleMenuBean.editTemplate.setEditInformapromo_comousar(true)}" update="formEdit:checkeditInformapromo_comousar"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditInformapromo_comousar" value="#{promptControleMenuBean.editTemplate.editInformapromo_comousar}"/></span></div></div>
+                        
+
+                    </div>    
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="INFORMAPROMO_REGRATORPEDO" value="#{promptControleMenuBean.editTemplate.informapromo_regratorpedo}"><p:ajax event="click" listener="#{promptControleMenuBean.editTemplate.setEditInformapromo_regratorpedo(true)}" update="formEdit:checkeditInformapromo_regratorpedo"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditInformapromo_regratorpedo" value="#{promptControleMenuBean.editTemplate.editInformapromo_regratorpedo}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="INFORMAPROMO_VALIDADEPROMO" value="#{promptControleMenuBean.editTemplate.informapromo_validadepromo}"><p:ajax event="click" listener="#{promptControleMenuBean.editTemplate.setEditInformapromo_validadepromo(true)}" update="formEdit:checkeditInformapromo_validadepromo"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditInformapromo_validadepromo" value="#{promptControleMenuBean.editTemplate.editInformapromo_validadepromo}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="INFORMAPROMO_DADOS" value="#{promptControleMenuBean.editTemplate.informapromo_dados}"><p:ajax event="click" listener="#{promptControleMenuBean.editTemplate.setEditInformapromo_dados(true)}" update="formEdit:checkeditInformapromo_dados"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditInformapromo_dados" value="#{promptControleMenuBean.editTemplate.editInformapromo_dados}"/></span></div></div>
+
+                    </div>
+                    <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="OUTROSPLANOS_INFORMAPROMOOICONTROLE" value="#{promptControleMenuBean.editTemplate.outrosplanos_informapromooicontrole}"><p:ajax event="click" listener="#{promptControleMenuBean.editTemplate.setEditOutrosplanos_informapromooicontrole(true)}" update="formEdit:checkeditOutrosplanos_informapromooicontrole"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditOutrosplanos_informapromooicontrole" value="#{promptControleMenuBean.editTemplate.editOutrosplanos_informapromooicontrole}"/></span></div></div>
+                    </div>
+
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarEdit').hide()"/>
+                        <p:commandButton value="Confirmar" validateClient="true" actionListener="#{promptControleMenuBean.editar()}" update="messages,messagesEdit,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="hideLoader();"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- HISTORICO PROMOCAO -->
+            <p:sidebar id="sideBarHistoryId" widgetVar="sidebarHistory" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Histórico</h1>
+                <p:separator />
+                <h:form id="formHistory">
+                    <p:dataTable
+                        id="tabelaHistoryId"
+                        value="#{promptControleMenuBean.selectedTemplateHistoryList}"
+                        var="tabelaHistory"
+                        widgetVar="tabelaHistoryCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="370"  
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:column headerText="ÚLTIMO STATUS" width="100" groupRow="true">
+                            <p:outputLabel value="#{tabelaHistory.lastStatus}"/>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100">
+                            <p:outputLabel value="#{tabelaHistory.user.login}"/>
+                        </p:column>
+                        <p:column headerText="MODIFICADO" width="150">
+                            <p:outputLabel value="#{tabelaHistory.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00" />
+                            </p:outputLabel>
+                        </p:column>
+
+                        <p:column headerText="PROMOPADRAO_MENSAGEMINICIAL" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('PROMOPADRAO_MENSAGEMINICIAL',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.promopadrao_mensageminicial}" rendered="#{tabelaHistory.editMap.getOrDefault('PROMOPADRAO_MENSAGEMINICIAL',true)}"/></p:column>
+                        <p:column headerText="PROMOPADRAO_REGRATORPEDO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('PROMOPADRAO_REGRATORPEDO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.promopadrao_regratorpedo}" rendered="#{tabelaHistory.editMap.getOrDefault('PROMOPADRAO_REGRATORPEDO',true)}"/></p:column>
+                        <p:column headerText="PROMOPADRAO_REGRALIGACAO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('PROMOPADRAO_REGRALIGACAO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.promopadrao_regraligacao}" rendered="#{tabelaHistory.editMap.getOrDefault('PROMOPADRAO_REGRALIGACAO',true)}"/></p:column>
+                        <p:column headerText="PROMOPADRAO_COMOUSAR" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('PROMOPADRAO_COMOUSAR',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.promopadrao_comousar}" rendered="#{tabelaHistory.editMap.getOrDefault('PROMOPADRAO_COMOUSAR',true)}"/></p:column>
+                        <p:column headerText="PROMOPADRAO_DADOS" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('PROMOPADRAO_DADOS',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.promopadrao_dados}" rendered="#{tabelaHistory.editMap.getOrDefault('PROMOPADRAO_DADOS',true)}"/></p:column>
+                        <p:column headerText="INFORMAPROMO_MENSAGEMINICIAL" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INFORMAPROMO_MENSAGEMINICIAL',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.informapromo_mensageminicial}" rendered="#{tabelaHistory.editMap.getOrDefault('INFORMAPROMO_MENSAGEMINICIAL',true)}"/></p:column>
+                        <p:column headerText="INFORMAPROMO_REGRATORPEDO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INFORMAPROMO_REGRATORPEDO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.informapromo_regratorpedo}" rendered="#{tabelaHistory.editMap.getOrDefault('INFORMAPROMO_REGRATORPEDO',true)}"/></p:column>
+                        <p:column headerText="INFORMAPROMO_REGRALIGACAO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INFORMAPROMO_REGRALIGACAO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.informapromo_regraligacao}" rendered="#{tabelaHistory.editMap.getOrDefault('INFORMAPROMO_REGRALIGACAO',true)}"/></p:column>
+                        <p:column headerText="INFORMAPROMO_COMOUSAR" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INFORMAPROMO_COMOUSAR',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.informapromo_comousar}" rendered="#{tabelaHistory.editMap.getOrDefault('INFORMAPROMO_COMOUSAR',true)}"/></p:column>
+                        <p:column headerText="INFORMAPROMO_VALIDADEPROMO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INFORMAPROMO_VALIDADEPROMO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.informapromo_validadepromo}" rendered="#{tabelaHistory.editMap.getOrDefault('INFORMAPROMO_VALIDADEPROMO',true)}"/></p:column>
+                        <p:column headerText="INFORMAPROMO_DADOS" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INFORMAPROMO_DADOS',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.informapromo_dados}" rendered="#{tabelaHistory.editMap.getOrDefault('INFORMAPROMO_DADOS',true)}"/></p:column>
+                        <p:column headerText="OUTROSPLANOS_INFORMAPROMOOICONTROLE" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('OUTROSPLANOS_INFORMAPROMOOICONTROLE',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.outrosplanos_informapromooicontrole}" rendered="#{tabelaHistory.editMap.getOrDefault('OUTROSPLANOS_INFORMAPROMOOICONTROLE',true)}"/></p:column>
+
+
+
+
+
+                    </p:dataTable>
+                </h:form>
+            </p:sidebar>
+
+            <!-- DELETAR PROMOCAO -->
+            <p:sidebar id="sideBarDeleteId" widgetVar="sidebarDelete" position="top" baseZIndex="10000" style="overflow: auto;min-height: 160px;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Tem certeza?</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesDel"></p:messages>
+                    </div>
+                </div>
+                <p:separator />
+                <h:form id="formDel">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-3 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar id="delDT_GMUD" placeholder="DT_GMUD" required="true" value="#{promptControleMenuBean.gmudToDelete}" disabled="#{promptControleMenuBean.gmudToDelete != null}" mask="99/99/9999" pattern="dd/MM/yyyy" showOn="button">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                </p:calendar>
+                            </div>
+                        </div>
+                        <p:commandButton value="Sim" validateClient="true" actionListener="#{promptControleMenuBean.deletar()}" onstart="showLoader();" oncomplete="hideLoader();" update="messages,messagesDel,formTable:tabelaId" icon="fa fa-check" />
+                        <p:commandButton value="Não" oncomplete="PF('sidebarDelete').hide()" icon="fa fa-times" />
+                    </div>
+                </h:form>
+            </p:sidebar>
+
+            <!-- SCRIPT PROMOCAO -->
+            <p:sidebar id="sideBarScriptId" widgetVar="sidebarScript" position="top" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Gerar Script</h1>
+                <h:form id="formScript">
+                    <p:separator />
+                    <p:commandButton value="USSD" ajax="false" actionListener="#{promptControleMenuBean.generateScriptFile('USSD')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{promptControleMenuBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                    <p:commandButton value="*880" ajax="false" actionListener="#{promptControleMenuBean.generateScriptFile('880')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{promptControleMenuBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                    <p:commandButton value="*144" ajax="false" actionListener="#{promptControleMenuBean.generateScriptFile('144')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{promptControleMenuBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                </h:form>
+            </p:sidebar>
+
+            <p:dialog id="expiredGmudDlgId" header="GMUD Expirada: #{promptControleMenuBean.expiredGmud}" widgetVar="expiredGmudDlg" rendered="#{promptControleMenuBean.expiredGmud != null and controleBean.canEdit()}" closable="false">
+                <h:form id="formExpired">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Essa GMUD expirou e suas alterações precisam ir para produção ou apenas adiada, antes de prosseguir com novas alterações.<br/>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-8">
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Adiar" onclick="PF('newDtGmudDlg').show();"/>
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Implantar" onclick="PF('confirmDlg').show();" style="float: right; display: #{controleBean.visibilityDeploy(promptControleMenuBean.aprovacaoFiltered)}"/>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="newDtGmudDlg" showHeader="false" width="min-content" closable="false">
+                <h:form id="formNewDate">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            <p:datePicker id="inline" value="#{promptControleMenuBean.newDtGmud}" locale="br" inline="true">
+                                <p:ajax event="dateSelect" listener="#{promptControleMenuBean.adiar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist,expiredGmudDlgId" onstart="showLoader();" oncomplete="location.reload();"/>
+                            </p:datePicker>
+                            <div class="ui-g-6">
+                                <p:commandButton value="Cancelar" onclick="PF('newDtGmudDlg').hide();" icon="fa fa-times" />
+                            </div>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlg" header="Implantar GMUD" closable="false">
+                <h:form id="formConfirm">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Todas as alterações serão inseridas nos registros de produção!<br/>
+                            Confirmar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{promptControleMenuBean.aprovar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlg').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgAprovar" header="Aprovar GMUD" closable="false">
+                <h:form id="formConfirmAprovar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Aprovar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{promptControleMenuBean.aprovarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgAprovar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgImplantacao" header="Enviar GMUD para Implantacao" closable="false">
+                <h:form id="formConfirmImplantacao">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para Implantacao?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{promptControleMenuBean.implantarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgImplantacao').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgImplantacao').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+        </div>
+
+        <script  type="text/javascript" target="body">
+            $j = jQuery;
+            $j(document).ready(function () {
+                PF('tabelaCell').filter();
+                hideLoader();
+                try {
+                    PF('expiredGmudDlg').show();
+                } catch (e) {
+                }
+
+            });
+        </script>
+        <h:outputStylesheet name="css/template.css" library="pages" />
+    </ui:define>
+</ui:composition>

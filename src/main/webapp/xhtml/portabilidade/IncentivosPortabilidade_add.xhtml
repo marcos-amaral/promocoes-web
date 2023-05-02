@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+
+    <!--Adicionar Promoção -->
+    <p:panel style="margin: 0.4em;">
+        <div class="ui-g ui-fluid">
+            <div class="ui-g-12 ui-md-12 ui-lg-2" style="padding-top: 1.1em;">
+                <p:outputLabel value="OFERTA1" for="@next"/>
+            </div>
+            <div class="ui-g-12 ui-md-4 ui-lg-3" style="z-index: 30">
+                <h:panelGroup styleClass="OFERTAPORT_1">
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTA1')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                        <p:selectOneMenu appendTo="@this"
+                            value="#{mBeanNew.selectedOfertapromo1_1}"
+                            styleClass="OFERTAP_1"
+                            required="#{mBean.isObrigatorio('OFERTA1')}"
+                            >
+                            <f:selectItems value="#{mBean.validIdOfertaList}" />
+
+                            <p:ajax event="valueChange" process="@this" update="@(.OFERTAP_1)"/>
+                        </p:selectOneMenu>
+                    </div>
+                </h:panelGroup>
+            </div>
+            <div class="ui-g-12 ui-md-4 ui-lg-3" style="z-index: 20">
+                <h:panelGroup id="OFERTAPPORT1_2" styleClass="OFERTAP_1" style="visibility: #{(mBeanNew.selectedOfertapromo1_1 != '' and mBeanNew.selectedOfertapromo1_1 != null)?'visible':'hidden'}">
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTA1')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                        <p:selectOneMenu appendTo="@this"
+                            value="#{mBeanNew.selectedOfertapromo1_2}"
+                            required="false"
+                            >
+                            <f:selectItems value="#{mBean.validIdOfertaList}" />
+
+                            <p:ajax event="valueChange" process="@this" update="@(.OFERTAP_1)"/>
+                        </p:selectOneMenu>
+                    </div>
+                </h:panelGroup>
+            </div>
+            <div class="ui-g-12 ui-md-4 ui-lg-3" style="z-index: 20">
+                <h:panelGroup id="OFERTAPORT1_3" styleClass="OFERTAP_1" style="visibility: #{(mBeanNew.selectedOfertapromo1_2 != '' and mBeanNew.selectedOfertapromo1_2 != null)?'visible':'hidden'}">
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTA1')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                        <p:selectOneMenu appendTo="@this"
+                            value="#{mBeanNew.selectedOfertapromo1_3}"
+                            required="false"
+                             
+                           >
+                            <f:selectItems value="#{mBean.validIdOfertaList}"/>
+
+                            <p:ajax event="valueChange" process="@this" update="@(.OFERTAP_1)"/>
+                        </p:selectOneMenu>
+                    </div>
+                </h:panelGroup>
+            </div>
+        </div>
+    </p:panel>
+    <p:panel style="margin: 0.4em;">
+        <div class="ui-g ui-fluid">
+            <div class="ui-g-12 ui-md-12 ui-lg-2" style="padding-top: 1.1em;">
+                <p:outputLabel value="OFERTA2" for="@next"/>
+            </div>
+            <div class="ui-g-12 ui-md-4 ui-lg-3" style="z-index: 20">
+                <h:panelGroup styleClass="OFERTAPORT_1" >
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTA2')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                        <p:selectOneMenu appendTo="@this"
+                            value="#{mBeanNew.selectedOfertapromo2_1}"
+                            styleClass="OFERTAP_2"
+                            required="#{mBean.isObrigatorio('OFERTA2')}"
+                            >
+                            <f:selectItems value="#{mBean.validIdOfertaList}"/>
+
+                            <p:ajax event="valueChange" process="@this" update="@(.OFERTAP_2)"/>
+                        </p:selectOneMenu>
+                    </div>
+                </h:panelGroup>
+            </div>
+            <div class="ui-g-12 ui-md-4 ui-lg-3" style="z-index: 10">
+                <h:panelGroup id="OFERTAPORT2_2" styleClass="OFERTAP_2" style="visibility: #{(mBeanNew.selectedOfertapromo2_1 != '' and mBeanNew.selectedOfertapromo2_1 != null)?'visible':'hidden'}">
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTA2')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                        <p:selectOneMenu appendTo="@this"
+                            value="#{mBeanNew.selectedOfertapromo2_2}"
+                            required="false"
+                            >
+                            <f:selectItems value="#{mBean.validIdOfertaList}"/>
+
+                            <p:ajax event="valueChange" process="@this" update="@(.OFERTAP_2)"/>
+                        </p:selectOneMenu>
+                    </div>
+                </h:panelGroup>
+            </div>
+            <div class="ui-g-12 ui-md-4 ui-lg-3" style="z-index: 5">
+                <h:panelGroup id="OFERTAPORT2_3" styleClass="OFERTAP_2" style="visibility: #{(mBeanNew.selectedOfertapromo2_2 != '' and mBeanNew.selectedOfertapromo2_2 != null)?'visible':'hidden'}">
+                    <div class="ui-inputgroup" style="padding: 0.15em; #{mBean.isObrigatorio('OFERTA2')?'background-color: khaki':''}">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-key"></i></span>
+                        <p:selectOneMenu appendTo="@this"
+                            value="#{mBeanNew.selectedOfertapromo2_3}"
+                            required="false"
+                            >
+                            <f:selectItems value="#{mBean.validIdOfertaList}" />
+
+                            <p:ajax event="valueChange" process="@this" update="@(.OFERTAP_2)"/>
+                        </p:selectOneMenu>
+                    </div>
+                </h:panelGroup>
+            </div>
+        </div>
+    </p:panel>
+
+
+</ui:composition>

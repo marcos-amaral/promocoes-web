@@ -1,0 +1,131 @@
+/* STILOS DE AJUSTE DA TEMPLATE DO VERONA */
+/************************************
+ *RODA-PE
+ ************************************/
+.layout-wrapper .footer {
+    padding: 8px 32px;
+}
+
+/************************************
+ *LOGO NGR 
+ ************************************/
+.layout-wrapper .topbar .logo {
+    width: 140px;
+    margin-left: 8px;
+}
+
+/************************************
+ *LOGO OI
+ ************************************/
+.layout-wrapper .topbar #user-display img {
+    border: none;
+    width: 40px;
+    height: unset;
+}
+
+.layout-wrapper .topbar #user-display span {
+    margin-right: 51px;
+}
+
+.layout-wrapper .topbar #user-display {
+    margin-top: 8px;
+}
+
+.logo-spacer {
+    margin-top: 4px;
+}
+
+/************************************
+ *PAGINA ATUAL
+ ************************************/
+.layout-wrapper .topbar .app-name {
+    width: 65%;
+    text-align: center;
+    margin-left: 6px;
+}
+
+@media (max-width: 1150px)  {
+    .layout-wrapper .topbar .app-name {
+        width: 60%;
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 950px)  {
+    .layout-wrapper .topbar .app-name {
+        width: 50%;
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 810px)  {
+    .layout-wrapper .topbar .app-name {
+        width: 45%;
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 750px)  {
+    .layout-wrapper .topbar .app-name {
+        width: 40%;
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 670px)  {
+    .layout-wrapper .topbar .app-name {
+        width: 35%;
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 430px)  {
+    .layout-wrapper .topbar .app-name {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 380px)  {
+    .layout-wrapper .topbar .app-name {
+        display: none;
+    }
+}
+
+/************************************
+*STICK TABLES (NAO FUNCIONOU)
+************************************/
+:host ::ng-deep .ui-table .ui-table-thead > tr > th {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 70px;
+}
+
+@media screen and (max-width: 64em) {
+    :host ::ng-deep .ui-table .ui-table-thead > tr > th {
+        top: 100px;
+    }
+}
+
+/************************************
+* TABELA FINA
+************************************/
+body .ui-table .ui-table-thead > tr > th, body .ui-table .ui-table-tbody > tr > td, body .ui-table .ui-table-tfoot > tr > td {
+    padding: 0.3em 0.6em;
+}
+
+@media (min-width: 430px)  {
+
+    div.layout-wrapper.layout-menu-overlay .layout-content {
+        padding: 85px 25px 60px 25px;
+    }
+
+    div.layout-wrapper.layout-menu-overlay .footer.clearfix {
+        bottom: 1px;
+        position: fixed;
+        width: 98%;
+        padding-left: 1%;
+        padding-right: 1%;
+        padding-top: 6px;
+        padding-bottom: 6px;
+    }
+}

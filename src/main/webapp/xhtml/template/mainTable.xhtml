@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+    <p:dataTable
+        id="tabelaId"
+        value="#{mBean.dataModel}"
+        lazy="true"
+        paginator="true"
+        rows="50"
+        paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+        paginatorPosition="bottom"
+        rowsPerPageTemplate="10,50,100"
+        var="tabelaRow"
+        widgetVar="tabelaCell"
+        scrollable="true" 
+        scrollWidth="95%"
+        scrollHeight="300"  
+        editable="true" 
+        editMode="cell" 
+        selection="#{mBean.selectedTemplateList}"
+        rowKey="#{tabelaRow.id}"
+        style="font-size: 0.8em; display: inline-block;"
+        styleClass="hidden">
+
+        <p:ajax event="rowSelect" update="formButtons" />
+        <p:ajax event="rowUnselect" update="formButtons" />
+        <p:ajax event="toggleSelect" update="formButtons" />
+        <p:ajax event="rowSelectCheckbox" update="formButtons" />
+        <p:ajax event="rowUnselectCheckbox" update="formButtons" />
+
+        <p:ajax event="filter" listener="#{mBean.cleanSelected()}" update="panelAprovacao,formButtons"/>
+
+        <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+
+        <p:column headerText="GMUD" filterBy="#{tabelaRow.dtGmudStr}" filterMatchMode="exact" filterValue="#{mBean.defaultFilterValue}" width="120" styleClass="#{tabelaRow.getStyleClass('GMUD')}">
+            <f:facet name="filter">
+                <p:selectOneMenu onchange="PF('tabelaCell').filter()" value="#{mBean.defaultFilterValue}" styleClass="custom-filter">
+                    <f:selectItem itemLabel="PRODUÇÃO" itemValue="PRODUCAO"/>
+                    <f:selectItems value="#{mBean.gmudList}"/>
+                </p:selectOneMenu>
+            </f:facet>
+            <p:outputLabel value="#{tabelaRow.dtGmudStr}">
+                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+            </p:outputLabel>
+        </p:column>
+        <p:column headerText="MODIFICADA" width="100" styleClass="#{tabelaRow.getStyleClass('MODIFICADA')}">
+            <p:outputLabel value="#{tabelaRow.modified}">
+                <f:convertDateTime pattern="dd/MM/yyyy  HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00"/>
+            </p:outputLabel>
+        </p:column>
+        <p:column headerText="LOGIN" width="100" styleClass="#{tabelaRow.getStyleClass('LOGIN')}">
+            <p:outputLabel value="#{tabelaRow.user.login}"/>
+        </p:column>
+        <p:columns value="#{mBean.colunasTemplateId}" 
+                   var="field" 
+                   headerText="#{field.key}" 
+                   filterBy="#{tabelaRow[field.property]}"
+                   filterMatchMode="contains"
+                   width="#{field.width}" 
+                   styleClass="#{tabelaRow.getStyleClass(field.key)}"
+                   style="word-break: break-all">
+            <f:facet name="filter">
+                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter" rendered="#{field.type eq 'boolean'}">
+                    <f:selectItem itemLabel="Todos" itemValue="" />
+                    <f:selectItem itemLabel="S" itemValue="#{true}" />
+                    <f:selectItem itemLabel="N" itemValue="#{false}" />
+                </p:selectOneButton>
+            </f:facet>
+            <p:outputLabel id="tableColumnContentId" value="#{tabelaRow[field.property]}" ondblclick="copyToClip($(this));">
+                <f:converter converterId="genericConverter"/>
+            </p:outputLabel>
+            <p:tooltip id="toolTip" for="tableColumnContentId" value="#{tabelaRow[field.property]}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+        </p:columns>
+        <p:columns value="#{mBean.colunasTemplateNotId}" 
+                   var="field" 
+                   headerText="#{field.key}" 
+                   filterBy="#{tabelaRow[field.property]}"
+                   filterMatchMode="contains"
+                   width="#{field.getWidth(tabelaRow[field.property])}" 
+                   styleClass="#{tabelaRow.getStyleClass(field.key)}"
+                   style="word-break: break-all"
+                   visible="#{currentApplication eq null or ((currentApplication == 'USSD' and not field.key.endsWith('_144')) or (currentApplication == '144' and field.key.endsWith('_144')))}">
+            <f:facet name="filter">
+                <p:selectOneButton onchange="PF('tabelaCell').filter()" styleClass="custom-filter" rendered="#{field.type eq 'boolean'}">
+                    <f:selectItem itemLabel="Todos" itemValue="" />
+                    <f:selectItem itemLabel="S" itemValue="#{true}" />
+                    <f:selectItem itemLabel="N" itemValue="#{false}" />
+                </p:selectOneButton>
+            </f:facet>
+            <p:outputLabel id="tableColumnContentId" value="#{tabelaRow[field.property]}" ondblclick="copyToClip($(this));">
+                 <f:converter converterId="genericConverter"/>
+            </p:outputLabel>
+            <p:tooltip id="toolTip" for="tableColumnContentId" value="#{tabelaRow[field.property]}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+        </p:columns>
+
+    </p:dataTable>
+
+</ui:composition>

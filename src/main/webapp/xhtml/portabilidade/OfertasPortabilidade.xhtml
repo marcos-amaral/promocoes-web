@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/xhtml/template/template.xhtml">
+
+
+    <ui:define name="conteudo">
+        <h:outputScript name="js/template.js" library="pages" />
+        <div id="loading"></div>
+        <p:growl id="messages" showDetail="true" />
+
+        <div class="container">
+            
+             <h:form>
+                <ui:include src="/xhtml/template/ModalDialog.xhtml" />
+            </h:form>
+            
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12">
+                    <h:panelGroup id="panelAprovacao" style="visibility: #{ofertasPortabilidadeBean.aprovacaoFiltered != null?'unset':'hidden'}">
+                        <i class="fa fa-check-circle-o" style="color: yellowgreen; font-size: 2em;"></i>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value=" GMUD status #{ofertasPortabilidadeBean.aprovacaoFiltered.status.tipo} por #{ofertasPortabilidadeBean.aprovacaoFiltered.user.name} em "/>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value="#{ofertasPortabilidadeBean.aprovacaoFiltered.dt_aprovacao}">
+                            <f:convertDateTime timeStyle="short" type="both" dateStyle="full" locale="pt-BR" timeZone="GMT-03:00"/>
+                        </p:outputLabel>
+                    </h:panelGroup>
+                </div>
+            </div>
+            
+            <h:form id="formButtons">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Adicionar" id="buttonAdd" oncomplete="PF('sidebarAdd').show()" actionListener="#{ofertasPortabilidadeBean.preLoadEditBean()}" update="sideBarAddId" disabled="#{!controleBean.canEdit() or ofertasPortabilidadeBean.expiredGmud != null}" styleClass="ui-priority-primary" icon="fa fa-plus"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Editar" id="buttonEdit" oncomplete="PF('sidebarEdit').show()" actionListener="#{ofertasPortabilidadeBean.preLoadEditBean()}" update="sideBarEditId" disabled="#{ofertasPortabilidadeBean.selectedTemplateList.size() eq 0 or !controleBean.canEdit() or ofertasPortabilidadeBean.expiredGmud != null or !ofertasPortabilidadeBean.canEdit()}" styleClass="ui-priority-primary" icon="fa fa-edit"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Excluir" id="buttonDel" oncomplete="PF('sidebarDelete').show()" actionListener="#{ofertasPortabilidadeBean.preLoadEditBean()}" update="sideBarDeleteId" styleClass="ui-priority-primary" disabled="#{ofertasPortabilidadeBean.selectedTemplateList.size() eq 0 or !controleBean.canEdit() or ofertasPortabilidadeBean.expiredGmud != null}" icon="fa fa-eraser"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Histórico" id="buttonHist" oncomplete="hideLoader();PF('sidebarHistory').show()" update="formHistory:tabelaHistoryId" styleClass="ui-priority-primary" disabled="#{ofertasPortabilidadeBean.selectedTemplateList.size() eq 0 or ofertasPortabilidadeBean.selectedTemplateList.size() gt 1}" icon="fa fa-history"/>
+                    </div>
+                    <!--
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Script" id="buttonScript" oncomplete="PF('sidebarScript').show()"  styleClass="ui-priority-primary" icon="fa fa-file-code-o"/>
+                    </div>
+                    -->
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:splitButton  value="Adiar" id="buttonAdm" onclick="PF('newDtGmudDlg').show();" icon="fa fa-clock-o" disabled="#{ofertasPortabilidadeBean.defaultFilterValue eq 'PRODUCAO' or controleBean.isMarketing()}">
+                            <p:menuitem value="Iniciar" onclick="PF('confirmDlgIniciar').show();" disabled="#{ofertasPortabilidadeBean.defaultFilterValue eq 'PRODUCAO' or !(ofertasPortabilidadeBean.expiredGmud == null and controleBean.canStart(ofertasPortabilidadeBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Validar" onclick="PF('confirmDlgValidar').show();" disabled="#{ofertasPortabilidadeBean.defaultFilterValue eq 'PRODUCAO' or !(ofertasPortabilidadeBean.expiredGmud == null and controleBean.canValidate(ofertasPortabilidadeBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Aprovar" onclick="PF('confirmDlgAprovar').show();" disabled="#{ofertasPortabilidadeBean.defaultFilterValue eq 'PRODUCAO' or !(ofertasPortabilidadeBean.expiredGmud == null and controleBean.canAprove(ofertasPortabilidadeBean.aprovacaoFiltered, false))}"/>
+                            <p:menuitem value="Liberar UAT" onclick="PF('confirmDlgUAT').show();" disabled="#{ofertasPortabilidadeBean.defaultFilterValue eq 'PRODUCAO' or !(ofertasPortabilidadeBean.expiredGmud == null and controleBean.canUAT(ofertasPortabilidadeBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Liberar Implantação" onclick="PF('confirmDlgImplantacao').show();" disabled="#{ofertasPortabilidadeBean.defaultFilterValue eq 'PRODUCAO' or !(ofertasPortabilidadeBean.expiredGmud == null and controleBean.canReleaseDeployment(ofertasPortabilidadeBean.aprovacaoFiltered, false))}"/>
+                            <p:menuitem value="Implantar" onclick="PF('confirmDlg').show();" disabled="#{ofertasPortabilidadeBean.defaultFilterValue eq 'PRODUCAO' or !controleBean.canDeploy(ofertasPortabilidadeBean.aprovacaoFiltered)}"/>
+                        </p:splitButton>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4">
+                        <h:outputLabel value="#{ofertasPortabilidadeBean.aprovacaoFiltered.status.tipo}" style="float: right; font-style: oblique; color: #fa392f"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-3" style="float: right; padding-right: 50px;">
+                        <h:outputLabel value="OFERTAS_PORTABILIDADE" style="float: right;"/>
+                    </div>
+                </div>
+            </h:form>
+
+            <!-- TABELA PRINCIPAL --> 
+            <h:panelGroup>
+                <h:form id="formTable">
+                    <p:dataTable
+                        id="tabelaId"
+                        value="#{ofertasPortabilidadeBean.dataModel}"
+                        lazy="true"
+                        paginator="true"
+                        rows="50"
+                        paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        paginatorPosition="bottom"
+                        rowsPerPageTemplate="10,50,100"
+                        var="tabelaRow"
+                        widgetVar="tabelaCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="350"  
+                        editable="true" 
+                        editMode="cell" 
+                        selection="#{ofertasPortabilidadeBean.selectedTemplateList}"
+                        rowKey="#{tabelaRow.id}"
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:ajax event="rowSelect" update="formButtons" />
+                        <p:ajax event="rowUnselect" update="formButtons" />
+                        <p:ajax event="toggleSelect" update="formButtons" />
+                        <p:ajax event="rowSelectCheckbox" update="formButtons" />
+                        <p:ajax event="rowUnselectCheckbox" update="formButtons" />
+
+                       <p:ajax event="filter" listener="#{ofertasPortabilidadeBean.cleanSelected()}" update="panelAprovacao,formButtons"/>
+
+                        <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+
+                        <p:column headerText="GMUD" filterBy="#{tabelaRow.dtGmudStr}" filterMatchMode="exact" filterValue="#{ofertasPortabilidadeBean.defaultFilterValue}" width="120" styleClass="#{tabelaRow.getStyleClass('GMUD')}">
+                            <f:facet name="filter">
+                                <p:selectOneMenu onchange="PF('tabelaCell').filter()" value="#{ofertasPortabilidadeBean.defaultFilterValue}" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="PRODUÇÃO" itemValue="PRODUCAO"/>
+                                    <f:selectItems value="#{ofertasPortabilidadeBean.gmudList}"/>
+                                </p:selectOneMenu>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.dtGmudStr}">
+                                <f:convertDateTime pattern="dd/MM/yy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="MODIFICADA" width="100" styleClass="#{tabelaRow.getStyleClass('MODIFICADA')}">
+                            <p:outputLabel value="#{tabelaRow.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy  HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100" styleClass="#{tabelaRow.getStyleClass('LOGIN')}">
+                            <p:outputLabel value="#{tabelaRow.user.login}"/>
+                        </p:column>
+                        <p:column headerText="DDD" filterBy="#{tabelaRow.ddd}" filterFunction="#{genericFilter.filter}" width="280" styleClass="#{tabelaRow.getStyleClass('DDD')}">
+                            <p:outputLabel id="dddId" value="#{tabelaRow.dddSub}" ondblclick="copyToClip($(this));"/>
+                            <p:tooltip for="dddId" value="#{tabelaRow.ddd}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+                        </p:column>
+                        <p:column headerText="IDBENEFICIO" filterBy="#{tabelaRow.idbeneficio}" filterFunction="#{genericFilter.filter}" width="50" styleClass="#{tabelaRow.getStyleClass('IDBENEFICIO')}">
+                            <p:outputLabel value="#{tabelaRow.idbeneficio}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="IDPROGRAMA" filterBy="#{tabelaRow.idprograma}" filterFunction="#{genericFilter.filter}" width="50" styleClass="#{tabelaRow.getStyleClass('IDPROGRAMA')}">
+                            <p:outputLabel value="#{tabelaRow.idprograma}" ondblclick="copyToClip($(this));"/>
+                        </p:column>
+                        <p:column headerText="DATA_INIC" filterBy="#{tabelaRow.data_inic}" filterFunction="#{dateRangeFilter.filterByDate}" width="120" styleClass="#{tabelaRow.getStyleClass('DATA_INIC')}" toggleable="false">
+                            <f:facet name="filter">
+                                <h:inputHidden id="filterInic" />
+                            </f:facet>
+                            <f:facet name="header">
+                                <p:outputLabel value="DATA_INIC" />
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.data_inic}" ondblclick="copyToClip($(this));">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="DATA_FIM" filterBy="#{tabelaRow.data_fim}" filterFunction="#{dateRangeFilter.filterByDate}" width="120" styleClass="#{tabelaRow.getStyleClass('DATA_FIM')}" toggleable="false">
+                            <f:facet name="filter">
+                                <h:inputHidden id="filterFim" />
+                            </f:facet>
+                            <f:facet name="header">
+                                <p:outputLabel value="DATA_FIM" />
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.data_fim}" ondblclick="copyToClip($(this));">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="INFORMAPROMO" filterBy="#{tabelaRow.informapromo}" filterFunction="#{genericFilter.filter}" width="370" styleClass="#{tabelaRow.getStyleClass('INFORMAPROMO')}" >
+                            <p:outputLabel id="informapromoId" value="#{tabelaRow.informapromo}" ondblclick="copyToClip($(this));"/>
+                            <p:tooltip for="informapromoId" value="#{tabelaRow.informapromo}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+                        </p:column>
+                        <p:column headerText="INCENTIVO_PORTABILIDADE" filterBy="#{tabelaRow.incentivo_portabilidade}" filterFunction="#{genericFilter.filter}" width="370" styleClass="#{tabelaRow.getStyleClass('INCENTIVO_PORTABILIDADE')}" >
+                            <p:outputLabel id="incentivoPortabilidadeId" value="#{tabelaRow.incentivo_portabilidade}" ondblclick="copyToClip($(this));"/>
+                            <p:tooltip for="incentivoPortabilidadeId" value="#{tabelaRow.incentivo_portabilidade}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+                        </p:column>
+                        
+                        <p:column headerText="NAOCLIENTE_SVA" filterBy="#{tabelaRow.naocliente_sva}" filterFunction="#{genericFilter.filter}" width="370" styleClass="#{tabelaRow.getStyleClass('NAOCLIENTE_SVA')}" >
+                            <p:outputLabel id="naocliente_svaId" value="#{tabelaRow.naocliente_sva}" ondblclick="copyToClip($(this));"/>
+                            <p:tooltip for="naocliente_svaId" value="#{tabelaRow.naocliente_sva}" position="left" style="max-width: 300px; word-wrap: break-word"/>
+                        </p:column>
+                        <p:column headerText="TB_TIPO_BONUS" filterBy="#{tabelaRow.tb_tipo_bonus}" filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_TIPO_BONUS')}" visible="false"><p:outputLabel value="#{tabelaRow.tb_tipo_bonus}" ondblclick="copyToClip($(this));"/></p:column>
+
+                    </p:dataTable>
+                </h:form>
+            </h:panelGroup>
+
+            <!-- ADICIONAR PROMOCAO -->
+            <p:sidebar id="sideBarAddId" widgetVar="sidebarAdd" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Adicionar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesAdd"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formAdd">
+                    <ui:include src="/xhtml/portabilidade/OfertasPortabilidade_addIds.xhtml" />
+                    <ui:include src="/xhtml/portabilidade/OfertasPortabilidade_add.xhtml" >
+                        <ui:param name="mBean" value="#{ofertasPortabilidadeBean}" />
+                        <ui:param name="mBeanNew" value="#{ofertasPortabilidadeBean.newTemplate}" />
+                    </ui:include>
+
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarAdd').hide()"/>
+                        <p:commandButton value="Adicionar" validateClient="true" update="messages,messagesAdd" actionListener="#{ofertasPortabilidadeBean.adicionar()}" onstart="showLoader();" oncomplete="hideLoader();"/>
+                        <p:selectBooleanCheckbox itemLabel="Adicionar outra" value="#{ofertasPortabilidadeBean.adicionarOutra}" style="min-width: 140px"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- EDITAR PROMOCAO -->
+            <p:sidebar id="sideBarEditId" widgetVar="sidebarEdit" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Editar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesEdit"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formEdit">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-12">
+                            <p:scrollPanel style="width:100%;height:100px">
+                                <p:panelGrid columns="6">
+                                    <p:repeat value="#{ofertasPortabilidadeBean.selectedTemplateList}" var="selectedConfigOfertasPreItem">
+                                        <p:button value="#{selectedConfigOfertasPreItem.idDdd}" disabled="true" style="margin: 2px;"/>
+                                    </p:repeat>
+                                </p:panelGrid>
+                            </p:scrollPanel>
+                        </div>
+                    </div>
+                    <h:panelGroup rendered="#{ofertasPortabilidadeBean.isEditProd()}">
+                        <p:separator />
+                        <div class="ui-g ui-fluid">
+                            <div class="ui-g-12 ui-md-6 ui-lg-2">
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                    <p:calendar id="editDT_GMUD" placeholder="DT_GMUD" required="true" value="#{ofertasPortabilidadeBean.editTemplate.dt_gmud}" mask="99/99/9999" showOn="button">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                    </p:calendar>
+                                    <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox value="true"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                    <p:separator />
+  
+                            <div class="ui-g ui-fluid">
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="INFORMAPROMO" value="#{ofertasPortabilidadeBean.editTemplate.informapromo}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditINFORMAPROMO">
+                                            <p:ajax event="change" listener="#{ofertasPortabilidadeBean.editTemplate.setEditInformapromo(true)}" update="formEdit:checkeditInformapromo"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditInformapromo" value="#{ofertasPortabilidadeBean.editTemplate.editInformapromo}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditINFORMAPROMO" />
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="INCENTIVO_PORTABILIDADE" value="#{ofertasPortabilidadeBean.editTemplate.incentivo_portabilidade}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditINCENTIVO_PORTABILIDADE">
+                                            <p:ajax event="change" listener="#{ofertasPortabilidadeBean.editTemplate.setEditIncentivo_portabilidade(true)}" update="formEdit:checkeditIncentivo_portabilidade"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditIncentivo_portabilidade" value="#{ofertasPortabilidadeBean.editTemplate.editIncentivo_portabilidade}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditINCENTIVO_PORTABILIDADE" />
+                                </div>
+                                
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                        <p:inputTextarea placeholder="NAOCLIENTE_SVA" value="#{ofertasPortabilidadeBean.editTemplate.naocliente_sva}" cols="120" rows="4" maxlength="159" counterTemplate="{0} caracteres restantes." autoResize="false" counter="caracEditNAOCLIENTE_SVA">
+                                            <p:ajax event="change" listener="#{ofertasPortabilidadeBean.editTemplate.setEditNaocliente_sva(true)}" update="formEdit:checkeditNaocliente_sva"/>
+                                        </p:inputTextarea>
+                                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditNaocliente_sva" value="#{ofertasPortabilidadeBean.editTemplate.editNaocliente_sva}"/></span>
+                                    </div>
+                                    <h:outputText id="caracEditNAOCLIENTE_SVA" />
+                                </div>
+                            </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                                <p:inputText placeholder="TB_TIPO_BONUS" value="#{ofertasPortabilidadeBean.editTemplate.tb_tipo_bonus}">      
+                                    <p:ajax event="change" listener="#{ofertasPortabilidadeBean.editTemplate.setEditTb_tipo_bonus(true)}" update="formEdit:checkeditTb_tipo_bonus"/>
+                                </p:inputText>
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditTb_tipo_bonus" value="#{ofertasPortabilidadeBean.editTemplate.editTb_tipo_bonus}"/></span>
+                            </div>
+                        </div>
+                       
+                       <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:inputMask placeholder="DATA_INIC" value="#{ofertasPortabilidadeBean.editTemplate.data_inic}" mask="99/99/9999">
+                                    <p:ajax event="change" listener="#{ofertasPortabilidadeBean.editTemplate.setEditData_inic(true)}" update="formEdit:checkeditData_inic"/>
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                                </p:inputMask>    
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditData_inic" value="#{ofertasPortabilidadeBean.editTemplate.editData_inic}"/></span>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:inputMask placeholder="DATA_FIM" value="#{ofertasPortabilidadeBean.editTemplate.data_fim}" mask="99/99/9999">
+                                    <p:ajax event="change" listener="#{ofertasPortabilidadeBean.editTemplate.setEditData_fim(true)}" update="formEdit:checkeditData_fim"/>
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                                </p:inputMask>    
+                                <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditData_fim" value="#{ofertasPortabilidadeBean.editTemplate.editData_fim}"/></span>
+                            </div>
+                        </div>
+                        
+                        
+               </div>
+
+                       
+
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarEdit').hide()"/>
+                        <p:commandButton value="Confirmar" validateClient="true" actionListener="#{ofertasPortabilidadeBean.editar()}" update="messages,messagesEdit,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="hideLoader();"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- HISTORICO PROMOCAO -->
+            <p:sidebar id="sideBarHistoryId" widgetVar="sidebarHistory" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Histórico</h1>
+                <p:separator />
+                <h:form id="formHistory">
+                    <p:dataTable
+                        id="tabelaHistoryId"
+                        value="#{ofertasPortabilidadeBean.selectedTemplateHistoryList}"
+                        var="tabelaHistory"
+                        widgetVar="tabelaHistoryCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="370"  
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:column headerText="LOGIN" width="100">
+                            <p:outputLabel value="#{tabelaHistory.user.login}"/>
+                        </p:column>
+                        <p:column headerText="MODIFICADO" width="150">
+                            <p:outputLabel value="#{tabelaHistory.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00" />
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="INFORMAPROMO"  width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INFORMAPROMO',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.informapromo}" rendered="#{tabelaHistory.editMap.getOrDefault('INFORMAPROMO',true)}"/>
+                        </p:column>
+                        <p:column headerText="INCENTIVO_PORTABILIDADE"  width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INCENTIVO_PORTABILIDADE',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.incentivo_portabilidade}" rendered="#{tabelaHistory.editMap.getOrDefault('INCENTIVO_PORTABILIDADE',true)}"/>
+                        </p:column>
+                        <p:column headerText="NAOCLIENTE_SVA"  width="550" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('NAOCLIENTE_SVA',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.naocliente_sva}" rendered="#{tabelaHistory.editMap.getOrDefault('NAOCLIENTE_SVA',true)}"/>
+                        </p:column>
+                        <p:column headerText="DATA_INIC" width="70" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('DATA_INIC',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.data_inic}" rendered="#{tabelaHistory.editMap.getOrDefault('DATA_INIC',true)}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="DATA_FIM" width="70" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('DATA_FIM',true)?'editedcell':'')}">
+                            <p:outputLabel value="#{tabelaHistory.data_fim}" rendered="#{tabelaHistory.editMap.getOrDefault('DATA_FIM',true)}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="TB_TIPO_BONUS" width="100" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('TB_TIPO_BONUS',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.tb_tipo_bonus}" rendered="#{tabelaHistory.editMap.getOrDefault('TB_TIPO_BONUS',true)}"/></p:column>
+
+                       
+                        
+                        
+                    </p:dataTable>
+                </h:form>
+            </p:sidebar>
+
+            <!-- DELETAR PROMOCAO -->
+            <p:sidebar id="sideBarDeleteId" widgetVar="sidebarDelete" position="top" baseZIndex="10000" style="overflow: auto;min-height: 160px;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Tem certeza?</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesDel"></p:messages>
+                    </div>
+                </div>
+                <p:separator />
+                <h:form id="formDel">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-3 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar id="delDT_GMUD" placeholder="DT_GMUD" required="true" value="#{ofertasPortabilidadeBean.gmudToDelete}" disabled="#{ofertasPortabilidadeBean.gmudToDelete != null}" mask="99/99/9999" pattern="dd/MM/yyyy" showOn="button">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                </p:calendar>
+                            </div>
+                        </div>
+                        <p:commandButton value="Sim" validateClient="true" actionListener="#{ofertasPortabilidadeBean.deletar()}" onstart="showLoader();" oncomplete="hideLoader();" update="messages,messagesDel,formTable:tabelaId" icon="fa fa-check" />
+                        <p:commandButton value="Não" oncomplete="PF('sidebarDelete').hide()" icon="fa fa-times" />
+                    </div>
+                </h:form>
+            </p:sidebar>
+
+            <!-- SCRIPT PROMOCAO -->
+            <p:sidebar id="sideBarScriptId" widgetVar="sidebarScript" position="top" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Gerar Script</h1>
+                <h:form id="formScript">
+                    <p:separator />
+                    <p:commandButton value="USSD" ajax="false" actionListener="#{ofertasPortabilidadeBean.generateScriptFile('USSD')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{ofertasPortabilidadeBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                </h:form>
+            </p:sidebar>
+
+            <p:dialog id="expiredGmudDlgId" header="GMUD Expirada: #{ofertasPortabilidadeBean.expiredGmud}" widgetVar="expiredGmudDlg" rendered="#{ofertasPortabilidadeBean.expiredGmud != null and controleBean.canEdit()}" closable="false">
+                <h:form id="formExpired">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Essa GMUD expirou e suas alterações precisam ir para produção ou apenas adiada, antes de prosseguir com novas alterações.<br/>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-8">
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Adiar" onclick="PF('newDtGmudDlg').show();"/>
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Implantar" onclick="PF('confirmDlg').show();" style="float: right; display: #{controleBean.visibilityDeploy(ofertasPortabilidadeBean.aprovacaoFiltered)}"/>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="newDtGmudDlg" showHeader="false" width="min-content" closable="false">
+                <h:form id="formNewDate">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            <p:datePicker id="inline" value="#{ofertasPortabilidadeBean.newDtGmud}" locale="br" inline="true">
+                                <p:ajax event="dateSelect" listener="#{ofertasPortabilidadeBean.adiar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist,expiredGmudDlgId" onstart="showLoader();" oncomplete="location.reload();"/>
+                            </p:datePicker>
+                            <div class="ui-g-6">
+                                <p:commandButton value="Cancelar" onclick="PF('newDtGmudDlg').hide();" icon="fa fa-times" />
+                            </div>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlg" header="Implantar GMUD" closable="false">
+                <h:form id="formConfirm">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Todas as alterações serão inseridas nos registros de produção!<br/>
+                            Confirmar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{ofertasPortabilidadeBean.aprovar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlg').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgAprovar" header="Aprovar GMUD" closable="false">
+                <h:form id="formConfirmAprovar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Aprovar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{ofertasPortabilidadeBean.aprovarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgAprovar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgIniciar" header="Iniciar GMUD" closable="false">
+                <h:form id="formConfirmIniciar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma o inicio da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{ofertasPortabilidadeBean.iniciarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgIniciar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgIniciar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgValidar" header="Validar GMUD" closable="false">
+                <h:form id="formConfirmValidar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma a validação da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{ofertasPortabilidadeBean.validarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgValidar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgValidar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgUAT" header="Enviar GMUD para UAT" closable="false">
+                <h:form id="formConfirmUAT">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para UAT?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{ofertasPortabilidadeBean.uatGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgUAT').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgUAT').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgImplantacao" header="Enviar GMUD para Implantacao" closable="false">
+                <h:form id="formConfirmImplantacao">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para Implantacao?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{ofertasPortabilidadeBean.implantarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgImplantacao').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgImplantacao').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+        </div>
+
+        <script  type="text/javascript" target="body">
+            $j = jQuery;
+            $j(document).ready(function () {
+                PF('tabelaCell').filter();
+                hideLoader();
+                try {
+                    PF('expiredGmudDlg').show();
+                } catch (e) {
+                }
+
+            });
+        </script>
+        <h:outputStylesheet name="css/template.css" library="pages" />
+    </ui:define>
+</ui:composition>

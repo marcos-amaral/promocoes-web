@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12 ui-md-12">
+            <p:scrollPanel style="width:100%;height:100px">
+                <p:panelGrid columns="6">
+                    <ui:repeat value="#{mBean.selectedTemplateList}" var="selectedConfigOfertasPreItem">
+                        <p:button value="#{selectedConfigOfertasPreItem.idDdd}" disabled="true" style="margin: 2px;"/>
+                    </ui:repeat>
+                </p:panelGrid>
+            </p:scrollPanel>
+        </div>
+    </div>
+    <h:panelGroup rendered="#{mBean.isEditProd()}">
+        <p:separator />
+        <div class="ui-g ui-fluid">
+            <div class="ui-g-12 ui-md-6 ui-lg-2">
+                <p:outputLabel value="DT_GMUD" for="formEdit:editDT_GMUD" indicateRequired="false" styleClass="field_label"/>
+                <div class="ui-inputgroup" style="padding: 0.15em; background-color: khaki">
+                    <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                    <p:calendar id="editDT_GMUD" placeholder="DT_GMUD" required="true" value="#{mBeanEdit.dt_gmud}" mask="99/99/9999" showOn="button">
+                        <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                    </p:calendar>
+                    <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox value="true"/></span>
+                </div>
+            </div>
+        </div>
+    </h:panelGroup>
+    <p:separator />
+    <div class="ui-g ui-fluid">
+        <ui:repeat id="editFieldsLoopId" varStatus="editVarStatus" value="#{mBean.colunasTemplateNotId}" var="field">
+            <h:panelGroup rendered="#{field.type eq 'class java.util.Date'}">
+                <div class="#{field.responsiveClass}">
+                    <p:outputLabel value="#{field.label}" for="formEdit:editFieldsLoopId:#{editVarStatus.index}:editCalendar" indicateRequired="false" styleClass="field_label"/>
+                    <div class="ui-inputgroup" >
+                        <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                        <p:calendar id="editCalendar" placeholder="#{field.key}"  converterMessage="#{field.key} inválido" value="#{mBeanEdit[field.property]}" showOn="button" pattern="dd/MM/yyyy" locale="br" timeZone="GMT-03:00" mindate="#{mBean.today}">
+                            <p:ajax event="dateSelect" listener="#{mBeanEdit.editMap.put(field.key, true)}" update="formEdit:editFieldsLoopId:#{editVarStatus.index}:checkeditCalendar"/>
+                        </p:calendar>         
+                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditCalendar" value="#{mBeanEdit.editMap[field.key]}"/></span>
+                    </div>
+                </div>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{(field.inputType.toString() eq 'STRING' or field.inputType.toString() eq 'WAV') and field.type eq 'class java.lang.String'}">
+                <div class="#{field.responsiveClass}">
+                    <p:outputLabel value="#{field.label}" for="formEdit:editFieldsLoopId:#{editVarStatus.index}:addText" indicateRequired="false" styleClass="field_label"/>
+                    <div class="ui-inputgroup" >
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:inputText id="addText" placeholder="#{field.key}"  converterMessage="#{field.key} inválido" value="#{mBeanEdit[field.property]}">
+                            <p:ajax event="change" listener="#{mBeanEdit.editMap.put(field.key, true)}" update="formEdit:editFieldsLoopId:#{editVarStatus.index}:checkeditText"/>
+                        </p:inputText>  
+                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditText" value="#{mBeanEdit.editMap[field.key]}"/></span>
+                    </div>
+                </div>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{field.inputType.toString() eq 'MONEY'}">
+                <div class="#{field.responsiveClass}">
+                    <p:outputLabel value="#{field.label}" for="formEdit:editFieldsLoopId:#{editVarStatus.index}:addMoney" indicateRequired="false" styleClass="field_label"/>
+                    <div class="ui-inputgroup" >
+                        <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                        <p:inputNumber id="addMoney" placeholder="#{field.key}"  converterMessage="#{field.key} inválido" value="#{mBeanEdit[field.property]}" decimalPlaces="2" thousandSeparator="" decimalSeparator="," decimalSeparatorAlternative="." symbol="R$" converter="moneyConverter">
+                            <p:ajax event="change" listener="#{mBeanEdit.editMap.put(field.key, true)}" process="@this" update="@this,formEdit:editFieldsLoopId:#{editVarStatus.index}:checkeditMoney"/>
+                        </p:inputNumber>  
+                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditMoney" value="#{mBeanEdit.editMap[field.key]}"/></span>
+                    </div>
+                </div>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{field.inputType.toString() eq 'INTEGER'}">
+                <div class="#{field.responsiveClass}">
+                    <p:outputLabel value="#{field.label}" for="formEdit:editFieldsLoopId:#{editVarStatus.index}:addNumber" indicateRequired="false" styleClass="field_label"/>
+                    <div class="ui-inputgroup inputnumber" >
+                        <span class="ui-inputgroup-addon"><i class="fa fa-calculator"></i></span>
+                        <p:inputNumber id="addNumber" placeholder="#{field.key}"  converterMessage="#{field.key} inválido" value="#{mBeanEdit[field.property]}" decimalPlaces="0" thousandSeparator="">
+                            <p:ajax event="change" listener="#{mBeanEdit.editMap.put(field.key, true)}" update="formEdit:editFieldsLoopId:#{editVarStatus.index}:checkeditNumber"/>
+                        </p:inputNumber>      
+                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditNumber" value="#{mBeanEdit.editMap[field.key]}"/></span>
+                    </div>
+                </div>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{field.inputType.toString() eq 'AUTOCOMPLETE'}">
+                <div class="#{field.responsiveClass}">
+                    <p:outputLabel value="#{field.label}" for="@parent:addAuto" indicateRequired="false" styleClass="field_label"/>
+                    <div class="ui-inputgroup inputnumber" style="padding: 0.15em;">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span>
+                        <p:selectOneMenu id="addAuto" placeholder="#{field.key}" value="#{mBeanEdit[field.property]}" appendTo="@this" editable="true" >
+                            <f:selectItems value="#{field.autoComplete}" />
+                            <p:ajax event="change" listener="#{mBeanEdit.editMap.put(field.key, true)}" update="formEdit:editFieldsLoopId:#{editVarStatus.index}:checkeditAuto"/>               
+                        </p:selectOneMenu>
+                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditAuto" value="#{mBeanEdit.editMap[field.key]}"/></span>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </ui:repeat>
+    </div>
+    <div class="ui-g ui-fluid">
+        <ui:repeat id="editFieldsLoopId2" varStatus="editVarStatus" value="#{mBean.colunasTemplateNotId}" var="field">
+            <h:panelGroup rendered="#{field.type eq 'boolean'}">
+                <div class="#{field.responsiveClass}">
+                    <p:outputLabel value="#{field.label}" for="formEdit:editFieldsLoopId2:#{editVarStatus.index}:addBoolean" indicateRequired="false" styleClass="field_label"/>
+                    <div class="ui-inputgroup" >
+                        <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                        <p:selectBooleanButton id="addBoolean"  converterMessage="#{field.key} inválido" value="#{mBeanEdit[field.property]}" onLabel="#{field.key}" offLabel="#{field.key}" onIcon="fa fa-check" offIcon="fa fa-close" style="width: 100%">
+                            <p:ajax event="change" listener="#{mBeanEdit.editMap.put(field.key, true)}" update="formEdit:editFieldsLoopId2:#{editVarStatus.index}:checkeditBoolean"/>
+                        </p:selectBooleanButton> 
+                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditBoolean" value="#{mBeanEdit.editMap[field.key]}"/></span>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </ui:repeat>
+    </div>
+    <div class="ui-g ui-fluid">
+        <ui:repeat id="addFieldsLoopId3" varStatus="editVarStatus" value="#{mBean.colunasTemplateNotId}" var="field">
+            <h:panelGroup rendered="#{field.inputType.toString() eq 'DROPDOWN'}">
+                <div class="ui-g-12 ui-md-6 ui-lg-4" style="z-index: #{19-addVarStatus.index}">
+                    <p:outputLabel value="#{field.label}" for="@parent:editDropDown" indicateRequired="false" styleClass="field_label"/>
+                    <div class="ui-inputgroup" style="padding: 0.15em;">
+                        <span class="ui-inputgroup-addon"><i class="fa fa-check-square-o"></i></span>
+                        <p:selectOneMenu id="editDropDown" placeholder="#{field.key}" value="#{mBeanEdit[field.property]}" appendTo="@this" styleClass="DROPDOWN">
+                            <f:selectItems value="#{mBean.validTipoPlanoList}" />
+                            <p:ajax event="change" listener="#{mBeanEdit.editMap.put(field.key, true)}" update="@parent:checkeditDropDown"/>               
+                        </p:selectOneMenu>
+                        <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditDropDown" value="#{mBeanEdit.editMap[field.key]}"/></span>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </ui:repeat>
+    </div>
+
+
+</ui:composition>

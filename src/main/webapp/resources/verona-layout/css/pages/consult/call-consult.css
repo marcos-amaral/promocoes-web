@@ -1,0 +1,44 @@
+/*body .ui-datatable .ui-paginator {
+    padding: 12px 12px;
+}
+
+ui-dialog-content ui-widget-content{
+    height: auto; max-height: 633px;
+}
+
+.ui-panelgrid .ui-panelgrid-cell {
+    border-width: 0px;
+    padding: 4px 10px;
+}
+
+body .ui-dialog .ui-dialog-title {
+    float: left;
+    margin: .1em 16px .1em 0;
+    color: #353536;
+    font-size: 20px!important;
+    align-items: center;
+}*/
+
+/************************************************************
+* WORD BREAK ON TABLE
+************************************************************/
+div.ngr-table .ui-datatable .ui-datatable-data > tr td:nth-child(8) {
+    word-break: break-word;
+}
+
+div.ngr-table .ui-datatable .ui-datatable-data > tr td:nth-child(9) {  
+    word-break: break-word;
+}
+
+div.ngr-table .ui-datatable .ui-datatable-data > tr td:nth-child(10) {  
+    word-break: break-word;
+}
+
+/************************************************************
+* AUTO SIZED TABLE
+************************************************************/
+div.ngr-table table{
+    table-layout: auto;
+    text-align: center;
+}
+

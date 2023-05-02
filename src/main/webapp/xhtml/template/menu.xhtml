@@ -1,0 +1,96 @@
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:pv="http://primefaces.org/verona">
+
+    <div class="layout-menu-wrapper recuar">
+        <div class="nano">
+            <div class="nano-content sidebar-scroll-content">
+                <div class="layout-menu-container">
+                    <h:form id="menuform">
+                        <pv:menu>
+                            <p:menuitem value="INICIO" icon="fa fa-home" outcome="#{NavigationPages.WELCOME.pageName}"/>
+
+                            <p:submenu label="IMPORTAR" rendered="#{controleBean.admin or controleBean.super}" icon="fa fa-upload">
+                                <p:menuitem value="Importar xlsx" icon="fa fa-table" outcome="#{controleBean.routeToImportar()}"/>
+                            </p:submenu>
+
+                            <p:submenu label="ADICIONAR" icon="fa fa-magic">
+                                <p:menuitem value="ADICIONAR PROMOÇÃO" icon="fa fa-magic" outcome="#{controleBean.routeToWizardAdicionar()}"/>
+                                <p:menuitem value="ADICIONAR INCENTIVO" icon="fa fa-magic" outcome="#{controleBean.routeToWizardIncentivo()}"/>
+                                <p:menuitem value="ADICIONAR INCENTIVOS2S" icon="fa fa-magic" outcome="#{controleBean.routeToWizardIncentivoS2S()}"/>
+                                <p:menuitem value="ADICIONAR INCENTIVO PORTABILIDADE" rendered="false" icon="fa fa-magic" outcome="#{controleBean.routeToWizardIncentivosPortabilidade()}"/>
+                                <p:menuitem value="ADICIONAR PROMOÇÃO PORTABILIDADE" rendered="false" icon="fa fa-magic" outcome="#{controleBean.routeToWizardPromoPortabilidade()}"/>
+                            </p:submenu>
+
+                            <p:submenu label="TEMPLATES" icon="fa fa-cogs">
+                                <p:submenu label="OCS" icon="fa fa-cog">
+                                    <p:submenu label="Pré-pago" icon="fa fa-cog">
+                                        <p:menuitem value="CONFIG_OFERTASPRE" icon="fa fa-database" outcome="#{controleBean.routeToConfigOfertasPre()}" />
+                                        <p:menuitem value="PROMPTS_OFERTASPRE" icon="fa fa-database" outcome="#{controleBean.routeToPromptsOfertasPre()}" />
+                                        <p:menuitem value="FRASEOLOGIAS_OFERTASPRE" icon="fa fa-database" outcome="#{controleBean.routeToFraseologiasOfertasPre()}" />
+                                        <p:menuitem value="INCENTIVO_OFERTASPRE" icon="fa fa-database" outcome="#{controleBean.routeToIncentivoOfertasPre()}" />
+                                        <p:menuitem value="INCENTIVO_OFERTASPRE_S2S" icon="fa fa-database" outcome="#{controleBean.routeToIncentivoOfertasPreS2S()}" />
+                                    </p:submenu>
+                                </p:submenu>
+                                <p:submenu label="IN Secundaria" icon="fa fa-cog">
+                                    <p:submenu label="Pré-pago" icon="fa fa-cog">
+                                        <p:menuitem value="VO_CARTAO" icon="fa fa-database" outcome="#{controleBean.routeToVoCartao()}" />
+                                        <p:menuitem value="FRASES_CARTAO" icon="fa fa-database" outcome="#{controleBean.routeToFrasesCartao()}" />
+                                        <p:menuitem value="BO_CARTAO" icon="fa fa-database" outcome="#{controleBean.routeToBoCartao()}" />
+                                        <p:menuitem value="IO_CARTAO_CARTAO" icon="fa fa-database" outcome="#{controleBean.routeToIoCartaoCartao()}" />
+                                        <p:menuitem value="IO_CARTAO_CARTAO_S2S" icon="fa fa-database" outcome="#{controleBean.routeToIoCartaoCartaoS2S()}" />
+                                    </p:submenu>
+                                    <p:submenu label="Oi Controle" icon="fa fa-cog">
+                                        <p:menuitem value="VO_CONTROLE" icon="fa fa-database" outcome="#{controleBean.routeToVoControle()}" />
+                                        <p:menuitem value="FRASES_CONTROLE" icon="fa fa-database" outcome="#{controleBean.routeToFrasesControle()}" />
+                                        <p:menuitem value="BO_CONTROLE" icon="fa fa-database" outcome="#{controleBean.routeToBoControle()}" />
+                                        <p:menuitem value="IO_CARTAO_CONTROLE" icon="fa fa-database" outcome="#{controleBean.routeToIoCartaoControle()}" />
+                                        <p:menuitem value="IO_CONTROLE_CONTROLE" icon="fa fa-database" outcome="#{controleBean.routeToIoControleControle()}" />
+                                        <p:menuitem value="IO_CONTROLE_CONTROLE_S2S" icon="fa fa-database" outcome="#{controleBean.routeToIoControleControleS2S()}" />
+                                    </p:submenu>
+                                </p:submenu>
+                                <p:submenu label="Portabilidade" rendered="false" icon="fa fa-cog">
+                                    <p:menuitem value="INCENTIVOS_PORTABILIDADE" icon="fa fa-database" outcome="#{controleBean.routeToIncentivosPortabilidade()}" />
+                                    <p:menuitem value="INCENTIVOS_PORTABILIDADE_OCS" icon="fa fa-database" outcome="#{controleBean.routeToIncentivosPortabilidadeOcs()}" />
+                                    <p:menuitem value="FRASES_PORTABILIDADE" icon="fa fa-database" outcome="#{controleBean.routeToFrasesPortabilidade()}" />
+                                    <p:menuitem value="FRASES_PORTABILIDADE_OCS" icon="fa fa-database" outcome="#{controleBean.routeToFrasesPortabilidadeOcs()}" />
+                                    <p:menuitem value="OFERTAS_PORTABILIDADE" icon="fa fa-database" outcome="#{controleBean.routeToOfertasPortabilidade()}" />
+                                    <p:menuitem value="OFERTAS_PORTABILIDADE_OCS" icon="fa fa-database" outcome="#{controleBean.routeToOfertasPortabilidadeOcs()}" />
+                                </p:submenu>
+                                <p:submenu label="IN Primaria" rendered="true" icon="fa fa-cog">
+                                    <p:submenu label="Pré-pago" icon="fa fa-cog">
+                                        <p:menuitem value="PROMOCOES_CARTAO" icon="fa fa-database" outcome="#{controleBean.routeToPromocoesCartao()}" />
+                                        <p:menuitem value="PROMPTS_CARTAOMENU" icon="fa fa-database" outcome="#{controleBean.routeToPromptCartaoMenu()}" />
+                                        <p:menuitem value="CARTAO_MENU" icon="fa fa-database" outcome="#{controleBean.routeToCartaoMenu()}" />
+                                    </p:submenu>
+                                    <p:submenu label="Oi Controle" icon="fa fa-cog">
+                                        <p:menuitem value="TB_OICPROMOCOES" icon="fa fa-database" outcome="#{controleBean.routeToTbOiCPromocoes()}" />
+                                        <p:menuitem value="PROMPT_CONTROLE_MENU" icon="fa fa-database" outcome="#{controleBean.routeToPromptControleMenu()}" />
+                                        <p:menuitem value="TB_OICMENU" icon="fa fa-database" outcome="#{controleBean.routeToTbOiCMenu()}" />
+                                    </p:submenu>
+                                </p:submenu>
+                                <p:submenu label="URA Cadastro OCS" rendered="false" icon="fa fa-cog">
+                                    <p:menuitem value="TB_Template_OCS" icon="fa fa-database" outcome="#{controleBean.routeToTbTemplateOcs()}" />
+                                    <p:menuitem value="Frase_Pre_OCS" icon="fa fa-database" outcome="#{controleBean.routeToFrasePreOcs()}" />
+                                </p:submenu>
+                                <p:submenu label="URA Cadastro IN" rendered="false" icon="fa fa-cog">
+                                    <p:menuitem value="TB_TEMPLATE" icon="fa fa-database" outcome="#{controleBean.routeToTbTemplate()}" />
+                                    <p:menuitem value="Frase_Pre" icon="fa fa-database" outcome="#{controleBean.routeToFrasePre()}" />
+                                    <p:menuitem value="TB_TEMPLATE_CONTROLE" icon="fa fa-database" outcome="#{controleBean.routeToTbTemplateControle()}" />
+                                    <p:menuitem value="Frases_Controle" icon="fa fa-database" outcome="#{controleBean.routeToFrasesControleCad()}" />
+                                </p:submenu>
+                            </p:submenu>
+
+                            <p:menuitem value="SAIR" icon="fa fa-power-off" action="#{controleBean.logout()}"/>
+                        </pv:menu>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</ui:composition>

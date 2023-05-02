@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/xhtml/template/template.xhtml">
+
+
+    <ui:define name="conteudo">
+        <h:outputScript name="js/template.js" library="pages" />
+        <div id="loading"></div>
+        <p:growl id="messages" showDetail="true" />
+
+        <div class="container">
+            
+            <h:form>
+                <ui:include src="/xhtml/template/ModalDialog.xhtml" />
+            </h:form>
+            
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12">
+                    <h:panelGroup id="panelAprovacao" style="visibility: #{cartaoMenuBean.aprovacaoFiltered != null?'unset':'hidden'}">
+                        <i class="fa fa-check-circle-o" style="color: yellowgreen; font-size: 2em;"></i>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value=" GMUD status #{cartaoMenuBean.aprovacaoFiltered.status.tipo} por #{cartaoMenuBean.aprovacaoFiltered.user.name} em "/>
+                        <p:outputLabel style="color: yellowgreen"
+                                       value="#{cartaoMenuBean.aprovacaoFiltered.dt_aprovacao}">
+                            <f:convertDateTime timeStyle="short" type="both" dateStyle="full" locale="pt-BR" timeZone="GMT-03:00"/>
+                        </p:outputLabel>
+                    </h:panelGroup>
+                </div>
+            </div>
+            
+            <h:form id="formButtons">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Adicionar" id="buttonAdd" oncomplete="PF('sidebarAdd').show()" actionListener="#{cartaoMenuBean.preLoadEditBean()}" update="sideBarAddId" disabled="#{!controleBean.canEdit() or cartaoMenuBean.expiredGmud != null}" styleClass="ui-priority-primary" icon="fa fa-plus"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Editar" id="buttonEdit" oncomplete="PF('sidebarEdit').show()" actionListener="#{cartaoMenuBean.preLoadEditBean()}" update="sideBarEditId" disabled="#{cartaoMenuBean.selectedConfigOfertasPreList.size() eq 0 or !controleBean.canEdit() or cartaoMenuBean.expiredGmud != null or !cartaoMenuBean.canEdit()}" styleClass="ui-priority-primary" icon="fa fa-edit"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Excluir" id="buttonDel" oncomplete="PF('sidebarDelete').show()" actionListener="#{cartaoMenuBean.preLoadEditBean()}" update="sideBarDeleteId" styleClass="ui-priority-primary" disabled="#{cartaoMenuBean.selectedConfigOfertasPreList.size() eq 0 or !controleBean.canEdit() or cartaoMenuBean.expiredGmud != null}" icon="fa fa-eraser"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Histórico" id="buttonHist" oncomplete="hideLoader();PF('sidebarHistory').show()" update="formHistory:tabelaHistoryId" styleClass="ui-priority-primary" disabled="#{cartaoMenuBean.selectedConfigOfertasPreList.size() eq 0 or cartaoMenuBean.selectedConfigOfertasPreList.size() gt 1}" icon="fa fa-history"/>
+                    </div>
+                    <!--
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:commandButton value="Script" id="buttonScript" oncomplete="PF('sidebarScript').show()" styleClass="ui-priority-primary" icon="fa fa-file-code-o"/>
+                    </div>
+                    -->
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+                        <p:splitButton  value="Adiar" id="buttonAdm" onclick="PF('newDtGmudDlg').show();" icon="fa fa-clock-o" disabled="#{cartaoMenuBean.defaultFilterValue eq 'PRODUCAO' or controleBean.isMarketing()}">
+                            <p:menuitem value="Iniciar" onclick="PF('confirmDlgIniciar').show();" disabled="#{cartaoMenuBean.defaultFilterValue eq 'PRODUCAO' or !(cartaoMenuBean.expiredGmud == null and controleBean.canStart(cartaoMenuBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Validar" onclick="PF('confirmDlgValidar').show();" disabled="#{cartaoMenuBean.defaultFilterValue eq 'PRODUCAO' or !(cartaoMenuBean.expiredGmud == null and controleBean.canValidate(cartaoMenuBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Aprovar" onclick="PF('confirmDlgAprovar').show();" disabled="#{cartaoMenuBean.defaultFilterValue eq 'PRODUCAO' or !(cartaoMenuBean.expiredGmud == null and controleBean.canAprove(cartaoMenuBean.aprovacaoFiltered, false))}"/>
+                            <p:menuitem value="Liberar UAT" onclick="PF('confirmDlgUAT').show();" disabled="#{cartaoMenuBean.defaultFilterValue eq 'PRODUCAO' or !(cartaoMenuBean.expiredGmud == null and controleBean.canUAT(cartaoMenuBean.aprovacaoFiltered))}"/>
+                            <p:menuitem value="Liberar Implantação" onclick="PF('confirmDlgImplantacao').show();" disabled="#{cartaoMenuBean.defaultFilterValue eq 'PRODUCAO' or !(cartaoMenuBean.expiredGmud == null and controleBean.canReleaseDeployment(cartaoMenuBean.aprovacaoFiltered,false))}"/>
+                            <p:menuitem value="Implantar" onclick="PF('confirmDlg').show();" disabled="#{cartaoMenuBean.defaultFilterValue eq 'PRODUCAO' or !controleBean.canDeploy(cartaoMenuBean.aprovacaoFiltered)}"/>
+                        </p:splitButton> 
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-4">
+                        <h:outputLabel value="#{cartaoMenuBean.aprovacaoFiltered.status.tipo}" style="float: right; font-style: oblique; color: #fa392f"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-3" style="float: right; padding-right: 50px;">
+                        <h:outputLabel value="CARTAO_MENU" style="float: right;"/>
+                    </div>
+                </div>
+            </h:form>
+
+            <!-- TABELA PRINCIPAL --> 
+            <h:panelGroup>
+                <h:form id="formTable">
+                    <p:dataTable
+                        id="tabelaId"
+                        value="#{cartaoMenuBean.configOfertasPreList}"
+                        lazy="true"
+                        paginator="true"
+                        rows="50"
+                        paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        paginatorPosition="bottom"
+                        rowsPerPageTemplate="10,50,100"
+                        var="tabelaRow"
+                        widgetVar="tabelaCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="350"  
+                        editable="true" 
+                        editMode="cell" 
+                        selection="#{cartaoMenuBean.selectedConfigOfertasPreList}"
+                        rowKey="#{tabelaRow.id}"
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:ajax event="rowSelect" update="formButtons" />
+                        <p:ajax event="rowUnselect" update="formButtons" />
+                        <p:ajax event="toggleSelect" update="formButtons" />
+                        <p:ajax event="rowSelectCheckbox" update="formButtons" />
+                        <p:ajax event="rowUnselectCheckbox" update="formButtons" />
+
+                        <p:ajax event="filter" listener="#{cartaoMenuBean.cleanSelected()}" update="panelAprovacao,formButtons"/>
+
+                        <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+
+                        <p:column headerText="GMUD" filterBy="#{tabelaRow.dtGmudStr}" filterMatchMode="exact" filterValue="#{cartaoMenuBean.defaultFilterValue}" width="120" styleClass="#{tabelaRow.getStyleClass('GMUD')}">
+                            <f:facet name="filter">
+                                <p:selectOneMenu onchange="PF('tabelaCell').filter()" value="#{cartaoMenuBean.defaultFilterValue}" styleClass="custom-filter">
+                                    <f:selectItem itemLabel="PRODUÇÃO" itemValue="PRODUCAO"/>
+                                    <f:selectItems value="#{cartaoMenuBean.gmudList}"/>
+                                </p:selectOneMenu>
+                            </f:facet>
+                            <p:outputLabel value="#{tabelaRow.dtGmudStr}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="MODIFICADA" width="100" styleClass="#{tabelaRow.getStyleClass('MODIFICADA')}">
+                            <p:outputLabel value="#{tabelaRow.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy  HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00"/>
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100" styleClass="#{tabelaRow.getStyleClass('LOGIN')}">
+                            <p:outputLabel value="#{tabelaRow.user.login}"/>
+                        </p:column>
+                        <p:column headerText="TB_ID_BENEFICIO" filterBy="#{tabelaRow.tb_id_beneficio}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_ID_BENEFICIO')}"><p:outputLabel value="#{tabelaRow.tb_id_beneficio}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_ID_PROGRAMA" filterBy="#{tabelaRow.tb_id_programa}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_ID_PROGRAMA')}"><p:outputLabel value="#{tabelaRow.tb_id_programa}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_DDD" filterBy="#{tabelaRow.tb_ddd}"  filterFunction="#{genericFilter.filter}" width="280" styleClass="#{tabelaRow.getStyleClass('TB_DDD')}"><p:outputLabel value="#{tabelaRow.tb_ddd}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="TB_REGIAO" filterBy="#{tabelaRow.tb_regiao}"  filterFunction="#{genericFilter.filter}" width="80" styleClass="#{tabelaRow.getStyleClass('TB_REGIAO')}"><p:outputLabel value="#{tabelaRow.tb_regiao}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CPP_MINICIAL" filterBy="#{tabelaRow.upr1_oi_cpp_minicial}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CPP_MINICIAL')}"><p:outputLabel value="#{tabelaRow.upr1_oi_cpp_minicial}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CPP_REGTORPEDO" filterBy="#{tabelaRow.upr1_oi_cpp_regtorpedo}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CPP_REGTORPEDO')}"><p:outputLabel value="#{tabelaRow.upr1_oi_cpp_regtorpedo}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CPP_REGLIGACAO" filterBy="#{tabelaRow.upr1_oi_cpp_regligacao}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CPP_REGLIGACAO')}"><p:outputLabel value="#{tabelaRow.upr1_oi_cpp_regligacao}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CPPCONT_REGLIGACAOOIMOVEL" filterBy="#{tabelaRow.upr1_oi_cppcont_regligacaooimovel}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CPPCONT_REGLIGACAOOIMOVEL')}"><p:outputLabel value="#{tabelaRow.upr1_oi_cppcont_regligacaooimovel}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CPPCONT_REGLIGACAOOIMOVELFIXO" filterBy="#{tabelaRow.upr1_oi_cppcont_regligacaooimovelfixo}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CPPCONT_REGLIGACAOOIMOVELFIXO')}"><p:outputLabel value="#{tabelaRow.upr1_oi_cppcont_regligacaooimovelfixo}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CPPCONT_REGLIGACAOMIX" filterBy="#{tabelaRow.upr1_oi_cppcont_regligacaomix}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CPPCONT_REGLIGACAOMIX')}"><p:outputLabel value="#{tabelaRow.upr1_oi_cppcont_regligacaomix}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CPP_COMOUSAR" filterBy="#{tabelaRow.upr1_oi_cpp_comousar}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CPP_COMOUSAR')}"><p:outputLabel value="#{tabelaRow.upr1_oi_cpp_comousar}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CRBDAD5ARBI_PROMODEGRAU_INIT2" filterBy="#{tabelaRow.upr1_oi_crbdad5arbi_promodegrau_init2}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CRBDAD5ARBI_PROMODEGRAU_INIT2')}"><p:outputLabel value="#{tabelaRow.upr1_oi_crbdad5arbi_promodegrau_init2}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CRBDAD5D_RECBONUSMAX_INIT2" filterBy="#{tabelaRow.upr1_oi_crbdad5d_recbonusmax_init2}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CRBDAD5D_RECBONUSMAX_INIT2')}"><p:outputLabel value="#{tabelaRow.upr1_oi_crbdad5d_recbonusmax_init2}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CRBDAD5D_RECBONUSMINDEGRAU2_INIT2" filterBy="#{tabelaRow.upr1_oi_crbdad5d_recbonusmindegrau2_init2}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CRBDAD5D_RECBONUSMINDEGRAU2_INIT2')}"><p:outputLabel value="#{tabelaRow.upr1_oi_crbdad5d_recbonusmindegrau2_init2}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CRBDAD5D_RECEBONUSMINDEGRAU3_INIT2" filterBy="#{tabelaRow.upr1_oi_crbdad5d_recebonusmindegrau3_init2}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CRBDAD5D_RECEBONUSMINDEGRAU3_INIT2')}"><p:outputLabel value="#{tabelaRow.upr1_oi_crbdad5d_recebonusmindegrau3_init2}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CRBDAD5D_RECEBEBONUSMINDEGRAU2E3_INIT2" filterBy="#{tabelaRow.upr1_oi_crbdad5d_recebebonusmindegrau2e3_init2}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CRBDAD5D_RECEBEBONUSMINDEGRAU2E3_INIT2')}"><p:outputLabel value="#{tabelaRow.upr1_oi_crbdad5d_recebebonusmindegrau2e3_init2}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CRBDAD5D_RECEBEBONUSMAX3_INIT2" filterBy="#{tabelaRow.upr1_oi_crbdad5d_recebebonusmax3_init2}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CRBDAD5D_RECEBEBONUSMAX3_INIT2')}"><p:outputLabel value="#{tabelaRow.upr1_oi_crbdad5d_recebebonusmax3_init2}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CINFPROMO_MENSAGEMINICIAL" filterBy="#{tabelaRow.upr1_oi_cinfpromo_mensageminicial}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CINFPROMO_MENSAGEMINICIAL')}"><p:outputLabel value="#{tabelaRow.upr1_oi_cinfpromo_mensageminicial}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CINFPROMO_REGTORPEDO" filterBy="#{tabelaRow.upr1_oi_cinfpromo_regtorpedo}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CINFPROMO_REGTORPEDO')}"><p:outputLabel value="#{tabelaRow.upr1_oi_cinfpromo_regtorpedo}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CINFPROMO_REGLIGACAO" filterBy="#{tabelaRow.upr1_oi_cinfpromo_regligacao}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CINFPROMO_REGLIGACAO')}"><p:outputLabel value="#{tabelaRow.upr1_oi_cinfpromo_regligacao}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CINFPROMO_COMOUSAR" filterBy="#{tabelaRow.upr1_oi_cinfpromo_comousar}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CINFPROMO_COMOUSAR')}"><p:outputLabel value="#{tabelaRow.upr1_oi_cinfpromo_comousar}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CINFPROMO_VALIDADEPROMO" filterBy="#{tabelaRow.upr1_oi_cinfpromo_validadepromo}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CINFPROMO_VALIDADEPROMO')}"><p:outputLabel value="#{tabelaRow.upr1_oi_cinfpromo_validadepromo}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CCPOP_PROMOOICARTAO" filterBy="#{tabelaRow.upr1_oi_ccpop_promooicartao}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CCPOP_PROMOOICARTAO')}"><p:outputLabel value="#{tabelaRow.upr1_oi_ccpop_promooicartao}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CINFP_REGDADOS" filterBy="#{tabelaRow.upr1_oi_cinfp_regdados}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CINFP_REGDADOS')}"><p:outputLabel value="#{tabelaRow.upr1_oi_cinfp_regdados}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="UPR1_OI_CPP_REGDADOS" filterBy="#{tabelaRow.upr1_oi_cpp_regdados}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('UPR1_OI_CPP_REGDADOS')}"><p:outputLabel value="#{tabelaRow.upr1_oi_cpp_regdados}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="INCENTIVO_OFERTA_PRE" filterBy="#{tabelaRow.incentivo_oferta_pre}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('INCENTIVO_OFERTA_PRE')}"><p:outputLabel value="#{tabelaRow.incentivo_oferta_pre}" ondblclick="copyToClip($(this));"/></p:column>
+                        <p:column headerText="JACLIENTE_SVA" filterBy="#{tabelaRow.jacliente_sva}"  filterFunction="#{genericFilter.filter}" width="350" styleClass="#{tabelaRow.getStyleClass('JACLIENTE_SVA')}"><p:outputLabel value="#{tabelaRow.jacliente_sva}" ondblclick="copyToClip($(this));"/></p:column>
+
+                    </p:dataTable>
+                </h:form>
+            </h:panelGroup>
+
+            <!-- ADICIONAR PROMOCAO -->
+            <p:sidebar id="sideBarAddId" widgetVar="sidebarAdd" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Adicionar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesAdd"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formAdd">
+                    <ui:include src="/xhtml/pri/CartaoMenu_addIds.xhtml" />
+                    <ui:include src="/xhtml/pri/CartaoMenu_add.xhtml" >
+                        <ui:param name="mBean" value="#{cartaoMenuBean}" />
+                        <ui:param name="mBeanNew" value="#{cartaoMenuBean.newConfigOfertasPre}" />
+                    </ui:include>
+
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarAdd').hide()"/>
+                        <p:commandButton value="Adicionar" validateClient="true" update="messages,messagesAdd" actionListener="#{cartaoMenuBean.adicionar()}" onstart="showLoader();" oncomplete="hideLoader();"/>
+                        <p:selectBooleanCheckbox itemLabel="Adicionar outra" value="#{cartaoMenuBean.adicionarOutra}" style="min-width: 140px"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- EDITAR PROMOCAO -->
+            <p:sidebar id="sideBarEditId" widgetVar="sidebarEdit" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Editar Promoção</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesEdit"></p:messages>
+                    </div>
+                </div>
+                <h:form id="formEdit">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-12">
+                            <p:scrollPanel style="width:100%;height:100px">
+                                <p:panelGrid columns="6">
+                                    <p:repeat value="#{cartaoMenuBean.selectedConfigOfertasPreList}" var="selectedConfigOfertasPreItem">
+                                        <p:button value="#{selectedConfigOfertasPreItem.idDdd}" disabled="true" style="margin: 2px;"/>
+                                    </p:repeat>
+                                </p:panelGrid>
+                            </p:scrollPanel>
+                        </div>
+                    </div>
+                    <h:panelGroup rendered="#{cartaoMenuBean.isEditProd()}">
+                        <p:separator />
+                        <div class="ui-g ui-fluid">
+                            <div class="ui-g-12 ui-md-6 ui-lg-2">
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                    <p:calendar id="editDT_GMUD" placeholder="DT_GMUD" required="true" value="#{cartaoMenuBean.editConfigOfertasPre.dt_gmud}" mask="99/99/9999" showOn="button">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                    </p:calendar>
+                                    <span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox value="true"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                    <p:separator />
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CPP_MINICIAL" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_cpp_minicial}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_cpp_minicial(true)}" update="formEdit:checkeditUpr1_oi_cpp_minicial"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_cpp_minicial" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_cpp_minicial}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CPP_REGTORPEDO" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_cpp_regtorpedo}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_cpp_regtorpedo(true)}" update="formEdit:checkeditUpr1_oi_cpp_regtorpedo"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_cpp_regtorpedo" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_cpp_regtorpedo}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CPP_REGLIGACAO" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_cpp_regligacao}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_cpp_regligacao(true)}" update="formEdit:checkeditUpr1_oi_cpp_regligacao"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_cpp_regligacao" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_cpp_regligacao}"/></span></div></div>
+                    </div>    
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CPPCONT_REGLIGACAOOIMOVEL" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_cppcont_regligacaooimovel}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_cppcont_regligacaooimovel(true)}" update="formEdit:checkeditUpr1_oi_cppcont_regligacaooimovel"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_cppcont_regligacaooimovel" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_cppcont_regligacaooimovel}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CPPCONT_REGLIGACAOOIMOVELFIXO" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_cppcont_regligacaooimovelfixo}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_cppcont_regligacaooimovelfixo(true)}" update="formEdit:checkeditUpr1_oi_cppcont_regligacaooimovelfixo"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_cppcont_regligacaooimovelfixo" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_cppcont_regligacaooimovelfixo}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CPPCONT_REGLIGACAOMIX" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_cppcont_regligacaomix}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_cppcont_regligacaomix(true)}" update="formEdit:checkeditUpr1_oi_cppcont_regligacaomix"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_cppcont_regligacaomix" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_cppcont_regligacaomix}"/></span></div></div>
+                    </div>    
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CPP_COMOUSAR" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_cpp_comousar}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_cpp_comousar(true)}" update="formEdit:checkeditUpr1_oi_cpp_comousar"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_cpp_comousar" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_cpp_comousar}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CRBDAD5ARBI_PROMODEGRAU_INIT2" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_crbdad5arbi_promodegrau_init2}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_crbdad5arbi_promodegrau_init2(true)}" update="formEdit:checkeditUpr1_oi_crbdad5arbi_promodegrau_init2"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_crbdad5arbi_promodegrau_init2" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_crbdad5arbi_promodegrau_init2}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CRBDAD5D_RECBONUSMAX_INIT2" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_crbdad5d_recbonusmax_init2}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_crbdad5d_recbonusmax_init2(true)}" update="formEdit:checkeditUpr1_oi_crbdad5d_recbonusmax_init2"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_crbdad5d_recbonusmax_init2" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_crbdad5d_recbonusmax_init2}"/></span></div></div>
+                    </div>    
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CRBDAD5D_RECBONUSMINDEGRAU2_INIT2" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_crbdad5d_recbonusmindegrau2_init2}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_crbdad5d_recbonusmindegrau2_init2(true)}" update="formEdit:checkeditUpr1_oi_crbdad5d_recbonusmindegrau2_init2"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_crbdad5d_recbonusmindegrau2_init2" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_crbdad5d_recbonusmindegrau2_init2}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CRBDAD5D_RECEBONUSMINDEGRAU3_INIT2" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_crbdad5d_recebonusmindegrau3_init2}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_crbdad5d_recebonusmindegrau3_init2(true)}" update="formEdit:checkeditUpr1_oi_crbdad5d_recebonusmindegrau3_init2"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_crbdad5d_recebonusmindegrau3_init2" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_crbdad5d_recebonusmindegrau3_init2}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CRBDAD5D_RECEBEBONUSMINDEGRAU2E3_INIT2" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_crbdad5d_recebebonusmindegrau2e3_init2}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_crbdad5d_recebebonusmindegrau2e3_init2(true)}" update="formEdit:checkeditUpr1_oi_crbdad5d_recebebonusmindegrau2e3_init2"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_crbdad5d_recebebonusmindegrau2e3_init2" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_crbdad5d_recebebonusmindegrau2e3_init2}"/></span></div></div>
+                    </div>    
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CRBDAD5D_RECEBEBONUSMAX3_INIT2" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_crbdad5d_recebebonusmax3_init2}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_crbdad5d_recebebonusmax3_init2(true)}" update="formEdit:checkeditUpr1_oi_crbdad5d_recebebonusmax3_init2"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_crbdad5d_recebebonusmax3_init2" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_crbdad5d_recebebonusmax3_init2}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CINFPROMO_MENSAGEMINICIAL" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_cinfpromo_mensageminicial}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_cinfpromo_mensageminicial(true)}" update="formEdit:checkeditUpr1_oi_cinfpromo_mensageminicial"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_cinfpromo_mensageminicial" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_cinfpromo_mensageminicial}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CINFPROMO_REGTORPEDO" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_cinfpromo_regtorpedo}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_cinfpromo_regtorpedo(true)}" update="formEdit:checkeditUpr1_oi_cinfpromo_regtorpedo"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_cinfpromo_regtorpedo" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_cinfpromo_regtorpedo}"/></span></div></div>
+                    </div>    
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CINFPROMO_REGLIGACAO" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_cinfpromo_regligacao}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_cinfpromo_regligacao(true)}" update="formEdit:checkeditUpr1_oi_cinfpromo_regligacao"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_cinfpromo_regligacao" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_cinfpromo_regligacao}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CINFPROMO_COMOUSAR" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_cinfpromo_comousar}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_cinfpromo_comousar(true)}" update="formEdit:checkeditUpr1_oi_cinfpromo_comousar"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_cinfpromo_comousar" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_cinfpromo_comousar}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CINFPROMO_VALIDADEPROMO" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_cinfpromo_validadepromo}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_cinfpromo_validadepromo(true)}" update="formEdit:checkeditUpr1_oi_cinfpromo_validadepromo"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_cinfpromo_validadepromo" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_cinfpromo_validadepromo}"/></span></div></div>
+                    </div>    
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CCPOP_PROMOOICARTAO" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_ccpop_promooicartao}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_ccpop_promooicartao(true)}" update="formEdit:checkeditUpr1_oi_ccpop_promooicartao"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_ccpop_promooicartao" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_ccpop_promooicartao}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CINFP_REGDADOS" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_cinfp_regdados}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_cinfp_regdados(true)}" update="formEdit:checkeditUpr1_oi_cinfp_regdados"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_cinfp_regdados" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_cinfp_regdados}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="UPR1_OI_CPP_REGDADOS" value="#{cartaoMenuBean.editConfigOfertasPre.upr1_oi_cpp_regdados}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditUpr1_oi_cpp_regdados(true)}" update="formEdit:checkeditUpr1_oi_cpp_regdados"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditUpr1_oi_cpp_regdados" value="#{cartaoMenuBean.editConfigOfertasPre.editUpr1_oi_cpp_regdados}"/></span></div></div>
+                    </div>    
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="INCENTIVO_OFERTA_PRE" value="#{cartaoMenuBean.editConfigOfertasPre.incentivo_oferta_pre}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditIncentivo_oferta_pre(true)}" update="formEdit:checkeditIncentivo_oferta_pre"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditIncentivo_oferta_pre" value="#{cartaoMenuBean.editConfigOfertasPre.editIncentivo_oferta_pre}"/></span></div></div>
+                        <div class="ui-g-12 ui-md-6 ui-lg-4"><div class="ui-inputgroup"><span class="ui-inputgroup-addon"><i class="fa fa-quote-left"></i></span><p:inputText placeholder="JACLIENTE_SVA" value="#{cartaoMenuBean.editConfigOfertasPre.jacliente_sva}"><p:ajax event="change" listener="#{cartaoMenuBean.editConfigOfertasPre.setEditJacliente_sva(true)}" update="formEdit:checkeditJacliente_sva"/></p:inputText><span class="ui-inputgroup-addon-checkbox"><p:selectBooleanCheckbox id="checkeditJacliente_sva" value="#{cartaoMenuBean.editConfigOfertasPre.editJacliente_sva}"/></span></div></div>
+                    </div>
+
+                    <h:panelGrid columns="3" style="margin-top:10px" cellpadding="5">
+                        <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('sidebarEdit').hide()"/>
+                        <p:commandButton value="Confirmar" validateClient="true" actionListener="#{cartaoMenuBean.editar()}" update="messages,messagesEdit,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="hideLoader();"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:sidebar>
+
+            <!-- HISTORICO PROMOCAO -->
+            <p:sidebar id="sideBarHistoryId" widgetVar="sidebarHistory" fullScreen="true" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Histórico</h1>
+                <p:separator />
+                <h:form id="formHistory">
+                    <p:dataTable
+                        id="tabelaHistoryId"
+                        value="#{cartaoMenuBean.selectedConfigOfertasPreHistoryList}"
+                        var="tabelaHistory"
+                        widgetVar="tabelaHistoryCell"
+                        scrollable="true" 
+                        scrollWidth="95%"
+                        scrollHeight="370"  
+                        style="font-size: 0.8em; display: inline-block;"
+                        styleClass="hidden">
+
+                        <p:column headerText="ÚLTIMO STATUS" width="100" groupRow="true">
+                            <p:outputLabel value="#{tabelaHistory.lastStatus}"/>
+                        </p:column>
+                        <p:column headerText="LOGIN" width="100">
+                            <p:outputLabel value="#{tabelaHistory.user.login}"/>
+                        </p:column>
+                        <p:column headerText="MODIFICADO" width="150">
+                            <p:outputLabel value="#{tabelaHistory.modified}">
+                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" locale="pt-BR" timeZone="GMT-03:00" />
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="UPR1_OI_CPP_MINICIAL" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CPP_MINICIAL',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_cpp_minicial}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CPP_MINICIAL',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CPP_REGTORPEDO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CPP_REGTORPEDO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_cpp_regtorpedo}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CPP_REGTORPEDO',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CPP_REGLIGACAO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CPP_REGLIGACAO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_cpp_regligacao}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CPP_REGLIGACAO',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CPPCONT_REGLIGACAOOIMOVEL" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CPPCONT_REGLIGACAOOIMOVEL',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_cppcont_regligacaooimovel}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CPPCONT_REGLIGACAOOIMOVEL',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CPPCONT_REGLIGACAOOIMOVELFIXO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CPPCONT_REGLIGACAOOIMOVELFIXO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_cppcont_regligacaooimovelfixo}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CPPCONT_REGLIGACAOOIMOVELFIXO',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CPPCONT_REGLIGACAOMIX" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CPPCONT_REGLIGACAOMIX',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_cppcont_regligacaomix}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CPPCONT_REGLIGACAOMIX',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CPP_COMOUSAR" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CPP_COMOUSAR',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_cpp_comousar}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CPP_COMOUSAR',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CRBDAD5ARBI_PROMODEGRAU_INIT2" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CRBDAD5ARBI_PROMODEGRAU_INIT2',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_crbdad5arbi_promodegrau_init2}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CRBDAD5ARBI_PROMODEGRAU_INIT2',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CRBDAD5D_RECBONUSMAX_INIT2" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CRBDAD5D_RECBONUSMAX_INIT2',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_crbdad5d_recbonusmax_init2}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CRBDAD5D_RECBONUSMAX_INIT2',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CRBDAD5D_RECBONUSMINDEGRAU2_INIT2" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CRBDAD5D_RECBONUSMINDEGRAU2_INIT2',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_crbdad5d_recbonusmindegrau2_init2}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CRBDAD5D_RECBONUSMINDEGRAU2_INIT2',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CRBDAD5D_RECEBONUSMINDEGRAU3_INIT2" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CRBDAD5D_RECEBONUSMINDEGRAU3_INIT2',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_crbdad5d_recebonusmindegrau3_init2}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CRBDAD5D_RECEBONUSMINDEGRAU3_INIT2',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CRBDAD5D_RECEBEBONUSMINDEGRAU2E3_INIT2" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CRBDAD5D_RECEBEBONUSMINDEGRAU2E3_INIT2',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_crbdad5d_recebebonusmindegrau2e3_init2}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CRBDAD5D_RECEBEBONUSMINDEGRAU2E3_INIT2',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CRBDAD5D_RECEBEBONUSMAX3_INIT2" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CRBDAD5D_RECEBEBONUSMAX3_INIT2',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_crbdad5d_recebebonusmax3_init2}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CRBDAD5D_RECEBEBONUSMAX3_INIT2',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CINFPROMO_MENSAGEMINICIAL" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CINFPROMO_MENSAGEMINICIAL',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_cinfpromo_mensageminicial}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CINFPROMO_MENSAGEMINICIAL',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CINFPROMO_REGTORPEDO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CINFPROMO_REGTORPEDO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_cinfpromo_regtorpedo}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CINFPROMO_REGTORPEDO',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CINFPROMO_REGLIGACAO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CINFPROMO_REGLIGACAO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_cinfpromo_regligacao}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CINFPROMO_REGLIGACAO',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CINFPROMO_COMOUSAR" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CINFPROMO_COMOUSAR',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_cinfpromo_comousar}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CINFPROMO_COMOUSAR',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CINFPROMO_VALIDADEPROMO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CINFPROMO_VALIDADEPROMO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_cinfpromo_validadepromo}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CINFPROMO_VALIDADEPROMO',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CCPOP_PROMOOICARTAO" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CCPOP_PROMOOICARTAO',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_ccpop_promooicartao}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CCPOP_PROMOOICARTAO',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CINFP_REGDADOS" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CINFP_REGDADOS',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_cinfp_regdados}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CINFP_REGDADOS',true)}"/></p:column>
+                        <p:column headerText="UPR1_OI_CPP_REGDADOS" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('UPR1_OI_CPP_REGDADOS',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.upr1_oi_cpp_regdados}" rendered="#{tabelaHistory.editMap.getOrDefault('UPR1_OI_CPP_REGDADOS',true)}"/></p:column>
+                        <p:column headerText="INCENTIVO_OFERTA_PRE" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('INCENTIVO_OFERTA_PRE',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.incentivo_oferta_pre}" rendered="#{tabelaHistory.editMap.getOrDefault('INCENTIVO_OFERTA_PRE',true)}"/></p:column>
+                        <p:column headerText="JACLIENTE_SVA" width="340" styleClass="#{tabelaHistory.deleted?'deletedcell':(tabelaHistory.editMap.getOrDefault('JACLIENTE_SVA',true)?'editedcell':'')}"><p:outputLabel value="#{tabelaHistory.jacliente_sva}" rendered="#{tabelaHistory.editMap.getOrDefault('JACLIENTE_SVA',true)}"/></p:column>
+
+                    </p:dataTable>
+                </h:form>
+            </p:sidebar>
+
+            <!-- DELETAR PROMOCAO -->
+            <p:sidebar id="sideBarDeleteId" widgetVar="sidebarDelete" position="top" baseZIndex="10000" style="overflow: auto;min-height: 160px;">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 ui-md-3">
+                        <h1 style="font-weight:normal">Tem certeza?</h1>
+                    </div>
+                    <div class="ui-g-12 ui-md-9">
+                        <p:messages id="messagesDel"></p:messages>
+                    </div>
+                </div>
+                <p:separator />
+                <h:form id="formDel">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-md-3 ui-lg-2">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon"><i class="fa fa-calendar"></i></span>
+                                <p:calendar id="delDT_GMUD" placeholder="DT_GMUD" required="true" value="#{cartaoMenuBean.gmudToDelete}" disabled="#{cartaoMenuBean.gmudToDelete != null}" mask="99/99/9999" pattern="dd/MM/yyyy" showOn="button">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" locale="pt-BR" timeZone="GMT-03:00" />
+                                </p:calendar>
+                            </div>
+                        </div>
+                        <p:commandButton value="Sim" actionListener="#{cartaoMenuBean.deletar()}" onstart="showLoader();" oncomplete="hideLoader();" update="messages,messagesDel,formTable:tabelaId" icon="fa fa-check" />
+                        <p:commandButton value="Não" oncomplete="PF('sidebarDelete').hide()" icon="fa fa-times" />
+                    </div>
+                </h:form>
+            </p:sidebar>
+
+            <!-- SCRIPT PROMOCAO -->
+            <p:sidebar id="sideBarScriptId" widgetVar="sidebarScript" position="top" baseZIndex="10000" style="overflow: auto;">
+                <h1 style="font-weight:normal">Gerar Script</h1>
+                <h:form id="formScript">
+                    <p:separator />
+                    <p:commandButton value="*880" ajax="false" actionListener="#{cartaoMenuBean.generateScriptFile('880')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{cartaoMenuBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                    <p:commandButton value="*144" ajax="false" actionListener="#{cartaoMenuBean.generateScriptFile('144')}" styleClass="ui-confirmdialog-yes">
+                        <p:fileDownload value="#{cartaoMenuBean.scriptFile}" />
+                        <p:ajax event="click" oncomplete="PF('sidebarScript').hide();"/>
+                    </p:commandButton>
+                </h:form>
+            </p:sidebar>
+
+            <p:dialog id="expiredGmudDlgId" header="GMUD Expirada: #{cartaoMenuBean.expiredGmud}" widgetVar="expiredGmudDlg" rendered="#{cartaoMenuBean.expiredGmud != null and controleBean.canEdit()}" closable="false">
+                <h:form id="formExpired">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Essa GMUD expirou e suas alterações precisam ir para produção ou apenas adiada, antes de prosseguir com novas alterações.<br/>
+                        </div>
+                    </div>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-8">
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Adiar" onclick="PF('newDtGmudDlg').show();"/>
+                        </div>
+                        <div class="ui-g-2">
+                            <p:commandButton value="Implantar" onclick="PF('confirmDlg').show();" style="float: right; display: #{controleBean.visibilityDeploy(cartaoMenuBean.aprovacaoFiltered)}"/>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="newDtGmudDlg" showHeader="false" width="min-content" closable="false">
+                <h:form id="formNewDate">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            <p:datePicker id="inline" value="#{cartaoMenuBean.newDtGmud}" locale="br" inline="true">
+                                <p:ajax event="dateSelect" listener="#{cartaoMenuBean.adiar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist,expiredGmudDlgId" onstart="showLoader();" oncomplete="location.reload();"/>
+                            </p:datePicker>
+                            <div class="ui-g-6">
+                                <p:commandButton value="Cancelar" onclick="PF('newDtGmudDlg').hide();" icon="fa fa-times" />
+                            </div>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlg" header="Implantar GMUD" closable="false">
+                <h:form id="formConfirm">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Todas as alterações serão inseridas nos registros de produção!<br/>
+                            Confirmar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{cartaoMenuBean.aprovar}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlg').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgAprovar" header="Aprovar GMUD" closable="false">
+                <h:form id="formConfirmAprovar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Aprovar?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{cartaoMenuBean.aprovarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgAprovar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgIniciar" header="Iniciar GMUD" closable="false">
+                <h:form id="formConfirmIniciar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma o inicio da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{cartaoMenuBean.iniciarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgIniciar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgIniciar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgValidar" header="Validar GMUD" closable="false">
+                <h:form id="formConfirmValidar">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma a validação da GMUD?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{cartaoMenuBean.validarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgValidar').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgValidar').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgUAT" header="Enviar GMUD para UAT" closable="false">
+                <h:form id="formConfirmUAT">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para UAT?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{cartaoMenuBean.uatGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgUAT').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgUAT').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="confirmDlgImplantacao" header="Enviar GMUD para Implantacao" closable="false">
+                <h:form id="formConfirmImplantacao">
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12">
+                            Confirma liberar GMUD para Implantacao?
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Sim" actionListener="#{cartaoMenuBean.implantarGmud}" update="messages,formTable:tabelaId,formButtons:buttonEdit,formButtons:buttonDel,formButtons:buttonHist" onstart="showLoader();" oncomplete="closeConfirmDlg(); PF('confirmDlgImplantacao').hide();" icon="fa fa-check" />
+                        </div>
+                        <div class="ui-g-6">
+                            <p:commandButton value="Não" onclick="PF('confirmDlgImplantacao').hide();" icon="fa fa-times" />
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+        </div>
+
+        <script  type="text/javascript" target="body">
+            $j = jQuery;
+            $j(document).ready(function () {
+                PF('tabelaCell').filter();
+                hideLoader();
+                try {
+                    PF('expiredGmudDlg').show();
+                } catch (e) {
+                }
+
+            });
+        </script>
+        <h:outputStylesheet name="css/template.css" library="pages" />
+    </ui:define>
+</ui:composition>
